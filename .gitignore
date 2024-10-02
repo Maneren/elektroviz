@@ -2,3 +2,5 @@ include
 lib
 bin
 .idea
+.cache
+compile_commands.json
