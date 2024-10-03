@@ -51,7 +51,7 @@ else
 	PATHSEP := /
 	MKDIR := mkdir -p
 	RM := rm -rf
-	COPY = cp $1$(PATHSEP)$3 $2
+	COPY = cp -r $1$(PATHSEP)$3 $2
 endif
 
 # Lists phony targets for Makefile
@@ -73,6 +73,7 @@ include: submodules
 	$(call COPY,vendor/raylib/src,./include,raylib.h)
 	$(call COPY,vendor/raylib/src,./include,raymath.h)
 	$(call COPY,vendor/raylib-cpp/include,./include,*.hpp)
+	$(call COPY,vendor/json/include,./include,nlohmann)
 
 # Build the raylib static library file and copy it into lib
 lib: submodules
