@@ -6,12 +6,9 @@
 #include <vector>
 
 int main() {
-  // Initialization
-  int screenWidth = 800;
-  int screenHeight = 450;
-
   raylib::Color textColor(LIGHTGRAY);
-  raylib::Window w(screenWidth, screenHeight, "Raylib C++ Starter Kit Example");
+  raylib::Window w(SCREEN_WIDTH, SCREEN_HEIGHT,
+                   "ELEKTROVIZ - A simple simulation of electric fields");
 
   SetTargetFPS(60);
 
