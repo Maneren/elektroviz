@@ -6,7 +6,7 @@ void Charge::update(float timeDelta) { _strength = strengthFn(timeDelta); }
 
 void Charge::draw() {
   auto color = lerp(NEGATIVE, POSITIVE, Normalize(_strength, -4, 4));
-  _position.DrawCircle(5, color);
+  _position.DrawCircle(_strength, color);
 }
 
 const raylib::Color Charge::POSITIVE = raylib::Color(255, 0, 0, 255);
