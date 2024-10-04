@@ -5,7 +5,7 @@
 
 void Charge::update(float timeDelta) { _strength = strengthFn(timeDelta); }
 
-void Charge::draw() {
+void Charge::draw() const {
   auto color = lerp(NEGATIVE, POSITIVE, Normalize(_strength, -4, 4));
   (_position * GLOBAL_SCALE).DrawCircle(10 * _strength, color);
 }

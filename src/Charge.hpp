@@ -44,7 +44,7 @@ public:
   Charge(const raylib::Vector2 &position, const ChargeStrength &strength)
       : _position(position), strengthFn(strength) {};
   void update(float elapsed);
-  void draw();
+  void draw() const;
 
   raylib::Vector2 position() const { return _position; }
   float strength() const { return _strength; }
