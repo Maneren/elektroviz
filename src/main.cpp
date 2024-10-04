@@ -1,11 +1,14 @@
 #include "Charge.hpp"
 #include "field.hpp"
+#include "raylib.h"
 #include <format>
 #include <print>
 #include <raylib-cpp.hpp>
 #include <vector>
 
 int main() {
+  SetConfigFlags(FLAG_MSAA_4X_HINT);
+
   raylib::Color textColor(LIGHTGRAY);
   raylib::Window w(SCREEN_WIDTH, SCREEN_HEIGHT,
                    "ELEKTROVIZ - A simple simulation of electric fields");
