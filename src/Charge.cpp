@@ -1,7 +1,14 @@
 #include "Charge.hpp"
+#include "MathEval.hpp"
 #include "defs.hpp"
 #include "utils.hpp"
 #include <raymath.h>
+
+float VariableChargeStrength::operator()(float elapsed) const {
+  auto vars = variables;
+  vars["t"] = elapsed;
+  return evaluate(func, vars);
+}
 
 void Charge::update(float timeDelta) { _strength = strengthFn(timeDelta); }
 

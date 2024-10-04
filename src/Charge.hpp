@@ -1,6 +1,5 @@
 #pragma once
 #include <format>
-#include <functional>
 #include <raylib-cpp.hpp>
 
 class ChargeStrength {
@@ -15,14 +14,14 @@ public:
   const float strength;
 };
 
+static const std::unordered_map<std::string, float> variables{{"t", 0.0f},
+                                                              {"pi", PI}};
+
 class VariableChargeStrength : public ChargeStrength {
 public:
-  VariableChargeStrength(const std::string &label,
-                         const std::function<float(float)> func)
-      : label(label), func(func) {}
-  float operator()(float elapsed) const { return func(elapsed); }
-  const std::string &label;
-  const std::function<float(float)> func;
+  VariableChargeStrength(const std::string &func) : func(func) {}
+  float operator()(float elapsed) const;
+  const std::string &func;
 
 };
 
@@ -46,7 +45,7 @@ template <> struct std::formatter<VariableChargeStrength> {
   constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
   template <typename FormatContext>
   auto format(const VariableChargeStrength &c, FormatContext &ctx) const {
-    return std::format_to(ctx.out(), "Variable({})", c.label);
+    return std::format_to(ctx.out(), "Variable({})", c.func);
   }
 };
 
