@@ -9,7 +9,7 @@
 #include <vector>
 
 int main() {
-  SetConfigFlags(FLAG_MSAA_4X_HINT);
+  SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
 
   raylib::Color textColor(LIGHTGRAY);
   raylib::Window w(SCREEN_WIDTH, SCREEN_HEIGHT,
@@ -40,6 +40,8 @@ int main() {
     auto time = GetTime();
     auto frameTime = GetFrameTime();
 
+    camera.SetOffset(w.GetSize() / 2.f);
+
     // Update
     for (auto &charge : charges) {
       charge.update(time);
@@ -55,6 +57,10 @@ int main() {
       charge.draw();
     }
     probe.draw<10.f, true>();
+
+    auto fps_text = std::format("FPS: {}", GetFPS());
+    auto text_pos = (-w.GetSize() / 2.f) + raylib::Vector2{10, 10};
+    DrawText(fps_text, text_pos.x, text_pos.y, FONT_SIZE, textColor);
 
     camera.EndMode();
     w.EndDrawing();
