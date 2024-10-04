@@ -11,4 +11,5 @@ static uint SCREEN_HEIGHT = 600;
 constexpr float EPSILON_0 = 8.8541878128e-12;
 constexpr float K_E = 1 / (4 * PI * EPSILON_0);
 
-constexpr float GLOBAL_SCALE = 10.0f;
+constexpr float GLOBAL_SCALE = 40.0f;
+constexpr float FONT_SIZE = 24.0f;
