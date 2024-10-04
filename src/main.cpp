@@ -1,4 +1,6 @@
 #include "Charge.hpp"
+#include "Probe.hpp"
+#include "defs.hpp"
 #include "field.hpp"
 #include "raylib.h"
 #include <format>
@@ -15,7 +17,13 @@ int main() {
 
   SetTargetFPS(60);
 
-  Charge charge({0, 0}, ConstantChargeStrength(10.0f));
+  auto screen_center = raylib::Vector2{static_cast<float>(SCREEN_WIDTH / 2.),
+                                       static_cast<float>(SCREEN_HEIGHT / 2.)};
+
+  // make 0,0 the center of the screen
+  Camera2D camera(screen_center, {0, 0}, 0.0f, 1.0f);
+
+  Charge charge({0, 0}, ConstantChargeStrength(1.0f));
   charge.update(0.0f);
 
   std::vector<Charge> charges = {charge};
@@ -24,6 +32,8 @@ int main() {
   auto field = eFieldAt(point, charges);
   std::println("Charge at ({}, {}) is {} V/m", point.x, point.y,
                field.Length());
+
+  Probe probe({0, 1}, GREEN);
 
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
@@ -34,13 +44,19 @@ int main() {
     for (auto &charge : charges) {
       charge.update(frameTime);
     }
+    probe.update(charges);
 
     // Draw
     BeginDrawing();
     ClearBackground(RAYWHITE);
-    textColor.DrawText("Congrats! You created your first window!", 190, 200,
-                       20);
-    charge.draw();
+    BeginMode2D(camera);
+
+    for (auto &charge : charges) {
+      charge.draw();
+    }
+    probe.draw<10.f, true>();
+
+    EndMode2D();
     EndDrawing();
   }
 
