@@ -4,6 +4,7 @@
 #include "field.hpp"
 #include "raylib.h"
 #include <format>
+#include <memory>
 #include <print>
 #include <raylib-cpp.hpp>
 #include <vector>
@@ -33,7 +34,9 @@ int main() {
   std::println("Charge at ({}, {}) is {} V/m", point.x, point.y,
                field.Length());
 
-  Probe probe({0, 1}, GREEN);
+  Probe probe(
+      std::make_unique<RotatingPosition>(raylib::Vector2{0, 0}, 1.f, PI / 6.f),
+      GREEN);
 
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
@@ -44,7 +47,7 @@ int main() {
     for (auto &charge : charges) {
       charge.update(frameTime);
     }
-    probe.update(charges);
+    probe.update(frameTime, charges);
 
     // Draw
     BeginDrawing();
