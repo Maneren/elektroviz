@@ -28,7 +28,7 @@ public:
                        draw_position.y - 2 * FONT_SIZE, FONT_SIZE, color);
     }
 
-    sample /= 100000000.;
+    sample /= 1000000000.;
 
     auto length = sample.Length();
     auto direction = sample.Normalize();
