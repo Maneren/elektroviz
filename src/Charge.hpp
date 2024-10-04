@@ -23,18 +23,37 @@ public:
   float operator()(float elapsed) const { return func(elapsed); }
   const std::string &label;
   const std::function<float(float)> func;
+
+};
+
+template <> struct std::formatter<ChargeStrength> {
+  constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
+  template <typename FormatContext>
+  auto format(const ChargeStrength &c, FormatContext &ctx) const {
+    if (dynamic_cast<const ConstantChargeStrength *>(&c)) {
+      return std::format_to(ctx.out(), "{}",
+                            dynamic_cast<const ConstantChargeStrength &>(c));
+    } else if (dynamic_cast<const VariableChargeStrength *>(&c)) {
+      return std::format_to(ctx.out(), "{}",
+                            dynamic_cast<const VariableChargeStrength &>(c));
+    } else {
+      return std::format_to(ctx.out(), "Unknown");
+    }
+  }
 };
 
 template <> struct std::formatter<VariableChargeStrength> {
+  constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
   template <typename FormatContext>
-  auto format(VariableChargeStrength const &c, FormatContext &ctx) {
+  auto format(const VariableChargeStrength &c, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "Variable({})", c.label);
   }
 };
 
 template <> struct std::formatter<ConstantChargeStrength> {
+  constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
   template <typename FormatContext>
-  auto format(ConstantChargeStrength const &c, FormatContext &ctx) {
+  auto format(const ConstantChargeStrength &c, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "Constant({})", c.strength);
   }
 };
@@ -55,15 +74,14 @@ private:
   raylib::Vector2 _position;
   const ChargeStrength &strengthFn;
   float _strength;
-
   friend struct std::formatter<Charge>;
 };
 
 template <> struct std::formatter<Charge> {
   constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
   template <typename FormatContext>
-  auto format(Charge const &c, FormatContext &ctx) {
-    return std::format_to(ctx.out(), "Charge({}, {} ({}))", c.position(),
-                          c.strengthFn, c.strength());
+  auto format(Charge const &c, FormatContext &ctx) const {
+    return std::format_to(ctx.out(), "Charge({}, {} ({}))", c._position,
+                          c.strengthFn, c._strength);
   }
 };

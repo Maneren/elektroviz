@@ -4,7 +4,6 @@
 #include "Position.hpp"
 #include "defs.hpp"
 #include <format>
-#include <memory>
 #include <print>
 #include <raylib-cpp.hpp>
 
@@ -57,4 +56,15 @@ private:
   std::unique_ptr<Position> _position;
   raylib::Color color;
   raylib::Vector2 _sample;
+
+  friend struct std::formatter<Probe>;
+};
+
+template <> struct std::formatter<Probe> {
+  constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
+  template <typename FormatContext>
+  auto format(Probe const &p, FormatContext &ctx) const {
+    return std::format_to(ctx.out(), "Probe(position: {}, sample: {})",
+                          *p._position, p.sample());
+  }
 };

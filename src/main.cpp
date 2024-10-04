@@ -3,6 +3,7 @@
 #include "Probe.hpp"
 #include "defs.hpp"
 #include "raylib.h"
+#include <format>
 #include <memory>
 #include <print>
 #include <raylib-cpp.hpp>
@@ -34,7 +35,6 @@ int main() {
       std::make_unique<RotatingPosition>(raylib::Vector2{0, 0}, 1.f, PI / 6.f),
       GREEN);
 
-  // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
   {
     auto time = GetTime();
