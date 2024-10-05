@@ -1,6 +1,8 @@
 #include "Camera2D.hpp"
 #include "Charge.hpp"
+#include "Grid.hpp"
 #include "Probe.hpp"
+#include "Vector2.hpp"
 #include "defs.hpp"
 #include "raylib.h"
 #include <format>
@@ -18,11 +20,7 @@ int main() {
 
   w.SetTargetFPS(60);
 
-  auto screen_center = raylib::Vector2{static_cast<float>(SCREEN_WIDTH / 2.),
-                                       static_cast<float>(SCREEN_HEIGHT / 2.)};
-
-  // make 0,0 the center of the screen
-  raylib::Camera2D camera(screen_center, {0, 0}, 0.0f, 1.0f);
+  raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, 1.0f);
 
   std::vector<Charge> charges = {
       {{-1, -1}, ConstantChargeStrength(1.f)},
@@ -35,17 +33,27 @@ int main() {
       std::make_unique<RotatingPosition>(raylib::Vector2{0, 0}, 1.f, PI / 6.f),
       GREEN);
 
+  raylib::Vector2 last_screen_size = w.GetSize();
+
+  Grid grid(last_screen_size, 50.f);
+
+  // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
   {
     auto time = GetTime();
     auto frameTime = GetFrameTime();
 
-    camera.SetOffset(w.GetSize() / 2.f);
+    if (auto screen_size = w.GetSize(); !screen_size.Equals(last_screen_size)) {
+      // make 0,0 the center of the screen
+      camera.SetOffset(w.GetSize() / 2.f);
+      grid.resize(screen_size);
+    }
 
     // Update
     for (auto &charge : charges) {
       charge.update(time);
     }
+    grid.update(frameTime, charges);
     probe.update(frameTime, charges);
 
     // Draw
@@ -53,6 +61,7 @@ int main() {
     w.ClearBackground(RAYWHITE);
     camera.BeginMode();
 
+    grid.draw();
     for (auto &charge : charges) {
       charge.draw();
     }

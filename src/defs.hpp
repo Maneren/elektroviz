@@ -1,4 +1,5 @@
 #pragma once
+#include "Color.hpp"
 #include "raylib.h"
 #include <format>
 #include <raylib-cpp.hpp>
@@ -21,6 +22,14 @@ template <> struct std::formatter<raylib::Vector2> {
   template <typename FormatContext>
   auto format(raylib::Vector2 const &c, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "({}, {})", c.x, c.y);
+  }
+};
+
+template <> struct std::formatter<raylib::Color> {
+  constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
+  template <typename FormatContext>
+  auto format(raylib::Color const &c, FormatContext &ctx) const {
+    return std::format_to(ctx.out(), "({}, {}, {}, {})", c.r, c.g, c.b, c.a);
   }
 };
 
