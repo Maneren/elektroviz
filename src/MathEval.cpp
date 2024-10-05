@@ -172,6 +172,7 @@ parse_to_RPN(const std::string &input,
       case '-':
         if (!wasNumber)
           rpn_queue.push_back({TokenType::UnaryOperator, character, 0});
+        [[fallthrough]];
       case '^':
       case '*':
       case '/':
