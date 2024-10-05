@@ -5,7 +5,7 @@
 class Position {
 public:
   virtual raylib::Vector2 operator()() const = 0;
-  virtual void update(float timeDelta) = 0;
+  virtual void update(const float timeDelta) = 0;
   virtual ~Position() = default;
   friend struct std::formatter<Position>;
 };
@@ -14,7 +14,7 @@ class StaticPosition : public Position {
 public:
   StaticPosition(const raylib::Vector2 &position) : _position(position) {}
   raylib::Vector2 operator()() const override { return _position; }
-  void update([[maybe_unused]] float timeDelta) override {}
+  void update([[maybe_unused]] const float timeDelta) override {}
 
 private:
   const raylib::Vector2 _position;
@@ -23,14 +23,14 @@ private:
 
 class RotatingPosition : public Position {
 public:
-  RotatingPosition(const raylib::Vector2 &position, float radius,
-                   float velocity)
+  RotatingPosition(const raylib::Vector2 &position, const float radius,
+                   const float velocity)
       : _position(position), _offset(raylib::Vector2{radius, 0}),
         _velocity(velocity) {}
 
   raylib::Vector2 operator()() const override { return _position + _offset; }
 
-  void update(float timeDelta) override {
+  void update(const float timeDelta) override {
     _offset = _offset.Rotate(_velocity * timeDelta);
   }
 

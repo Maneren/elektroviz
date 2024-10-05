@@ -4,13 +4,15 @@
 
 class ChargeStrength {
 public:
-  virtual float operator()(float timeDelta) const = 0;
+  virtual float operator()(const float timeDelta) const = 0;
 };
 
 class ConstantChargeStrength : public ChargeStrength {
 public:
   ConstantChargeStrength(const float strength) : strength(strength) {}
-  float operator()([[maybe_unused]] float elapsed) const { return strength; }
+  float operator()([[maybe_unused]] const float elapsed) const {
+    return strength;
+  }
   const float strength;
 
 };
@@ -18,7 +20,7 @@ public:
 class VariableChargeStrength : public ChargeStrength {
 public:
   VariableChargeStrength(const std::string &func) : func(func) {}
-  float operator()(float elapsed) const;
+  float operator()(const float elapsed) const;
   const std::string &func;
 
 };
@@ -59,7 +61,7 @@ class Charge {
 public:
   Charge(const raylib::Vector2 &position, const ChargeStrength &strength)
       : _position(position), strengthFn(strength) {};
-  void update(float elapsed);
+  void update(const float elapsed);
   void draw() const;
 
   raylib::Vector2 position() const { return _position; }

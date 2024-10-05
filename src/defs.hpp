@@ -20,7 +20,7 @@ constexpr float FONT_SIZE = 24.0f;
 template <> struct std::formatter<raylib::Vector2> {
   constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
   template <typename FormatContext>
-  auto format(raylib::Vector2 const &c, FormatContext &ctx) const {
+  auto format(const raylib::Vector2 &c, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "({}, {})", c.x, c.y);
   }
 };
@@ -28,7 +28,7 @@ template <> struct std::formatter<raylib::Vector2> {
 template <> struct std::formatter<raylib::Color> {
   constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
   template <typename FormatContext>
-  auto format(raylib::Color const &c, FormatContext &ctx) const {
+  auto format(const raylib::Color &c, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "({}, {}, {}, {})", c.r, c.g, c.b, c.a);
   }
 };

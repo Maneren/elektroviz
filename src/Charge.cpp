@@ -4,13 +4,15 @@
 #include "utils.hpp"
 #include <raymath.h>
 
-float VariableChargeStrength::operator()(float elapsed) const {
+float VariableChargeStrength::operator()(const float elapsed) const {
   auto vars = variables;
   vars["t"] = elapsed;
   return evaluate(func, vars);
 }
 
-void Charge::update(float timeDelta) { _strength = strengthFn(timeDelta); }
+void Charge::update(const float timeDelta) {
+  _strength = strengthFn(timeDelta);
+}
 
 void Charge::draw() const {
   auto color = lerp(NEGATIVE, POSITIVE, Normalize(_strength, -4, 4));

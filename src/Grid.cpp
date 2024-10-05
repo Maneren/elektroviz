@@ -3,9 +3,9 @@
 
 void GridLine::draw() const { start.DrawLine(end, color); }
 
-std::vector<GridLine> generateLines(raylib::Vector2 size,
-                                    raylib::Vector2 spacing,
-                                    raylib::Color color) {
+std::vector<GridLine> generateLines(const raylib::Vector2 size,
+                                    const raylib::Vector2 spacing,
+                                    const raylib::Color color) {
   const auto size_half = size / 2.0f;
 
   std::vector<GridLine> lines;
@@ -23,7 +23,7 @@ std::vector<GridLine> generateLines(raylib::Vector2 size,
   return lines;
 }
 
-void Grid::resize(raylib::Vector2 size, const raylib::Vector2 spacing) {
+void Grid::resize(const raylib::Vector2 size, const raylib::Vector2 spacing) {
   lines = generateLines(size, spacing, color);
 }
 
@@ -33,4 +33,4 @@ void Grid::draw() const {
   }
 }
 
-void Grid::update(float timeDelta, std::vector<Charge> &charges) {}
+void Grid::update(const float timeDelta, const std::vector<Charge> &charges) {}
