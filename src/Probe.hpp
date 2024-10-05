@@ -1,9 +1,9 @@
 #pragma once
 #include "Charge.hpp"
-#include "Functions.hpp"
 #include "Position.hpp"
 #include "defs.hpp"
 #include <format>
+#include <memory>
 #include <print>
 #include <raylib-cpp.hpp>
 
