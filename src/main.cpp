@@ -14,7 +14,7 @@
 int main() {
   SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
 
-  raylib::Color textColor(LIGHTGRAY);
+  raylib::Color textColor(GRAY);
   raylib::Window w(SCREEN_WIDTH, SCREEN_HEIGHT,
                    "ELEKTROVIZ - A simple simulation of electric fields");
 
@@ -35,7 +35,8 @@ int main() {
 
   raylib::Vector2 last_screen_size = w.GetSize();
 
-  Grid grid(last_screen_size, 50.f);
+  raylib::Vector2 grid_spacing = {50.f, 30.f};
+  Grid grid(last_screen_size, grid_spacing, LIGHTGRAY);
 
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
@@ -46,7 +47,7 @@ int main() {
     if (auto screen_size = w.GetSize(); !screen_size.Equals(last_screen_size)) {
       // make 0,0 the center of the screen
       camera.SetOffset(w.GetSize() / 2.f);
-      grid.resize(screen_size);
+      grid.resize(screen_size, grid_spacing);
     }
 
     // Update
@@ -70,6 +71,12 @@ int main() {
     auto fps_text = std::format("FPS: {}", GetFPS());
     auto text_pos = (-w.GetSize() / 2.f) + raylib::Vector2{10, 10};
     DrawText(fps_text, text_pos.x, text_pos.y, FONT_SIZE, textColor);
+
+    // window size
+    auto window_text =
+        std::format("Window size: {}x{}", w.GetWidth(), w.GetHeight());
+    text_pos = (-w.GetSize() / 2.f) + raylib::Vector2{10, 40};
+    DrawText(window_text, text_pos.x, text_pos.y, FONT_SIZE, textColor);
 
     camera.EndMode();
     w.EndDrawing();

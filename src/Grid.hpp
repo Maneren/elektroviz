@@ -26,15 +26,21 @@ template <> struct std::formatter<GridLine> {
   }
 };
 
+std::vector<GridLine> generateLines(raylib::Vector2 size,
+                                    raylib::Vector2 spacing,
+                                    raylib::Color color);
+
 class Grid {
 public:
-  Grid(const raylib::Vector2 size, const float spacing);
+  Grid(const raylib::Vector2 size, const raylib::Vector2 spacing,
+       const raylib::Color color = raylib::Color::Gray())
+      : color(color), lines(generateLines(size, spacing, color)) {};
   void draw() const;
   void update(float timeDelta, std::vector<Charge> &charges);
-  void resize(raylib::Vector2 size);
+  void resize(raylib::Vector2 size, const raylib::Vector2 spacing);
 
 private:
-  float spacing;
+  const raylib::Color color;
   raylib::Vector2 origin;
   std::vector<GridLine> lines;
 };
