@@ -12,10 +12,8 @@ public:
   ConstantChargeStrength(const float strength) : strength(strength) {}
   float operator()([[maybe_unused]] float elapsed) const { return strength; }
   const float strength;
-};
 
-static const std::unordered_map<std::string, float> variables{{"t", 0.0f},
-                                                              {"pi", PI}};
+};
 
 class VariableChargeStrength : public ChargeStrength {
 public:

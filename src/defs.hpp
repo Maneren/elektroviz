@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include <format>
 #include <raylib-cpp.hpp>
+#include <unordered_map>
 
 using uint = unsigned int;
 
@@ -22,3 +23,6 @@ template <> struct std::formatter<raylib::Vector2> {
     return std::format_to(ctx.out(), "({}, {})", c.x, c.y);
   }
 };
+
+static const std::unordered_map<std::string, float> variables = {{"t", 0.0f},
+                                                                 {"pi", PI}};
