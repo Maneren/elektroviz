@@ -12,11 +12,12 @@
 #include <vector>
 
 int main() {
-  SetConfigFlags(FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
+  int flags = FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE;
 
   raylib::Color textColor(GRAY);
   raylib::Window w(SCREEN_WIDTH, SCREEN_HEIGHT,
-                   "ELEKTROVIZ - A simple simulation of electric fields");
+                   "ELEKTROVIZ - A simple simulation of electric fields",
+                   flags);
 
   w.SetTargetFPS(60);
 
@@ -41,8 +42,8 @@ int main() {
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
   {
-    auto time = GetTime();
-    auto frameTime = GetFrameTime();
+    auto time = w.GetTime();
+    auto frameTime = w.GetFrameTime();
 
     if (auto screen_size = w.GetSize(); !screen_size.Equals(last_screen_size)) {
       // make 0,0 the center of the screen
