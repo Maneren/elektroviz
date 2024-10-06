@@ -9,23 +9,22 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Set up MinGW
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          version: 14
+          platform: x64
       - name: make setup
         run: mingw32-make setup
         shell: cmd
       - name: make bin/elektroviz
-        run: mingw32-make bin/elektroviz
+        run: mingw32-make build
         shell: cmd
       - name: "export binary"
         uses: actions/upload-artifact@v4
         with:
           name: app.exe
           path: bin/elektroviz.exe
-      - name: make clean
-        run: mingw32-make clean
-        shell: cmd
-      - name: make bin/elektroviz CXX=g++
-        run: mingw32-make bin/elektroviz CXX=g++
-        shell: cmd
       - name: make clean
         run: mingw32-make clean
         shell: cmd

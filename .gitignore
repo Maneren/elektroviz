@@ -1,6 +1,6 @@
 include
 lib
-bin
+build
 .idea
 .cache
 compile_commands.json

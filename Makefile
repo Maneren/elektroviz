@@ -9,16 +9,6 @@
 rwildcard = $(wildcard $1$2) $(foreach d,$(wildcard $1*),$(call rwildcard,$d/,$2))
 platformpth = $(subst /,$(PATHSEP),$1)
 
-# Set global macros
-buildDir := bin
-executable := elektroviz
-target := $(buildDir)/$(executable)
-sources := $(call rwildcard,src/,*.cpp)
-objects := $(patsubst src/%, $(buildDir)/%, $(patsubst %.cpp, %.o, $(sources)))
-depends := $(patsubst %.o, %.d, $(objects))
-compileFlags := -std=c++23 -I include -Wall -Wextra
-linkFlags = -L lib/$(platform) -l raylib
-
 # Check for Windows
 ifeq ($(OS), Windows_NT)
 	# Set Windows macros
@@ -54,8 +44,31 @@ else
 	COPY = cp -r $1$(PATHSEP)$3 $2
 endif
 
+buildName := release
+CXXFLAGS += -g0 -O3
+RAYLIB_BUILD_MODE := RELEASE
+
+DEBUG ?= 0
+ifeq ($(DEBUG), 1)
+	buildName := debug
+	CXXFLAGS += -g3 -gdwarf-2 -O0 -Wall -Wextra
+	RAYLIB_BUILD_MODE := DEBUG
+endif
+
+# Set global macros
+buildDir := build
+buildTargetDir := $(buildDir)/$(platform)/$(buildName)
+buildLibDir := $(buildTargetDir)/lib
+executable := elektroviz
+target := $(buildTargetDir)/$(executable)
+sources := $(call rwildcard,src/,*.cpp)
+objects := $(patsubst src/%, $(buildTargetDir)/%, $(patsubst %.cpp, %.o, $(sources)))
+depends := $(patsubst %.o, %.d, $(objects))
+compileFlags += -std=c++23 -I include
+linkFlags = -L $(buildLibDir) -l raylib
+
 # Lists phony targets for Makefile
-.PHONY: all setup submodules execute clean
+.PHONY: all setup submodules lib build execute clean
 
 # Default target, compiles, executes and cleans
 all: $(target) execute clean
@@ -76,11 +89,15 @@ include: submodules
 	$(call COPY,vendor/json/include,./include,nlohmann)
 	$(call COPY,vendor/ranges-v3/include,./include,*/)
 
+lib: $(buildLibDir)/libraylib.a
+
 # Build the raylib static library file and copy it into lib
-lib: submodules
-	cd vendor/raylib/src $(THEN) "$(MAKE)" PLATFORM=PLATFORM_DESKTOP
-	$(MKDIR) $(call platformpth, lib/$(platform))
-	$(call COPY,vendor/raylib/src,lib/$(platform),libraylib.a)
+$(buildLibDir)/libraylib.a: submodules
+	cd vendor/raylib/src $(THEN) "$(MAKE)" clean raylib PLATFORM=PLATFORM_DESKTOP
+	$(MKDIR) $(call platformpth, $(buildLibDir))
+	$(call COPY,vendor/raylib/src,$(buildLibDir),libraylib.a)
+
+build: $(target)
 
 # Link the program and create the executable
 $(target): $(objects)
@@ -90,7 +107,7 @@ $(target): $(objects)
 -include $(depends)
 
 # Compile objects to the build directory
-$(buildDir)/%.o: src/%.cpp Makefile
+$(buildTargetDir)/%.o: src/%.cpp Makefile
 	$(MKDIR) $(call platformpth, $(@D))
 	$(CXX) -MMD -MP -c $(compileFlags) $< -o $@ $(CXXFLAGS)
 
