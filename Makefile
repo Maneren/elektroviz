@@ -98,6 +98,10 @@ $(buildDir)/%.o: src/%.cpp Makefile
 execute: $(target)
 	$(target) $(ARGS)
 
+# Run the executable with valgrind memcheck
+valgrind: $(target)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(target) $(ARGS)
+
 # Clean up all relevant files
 clean:
 	$(RM) $(call platformpth, $(buildDir)/*)
