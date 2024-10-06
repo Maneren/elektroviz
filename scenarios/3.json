@@ -1,0 +1,44 @@
+{
+  "charges": [
+    {
+      "strength": 1,
+      "position": {
+        "x": -1,
+        "y": -1
+      }
+    },
+    {
+      "strength": 2,
+      "position": {
+        "x": 1,
+        "y": -1
+      }
+    },
+    {
+      "strength": -3,
+      "position": {
+        "x": 1,
+        "y": 1
+      }
+    },
+    {
+      "strength": -4,
+      "position": {
+        "x": -1,
+        "y": 1
+      }
+    }
+  ],
+  "probes": [
+    {
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "rotation": {
+        "radius": 1,
+        "velocity": 0.523
+      }
+    }
+  ]
+}

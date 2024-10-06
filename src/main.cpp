@@ -6,12 +6,16 @@
 #include "defs.hpp"
 #include "raylib.h"
 #include <format>
+#include <fstream>
+#include <iostream>
 #include <memory>
+#include <nlohmann/json.hpp>
 #include <print>
 #include <raylib-cpp.hpp>
+#include <string>
 #include <vector>
 
-int main() {
+int main(int argc, char const *argv[]) {
   int flags = FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE;
 
   raylib::Color textColor(GRAY);
@@ -23,12 +27,44 @@ int main() {
 
   raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, 1.0f);
 
-  std::vector<Charge> charges = {
-      {{-1, -1}, ConstantChargeStrength(1.f)},
-      {{1, -1}, ConstantChargeStrength(2.f)},
-      {{1, 1}, ConstantChargeStrength(-3.f)},
-      {{-1, 1}, ConstantChargeStrength(-4.f)},
-  };
+  std::string scenario = "0.json";
+  if (argc > 1) {
+    scenario = std::string{argv[1]} + ".json";
+  }
+
+  auto scenarioFile = std::ifstream{"scenarios/" + scenario};
+  if (!scenarioFile) {
+    std::println("Failed to open scenario file: {}", scenario);
+    return 1;
+  }
+
+  json data = json::parse(scenarioFile);
+
+  std::println("Loaded scenario: {}", scenario);
+
+  std::vector<Charge> charges{};
+
+  for (const auto &charge : data["charges"]) {
+    auto position = charge["position"];
+    raylib::Vector2 pos{position["x"], position["y"]};
+
+    auto strength = charge["strength"];
+    if (strength.is_number()) {
+      charges.push_back(
+          Charge{pos, std::make_unique<ConstantChargeStrength>(strength)});
+    } else if (strength.is_string()) {
+      const std::string func = strength.get<std::string>();
+      charges.push_back(
+          Charge{pos, std::make_unique<VariableChargeStrength>(func)});
+    }
+  }
+
+  std::println("Loaded {} charge(s)", charges.size());
+  std::println("Charges: [");
+  for (const auto &charge : charges) {
+    std::println("\t{}", charge);
+  }
+  std::println("]");
 
   Probe probe(
       std::make_unique<RotatingPosition>(raylib::Vector2{0, 0}, 1.f, PI / 6.f),
