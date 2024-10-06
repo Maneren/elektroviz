@@ -32,6 +32,20 @@ int main(int argc, char const *argv[]) {
     scenario = std::string{argv[1]} + ".json";
   }
 
+  raylib::Vector2 grid_spacing = {50.f, 50.f};
+  if (argc > 2) {
+    std::string size_spec = std::string{argv[2]};
+    if (size_spec.find("x") != std::string::npos) {
+      grid_spacing =
+          raylib::Vector2{std::stof(size_spec.substr(0, size_spec.find("x"))),
+                          std::stof(size_spec.substr(size_spec.find("x") + 1))};
+    } else {
+      std::println(std::cerr,
+                   "Invalid size spec: '{}'. Expected format is 'WIDTHxHEIGHT'",
+                   size_spec);
+    }
+  }
+
   auto scenarioFile = std::ifstream{"scenarios/" + scenario};
   if (!scenarioFile) {
     std::println("Failed to open scenario file: {}", scenario);
@@ -72,7 +86,6 @@ int main(int argc, char const *argv[]) {
 
   raylib::Vector2 last_screen_size = w.GetSize();
 
-  raylib::Vector2 grid_spacing = {50.f, 30.f};
   Grid grid(last_screen_size, grid_spacing, LIGHTGRAY);
 
   // Main game loop
