@@ -125,8 +125,12 @@ int main(int argc, char const *argv[]) {
     // window size
     auto window_text =
         std::format("Window size: {}x{}", w.GetWidth(), w.GetHeight());
-    text_pos = (-w.GetSize() / 2.f) + raylib::Vector2{10, 40};
-    DrawText(window_text, text_pos.x, text_pos.y, FONT_SIZE, textColor);
+    DrawText(window_text, text_pos.x, text_pos.y + FONT_SIZE, FONT_SIZE,
+             textColor);
+
+    auto scenario_text = std::format("Scenario: {}", scenario);
+    DrawText(scenario_text, text_pos.x, text_pos.y + 2 * FONT_SIZE, FONT_SIZE,
+             textColor);
 
     camera.EndMode();
     w.EndDrawing();
