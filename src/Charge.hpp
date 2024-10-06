@@ -16,17 +16,13 @@ public:
     return strength;
   }
   const float strength;
-
 };
 
 class VariableChargeStrength : public ChargeStrength {
 public:
-  VariableChargeStrength(const std::string &func) : func(func) {
-    std::println("VariableChargeStrength constructor func: {}", this->func);
-  }
+  VariableChargeStrength(const std::string &func) : func(func) {}
   float operator()(const float elapsed) const;
   const std::string func;
-
 };
 
 template <> struct std::formatter<ChargeStrength> {
