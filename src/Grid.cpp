@@ -33,4 +33,5 @@ void Grid::draw() const {
   }
 }
 
-void Grid::update(const float timeDelta, const std::vector<Charge> &charges) {}
+void Grid::update(const float timeDelta, const float elapsedTime,
+                  const std::vector<Charge> &charges) {}

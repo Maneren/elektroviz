@@ -10,8 +10,9 @@ float VariableChargeStrength::operator()(const float elapsed) const {
   return evaluate(func, vars);
 }
 
-void Charge::update(const float timeDelta) {
-  _strength = (*strengthFn)(timeDelta);
+void Charge::update([[maybe_unused]] const float timeDelta,
+                    const float elapsedTime) {
+  _strength = (*strengthFn)(elapsedTime);
 }
 
 void Charge::draw() const {

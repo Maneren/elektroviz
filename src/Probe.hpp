@@ -15,7 +15,8 @@ public:
   Probe(Probe &&) = default;
   Probe &operator=(Probe &&) = default;
 
-  void update(const float timeDelta, const std::vector<Charge> &charges);
+  void update(const float timeDelta, const float elapsedTime,
+              const std::vector<Charge> &charges);
 
   template <const float CIRCLE_RADIUS = 8.f, const bool TEXT = false>
   void draw() {

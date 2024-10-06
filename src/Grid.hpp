@@ -36,7 +36,8 @@ public:
        const raylib::Color color = raylib::Color::Gray())
       : color(color), lines(generateLines(size, spacing, color)) {};
   void draw() const;
-  void update(const float timeDelta, const std::vector<Charge> &charges);
+  void update(const float timeDelta, const float elapsedTime,
+              const std::vector<Charge> &charges);
   void resize(const raylib::Vector2 size, const raylib::Vector2 spacing);
 
 private:

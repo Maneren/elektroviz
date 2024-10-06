@@ -89,10 +89,10 @@ int main(int argc, char const *argv[]) {
 
     // Update
     for (auto &charge : charges) {
-      charge.update(time);
+      charge.update(frameTime, time);
     }
-    grid.update(frameTime, charges);
-    probe.update(frameTime, charges);
+    grid.update(frameTime, time, charges);
+    probe.update(frameTime, time, charges);
 
     // Draw
     w.BeginDrawing();

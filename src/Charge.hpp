@@ -5,7 +5,7 @@
 
 class ChargeStrength {
 public:
-  virtual float operator()(const float timeDelta) const = 0;
+  virtual float operator()(const float elapsed) const = 0;
   virtual ~ChargeStrength() = default;
 };
 
@@ -71,7 +71,7 @@ public:
   Charge(Charge &&) = default;
   Charge &operator=(Charge &&) = default;
 
-  void update(const float elapsed);
+  void update(const float timeDelta, const float elapsedTime);
   void draw() const;
 
   raylib::Vector2 position() const { return _position; }
