@@ -1,10 +1,12 @@
 #pragma once
 #include <format>
+#include <memory>
 #include <raylib-cpp.hpp>
 
 class ChargeStrength {
 public:
   virtual float operator()(const float timeDelta) const = 0;
+  virtual ~ChargeStrength() = default;
 };
 
 class ConstantChargeStrength : public ChargeStrength {
@@ -19,9 +21,11 @@ public:
 
 class VariableChargeStrength : public ChargeStrength {
 public:
-  VariableChargeStrength(const std::string &func) : func(func) {}
+  VariableChargeStrength(const std::string &func) : func(func) {
+    std::println("VariableChargeStrength constructor func: {}", this->func);
+  }
   float operator()(const float elapsed) const;
-  const std::string &func;
+  const std::string func;
 
 };
 
@@ -59,8 +63,14 @@ template <> struct std::formatter<ConstantChargeStrength> {
 
 class Charge {
 public:
-  Charge(const raylib::Vector2 &position, const ChargeStrength &strength)
-      : _position(position), strengthFn(strength) {};
+  Charge(const Charge &) = delete;
+  Charge(const raylib::Vector2 &position,
+         std::unique_ptr<ChargeStrength> strength)
+      : _position(position), strengthFn(std::move(strength)) {};
+
+  Charge(Charge &&) = default;
+  Charge &operator=(Charge &&) = default;
+
   void update(const float elapsed);
   void draw() const;
 
@@ -71,7 +81,7 @@ private:
   static const raylib::Color POSITIVE;
   static const raylib::Color NEGATIVE;
   raylib::Vector2 _position;
-  const ChargeStrength &strengthFn;
+  std::unique_ptr<ChargeStrength> strengthFn;
   float _strength;
   friend struct std::formatter<Charge>;
 };
@@ -81,6 +91,6 @@ template <> struct std::formatter<Charge> {
   template <typename FormatContext>
   auto format(Charge const &c, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "Charge({}, {} ({}))", c._position,
-                          c.strengthFn, c._strength);
+                          *c.strengthFn, c._strength);
   }
 };

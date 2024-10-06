@@ -11,6 +11,10 @@ class Probe {
 public:
   Probe(std::unique_ptr<Position> position, const raylib::Color &color)
       : _position(std::move(position)), color(color) {};
+
+  Probe(Probe &&) = default;
+  Probe &operator=(Probe &&) = default;
+
   void update(const float timeDelta, const std::vector<Charge> &charges);
 
   template <const float CIRCLE_RADIUS = 8.f, const bool TEXT = false>
@@ -63,8 +67,8 @@ private:
 template <> struct std::formatter<Probe> {
   constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
   template <typename FormatContext>
-  auto format(Probe const &p, FormatContext &ctx) const {
+  auto format(const Probe &p, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "Probe(position: {}, sample: {})",
-                          *p._position, p.sample());
+                          *p._position, p._sample);
   }
 };
