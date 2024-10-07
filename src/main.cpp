@@ -52,7 +52,7 @@ int main(int argc, char const *argv[]) {
     return 1;
   }
 
-  json data = json::parse(scenarioFile);
+  nlohmann::json data = nlohmann::json::parse(scenarioFile);
 
   std::println("Loaded scenario: {}", scenario);
 
