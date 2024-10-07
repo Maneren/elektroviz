@@ -45,13 +45,13 @@ else
 endif
 
 buildName := release
-CXXFLAGS += -g0 -O3
+CXXFLAGS := -g0 -O3
 RAYLIB_BUILD_MODE := RELEASE
 
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
 	buildName := debug
-	CXXFLAGS += -g3 -gdwarf-2 -O0 -Wall -Wextra
+	CXXFLAGS := -g3 -gdwarf-2 -O0 -Wall -Wextra
 	RAYLIB_BUILD_MODE := DEBUG
 endif
 
@@ -98,6 +98,18 @@ $(buildLibDir)/libraylib.a: submodules
 	$(call COPY,vendor/raylib/src,$(buildLibDir),libraylib.a)
 
 build: $(target)
+
+xorg-macros:
+	mkdir -p vendor/xorg-macros
+	curl -L "https://xorg.freedesktop.org/releases/individual/util/util-macros-1.20.1.tar.xz" | \
+		tar -xvJ --directory=vendor/xorg-macros --strip-components=1
+	cd vendor/xorg-macros $(THEN) ./configure 
+	cd vendor/xorg-macros $(THEN) "$(MAKE)" xorg-macros.m4
+
+x11: submodules xorg-macros
+	cd vendor/X11 $(THEN) NOCONFIGURE=1 ./autogen.sh
+	cd vendor/X11 $(THEN) CFLAGS="$CFLAGS -ffat-lto-objects" ./configure --prefix="/usr" --disable-xf86bigfont
+	cd vendor/X11 $(THEN) "$(MAKE)"
 
 # Link the program and create the executable
 $(target): $(objects)
