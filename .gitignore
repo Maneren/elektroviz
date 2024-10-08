@@ -1,5 +1,4 @@
 include
-lib
 build
 .idea
 .cache

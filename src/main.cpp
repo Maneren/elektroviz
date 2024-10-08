@@ -1,8 +1,6 @@
-#include "Camera2D.hpp"
 #include "Charge.hpp"
 #include "Grid.hpp"
 #include "Probe.hpp"
-#include "Vector2.hpp"
 #include "defs.hpp"
 #include "raylib.h"
 #include <format>
