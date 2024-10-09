@@ -3,3 +3,6 @@
 
 raylib::Color lerpColor(const raylib::Color a, const raylib::Color b,
                         const float t);
+
+raylib::Color lerpColor3(const raylib::Color a, const raylib::Color b,
+                         const raylib::Color c, const float t);
