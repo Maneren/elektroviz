@@ -37,17 +37,6 @@ void load_charges_from_json(std::vector<Charge> &charges, nlohmann::json data) {
 }
 
 int main(int argc, char const *argv[]) {
-  int flags = FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE;
-
-  raylib::Color textColor(GRAY);
-  raylib::Window w(SCREEN_WIDTH, SCREEN_HEIGHT,
-                   "ELEKTROVIZ - A simple simulation of electric fields",
-                   flags);
-
-  w.SetTargetFPS(60);
-
-  raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, 1.0f);
-
   std::string scenario = "0.json";
   if (argc > 1) {
     scenario = std::string{argv[1]} + ".json";
@@ -94,17 +83,28 @@ int main(int argc, char const *argv[]) {
       std::make_unique<RotatingPosition>(raylib::Vector2{0, 0}, 1.f, PI / 6.f),
       GREEN);
 
-  raylib::Vector2 last_screen_size = w.GetSize();
+  auto last_screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
 
   Grid grid(last_screen_size, grid_spacing, LIGHTGRAY);
+
+  double time = 0.0f;
+  raylib::Color textColor(GRAY);
+  raylib::Window w(SCREEN_WIDTH, SCREEN_HEIGHT,
+                   "ELEKTROVIZ - A simple simulation of electric fields",
+                   FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
+
+  w.SetTargetFPS(60);
+
+  raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, 1.0f);
 
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
   {
-    auto time = w.GetTime();
+    time = w.GetTime();
     auto frameTime = w.GetFrameTime();
 
     if (auto screen_size = w.GetSize(); !screen_size.Equals(last_screen_size)) {
+      last_screen_size = screen_size;
       // make 0,0 the center of the screen
       camera.SetOffset(w.GetSize() / 2.f);
       grid.resize(screen_size, grid_spacing);
