@@ -26,17 +26,16 @@ else
 	ifeq ($(UNAMEOS), Linux)
 		# Set Linux macros
 		platform := Linux
-		CXX ?= g++
 		linkFlags += -l GL -l m -l pthread -l dl -l rt -l X11
 	endif
 	ifeq ($(UNAMEOS), Darwin)
 		# Set macOS macros
 		platform := macOS
-		CXX ?= clang++
 		linkFlags += -framework CoreVideo -framework IOKit -framework Cocoa -framework GLUT -framework OpenGL
 	endif
 
 	# Set UNIX macros
+	CXX ?= clang++
 	THEN := ;
 	PATHSEP := /
 	MKDIR := mkdir -p
@@ -93,7 +92,14 @@ lib: $(buildLibDir)/libraylib.a
 
 # Build the raylib static library file and copy it into lib
 $(buildLibDir)/libraylib.a: submodules
-	cd vendor/raylib/src $(THEN) "$(MAKE)" clean raylib PLATFORM=PLATFORM_DESKTOP
+	cd vendor/raylib/src $(THEN) "$(MAKE)" clean
+	cd vendor/raylib/src $(THEN) "$(MAKE)" raylib \
+		PLATFORM=PLATFORM_DESKTOP \
+		RAYLIB_BUILD_MODE=$(RAYLIB_BUILD_MODE) \
+		RAYLIB_MODULE_AUDIO=FALSE \
+		RAYLIB_MODULE_MODELS=FALSE \
+		GRAPHICS=GRAPHICS_API_OPENGL_43 \
+		CC=clang
 	$(MKDIR) $(call platformpth, $(buildLibDir))
 	$(call COPY,vendor/raylib/src,$(buildLibDir),libraylib.a)
 
