@@ -17,6 +17,8 @@ void Charge::update([[maybe_unused]] const float timeDelta,
 
 void Charge::draw() const {
   auto color = lerpColor(NEGATIVE, POSITIVE, Normalize(_strength, -4, 4));
+  (_position * GLOBAL_SCALE)
+      .DrawCircle(2 + 10 * std::abs(_strength), raylib::Color::Black());
   (_position * GLOBAL_SCALE).DrawCircle(10 * std::abs(_strength), color);
 }
 
