@@ -129,7 +129,7 @@ execute: $(target)
 
 # Run the executable with valgrind memcheck
 valgrind: $(target)
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes $(target) $(ARGS)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no $(target) $(ARGS)
 
 # Clean up all relevant files
 clean:
