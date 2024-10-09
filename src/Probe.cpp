@@ -4,5 +4,5 @@
 void Probe::update(const float timeDelta, const float elapsedTime,
                    const std::vector<Charge> &charges) {
   _position->update(timeDelta, elapsedTime);
-  _sample = eFieldAt((*_position)(), charges);
+  _sample = EFieldAt((*_position)(), charges);
 }
