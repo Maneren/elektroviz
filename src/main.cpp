@@ -13,6 +13,29 @@
 #include <string>
 #include <vector>
 
+std::optional<nlohmann::json> load_scenario_json(std::string scenario) {
+  auto scenarioFile = std::ifstream{"scenarios/" + scenario};
+  return scenarioFile ? std::optional{nlohmann::json::parse(scenarioFile)}
+                      : std::nullopt;
+}
+
+void load_charges_from_json(std::vector<Charge> &charges, nlohmann::json data) {
+  for (const auto &charge : data["charges"]) {
+    auto position = charge["position"];
+    raylib::Vector2 pos{position["x"], position["y"]};
+
+    auto strength = charge["strength"];
+    if (strength.is_number()) {
+      charges.push_back(
+          Charge{pos, std::make_unique<ConstantChargeStrength>(strength)});
+    } else if (strength.is_string()) {
+      const std::string func = strength.get<std::string>();
+      charges.push_back(
+          Charge{pos, std::make_unique<VariableChargeStrength>(func)});
+    }
+  }
+}
+
 int main(int argc, char const *argv[]) {
   int flags = FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE;
 
@@ -44,36 +67,25 @@ int main(int argc, char const *argv[]) {
     }
   }
 
-  auto scenarioFile = std::ifstream{"scenarios/" + scenario};
-  if (!scenarioFile) {
-    std::println("Failed to open scenario file: {}", scenario);
-    return 1;
-  }
-
-  nlohmann::json data = nlohmann::json::parse(scenarioFile);
-
-  std::println("Loaded scenario: {}", scenario);
-
   std::vector<Charge> charges{};
+  {
+    auto scenarion_result = load_scenario_json(scenario);
 
-  for (const auto &charge : data["charges"]) {
-    auto position = charge["position"];
-    raylib::Vector2 pos{position["x"], position["y"]};
-
-    auto strength = charge["strength"];
-    if (strength.is_number()) {
-      charges.push_back(
-          Charge{pos, std::make_unique<ConstantChargeStrength>(strength)});
-    } else if (strength.is_string()) {
-      const std::string func = strength.get<std::string>();
-      charges.push_back(
-          Charge{pos, std::make_unique<VariableChargeStrength>(func)});
+    if (!scenarion_result) {
+      std::println(std::cerr, "Failed to load scenario: {}", scenario);
+      return 1;
     }
-  }
+
+    auto data = scenarion_result.value();
+
+    std::println("Loaded scenario: {}", scenario);
+
+    load_charges_from_json(charges, data);
+  };
 
   std::println("Loaded {} charge(s)", charges.size());
   std::println("Charges: [");
-  for (const auto &charge : charges) {
+  for (const Charge &charge : charges) {
     std::println("\t{}", charge);
   }
   std::println("]");
