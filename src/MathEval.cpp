@@ -1,12 +1,8 @@
 #include "MathEval.hpp"
-#include <cctype>
 #include <cmath>
 #include <functional>
-#include <print>
 #include <stack>
 #include <stdexcept>
-#include <string>
-#include <unordered_map>
 
 class parser_exception : public std::runtime_error {
 public:
@@ -39,27 +35,28 @@ bool is_letter(char c) {
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-int op_precedence(char ch) {
+int op_precedence(char ch, uint nested) {
+  nested *= 5; // one more than max precedence
   switch (ch) {
   case 0: // function
-    return 4;
+    return nested + 4;
   case '^':
-    return 3;
+    return nested + 3;
   case '*':
   case '/':
-    return 3;
+    return nested + 3;
   case '+':
   case '-':
-    return 1;
+    return nested + 1;
   default:
     return -1;
   }
 }
 
 static void push_with_precedence(std::stack<Token> &stack, Token token,
-                                 std::deque<Token> &postfix) {
-  int precedence = op_precedence(token.ch);
-  while (!stack.empty() && op_precedence(stack.top().ch) >= precedence) {
+                                 std::deque<Token> &postfix, uint nested) {
+  token.prec = op_precedence(token.ch, nested);
+  while (!stack.empty() && stack.top().prec >= token.prec) {
     postfix.push_back(stack.top());
     stack.pop();
   }
@@ -101,6 +98,8 @@ parse_to_RPN(const std::string &input,
 
   auto it = input.begin();
   bool wasNumber = false;
+
+  uint bracketLevel = 0;
 
   while (it != input.end()) {
     if (std::isspace(*it)) {
@@ -147,10 +146,11 @@ parse_to_RPN(const std::string &input,
         }
       }
       rpn_queue.push_back({TokenType::Number, 0, value});
+      wasNumber = true;
     } else if (is_letter(character)) {
       if (wasNumber) {
         push_with_precedence(op_stack, Token{TokenType::BinaryOperator, '*', 0},
-                             rpn_queue);
+                             rpn_queue, bracketLevel);
       }
 
       auto start = it;
@@ -162,8 +162,9 @@ parse_to_RPN(const std::string &input,
         rpn_queue.push_back({TokenType::Number, 0, var->second});
         wasNumber = true;
       } else {
-        push_with_precedence(op_stack, {TokenType::UnaryOperator, 0, 0, token},
-                             rpn_queue);
+        push_with_precedence(op_stack,
+                             {TokenType::UnaryOperator, 0, 0, 0, token},
+                             rpn_queue, bracketLevel);
         wasNumber = false;
       }
     } else {
@@ -185,23 +186,30 @@ parse_to_RPN(const std::string &input,
         wasNumber = false;
         push_with_precedence(op_stack,
                              Token{TokenType::BinaryOperator, character, 0},
-                             rpn_queue);
+                             rpn_queue, bracketLevel);
         ++it;
         break;
       case '(': {
         if (wasNumber) {
-          push_with_precedence(
-              op_stack, Token{TokenType::BinaryOperator, '*', 0}, rpn_queue);
-          wasNumber = false;
+          push_with_precedence(op_stack,
+                               Token{TokenType::BinaryOperator, '*', 0},
+                               rpn_queue, bracketLevel);
         }
-        std::string brackets = load_brackets(input, it);
 
-        float result = evaluate(brackets, vars);
-
-        rpn_queue.push_back({TokenType::Number, 0, result});
-        wasNumber = true;
+        bracketLevel++;
+        it++;
+        wasNumber = false;
         break;
       }
+      case ')':
+        if (bracketLevel == 0)
+          throw parser_exception("Missmatched bracket found", input,
+                                 std::distance(input.begin(), it));
+
+        bracketLevel--;
+        it++;
+        wasNumber = true;
+        break;
       default:
         throw parser_exception(std::format("Unexpected symbol '{}'", character),
                                input, std::distance(input.begin(), it));
@@ -219,7 +227,6 @@ parse_to_RPN(const std::string &input,
 
 auto evaluate_RPN(const std::deque<Token> &postfix) {
   std::stack<float> stack{};
-
 
   for (const auto &token : postfix) {
     if (token.type == TokenType::Number) {
@@ -261,7 +268,6 @@ auto evaluate_RPN(const std::deque<Token> &postfix) {
 
   if (stack.size() != 1)
     throw parser_exception("Invalid expression");
-
 
   return stack.top();
 }

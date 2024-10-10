@@ -14,6 +14,7 @@ struct Token {
   TokenType type;
   char ch;
   float value;
+  uint prec = 0;
   std::string name = "";
 };
 
@@ -40,9 +41,9 @@ template <> struct std::formatter<Token> {
   constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
   template <typename FormatContext>
   auto format(const Token &p, FormatContext &ctx) const {
-    return std::format_to(ctx.out(),
-                          "Token(type: {}, char: {}, value: {}, name: {})",
-                          p.type, p.ch, p.value, p.name);
+    return std::format_to(
+        ctx.out(), "Token(type: {}, char: {}, value: {}, prec: {}, name: {})",
+        p.type, p.ch, p.value, p.prec, p.name);
   }
 };
 
