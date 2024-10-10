@@ -2,7 +2,6 @@
 #include "Grid.hpp"
 #include "Probe.hpp"
 #include "defs.hpp"
-#include "raylib.h"
 #include <format>
 #include <fstream>
 #include <iostream>
@@ -10,6 +9,7 @@
 #include <nlohmann/json.hpp>
 #include <print>
 #include <raylib-cpp.hpp>
+#include <raylib.h>
 #include <string>
 #include <vector>
 

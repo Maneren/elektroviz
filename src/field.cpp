@@ -1,6 +1,5 @@
 #include "field.hpp"
 #include "defs.hpp"
-#include <print>
 
 raylib::Vector2 EFieldAt(const raylib::Vector2 point,
                          const std::vector<Charge> &charges) {
