@@ -17,12 +17,12 @@ jobs:
         run: clang++ --version
       - name: make setup
         run: make setup
-      - name: make bin/elektroviz
+      - name: make build
         run: make build
       - name: "export binary"
         uses: actions/upload-artifact@v4
         with:
           name: app
-          path: bin/elektroviz
+          path: build/Linux/release/elektroviz
       - name: make clean
         run: make clean

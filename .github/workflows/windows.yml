@@ -19,14 +19,14 @@ jobs:
       - name: make setup
         run: mingw32-make setup
         shell: cmd
-      - name: make bin/elektroviz
+      - name: make build
         run: mingw32-make build
         shell: cmd
       - name: "export binary"
         uses: actions/upload-artifact@v4
         with:
           name: app.exe
-          path: bin/elektroviz.exe
+          path: build/Windows/release/elektroviz.exe
       - name: make clean
         run: mingw32-make clean
         shell: cmd
