@@ -18,14 +18,14 @@ public:
   void update(const float timeDelta, const float elapsedTime,
               const std::vector<Charge> &charges);
 
-  template <const bool TEXT = false> void draw() {
+  template <const bool ONLY_ARROW = false> void draw() const {
     auto draw_position = (*_position)() * GLOBAL_SCALE;
 
-    draw_position.DrawCircle(radius, color);
-
     auto sample = this->sample();
-    if constexpr (TEXT) {
-      auto msg = std::format("E = {} V/m", sample.Length());
+    if constexpr (!ONLY_ARROW) {
+      draw_position.DrawCircle(radius, color);
+
+      auto msg = std::format("E = {} N/C", sample.Length());
       int width = raylib::MeasureText(msg, FONT_SIZE);
       raylib::DrawText(msg.c_str(), draw_position.x - width / 2.f,
                        draw_position.y - 2 * FONT_SIZE, FONT_SIZE, color);

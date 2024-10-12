@@ -1,4 +1,8 @@
 #include "Grid.hpp"
+#include "Position.hpp"
+#include "Probe.hpp"
+#include "defs.hpp"
+#include <memory>
 #include <vector>
 
 void GridLine::draw() const { start.DrawLine(end, color); }
@@ -23,15 +27,46 @@ std::vector<GridLine> generateLines(const raylib::Vector2 size,
   return lines;
 }
 
+std::vector<Probe> generateProbes(const raylib::Vector2 size,
+                                  const raylib::Vector2 spacing,
+                                  const raylib::Color color) {
+
+  const auto world_size_half = size / 2.0f / GLOBAL_SCALE;
+  const auto world_spacing = spacing / GLOBAL_SCALE;
+
+  std::vector<Probe> probes;
+
+  for (float y = 0; y <= world_size_half.y; y += world_spacing.y) {
+    for (float x = 0; x <= world_size_half.x; x += world_spacing.x) {
+      for (raylib::Vector2 pos :
+           std::vector<raylib::Vector2>{{x, y}, {x, -y}, {-x, y}, {-x, -y}}) {
+        probes.push_back(
+            Probe{std::make_unique<StaticPosition>(pos), color, 0});
+      }
+    }
+  }
+
+  return probes;
+}
+
 void Grid::resize(const raylib::Vector2 size, const raylib::Vector2 spacing) {
   lines = generateLines(size, spacing, color);
+  probes = generateProbes(size, spacing, color);
 }
 
 void Grid::draw() const {
   for (auto &line : lines) {
     line.draw();
   }
+
+  for (auto &probe : probes) {
+    probe.draw<true>();
+  }
 }
 
 void Grid::update(const float timeDelta, const float elapsedTime,
-                  const std::vector<Charge> &charges) {}
+                  const std::vector<Charge> &charges) {
+  for (auto &probe : probes) {
+    probe.update(timeDelta, elapsedTime, charges);
+  }
+}

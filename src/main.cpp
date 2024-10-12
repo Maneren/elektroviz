@@ -8,7 +8,6 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <raylib-cpp.hpp>
-#include <raylib.h>
 #include <string>
 #include <vector>
 
@@ -83,11 +82,12 @@ int main(int argc, char const *argv[]) {
 
   Probe probe(
       std::make_unique<RotatingPosition>(raylib::Vector2{0, 0}, 1.f, PI / 6.f),
-      GREEN);
+      raylib::Color::Green());
 
   auto last_screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
 
   Grid grid(last_screen_size, grid_spacing, LIGHTGRAY);
+  grid.resize(last_screen_size, grid_spacing);
 
   double time = 0.0f;
   raylib::Color textColor(GRAY);
@@ -128,7 +128,7 @@ int main(int argc, char const *argv[]) {
     for (auto &charge : charges) {
       charge.draw();
     }
-    probe.draw<true>();
+    probe.draw();
 
     auto fps_text = std::format("FPS: {}", GetFPS());
     auto text_pos = (-w.GetSize() / 2.f) + raylib::Vector2{10, 10};

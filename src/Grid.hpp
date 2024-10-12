@@ -1,5 +1,6 @@
 #pragma once
 #include "Charge.hpp"
+#include "Probe.hpp"
 #include <raylib-cpp.hpp>
 
 class GridLine {
@@ -44,4 +45,5 @@ private:
   const raylib::Color color;
   raylib::Vector2 origin;
   std::vector<GridLine> lines;
+  std::vector<Probe> probes;
 };
