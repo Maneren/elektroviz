@@ -84,6 +84,7 @@ include: submodules
 	$(MKDIR) $(call platformpth, ./include)
 	$(call COPY,vendor/raylib/src,./include,raylib.h)
 	$(call COPY,vendor/raylib/src,./include,raymath.h)
+	$(call COPY,vendor/raylib/src,./include,rlgl.h)
 	$(call COPY,vendor/raylib-cpp/include,./include,*.hpp)
 	$(call COPY,vendor/json/include,./include,nlohmann)
 	$(call COPY,vendor/ranges-v3/include,./include,*/)
