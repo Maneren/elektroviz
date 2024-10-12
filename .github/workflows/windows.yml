@@ -12,7 +12,6 @@ jobs:
       - name: Set up MinGW
         uses: egor-tensin/setup-mingw@v2
         with:
-          version: 14
           platform: x64
       - name: CXX version
         run: g++ --version
