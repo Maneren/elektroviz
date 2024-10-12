@@ -7,7 +7,6 @@
 #include <iostream>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include <print>
 #include <raylib-cpp.hpp>
 #include <raylib.h>
 #include <string>
@@ -50,9 +49,12 @@ int main(int argc, char const *argv[]) {
           raylib::Vector2{std::stof(size_spec.substr(0, size_spec.find("x"))),
                           std::stof(size_spec.substr(size_spec.find("x") + 1))};
     } else {
-      std::println(std::cerr,
-                   "Invalid size spec: '{}'. Expected format is 'WIDTHxHEIGHT'",
-                   size_spec);
+
+      std::cerr
+          << std::format(
+                 "Invalid size spec: '{}'. Expected format is 'WIDTHxHEIGHT'",
+                 size_spec)
+          << std::endl;
     }
   }
 
@@ -61,23 +63,23 @@ int main(int argc, char const *argv[]) {
     auto scenarion_result = load_scenario_json(scenario);
 
     if (!scenarion_result) {
-      std::println(std::cerr, "Failed to load scenario: {}", scenario);
+      std::cerr << "Failed to load scenario: " << scenario << std::endl;
       return 1;
     }
 
     auto data = scenarion_result.value();
 
-    std::println("Loaded scenario: {}", scenario);
+    std::cout << "Loaded scenario: " << scenario << std::endl;
 
     load_charges_from_json(charges, data);
   };
 
-  std::println("Loaded {} charge(s)", charges.size());
-  std::println("Charges: [");
+  std::cout << std::format("Loaded {} charge(s)", charges.size()) << std::endl;
+  std::cout << "Charges: [" << std::endl;
   for (const Charge &charge : charges) {
-    std::println("\t{}", charge);
+    std::cout << std::format("\t{}", charge) << std::endl;
   }
-  std::println("]");
+  std::cout << "]" << std::endl;
 
   Probe probe(
       std::make_unique<RotatingPosition>(raylib::Vector2{0, 0}, 1.f, PI / 6.f),
