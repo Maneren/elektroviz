@@ -128,7 +128,7 @@ int main(int argc, char const *argv[]) {
     for (auto &charge : charges) {
       charge.draw();
     }
-    probe.draw<10.f, true>();
+    probe.draw<true>();
 
     auto fps_text = std::format("FPS: {}", GetFPS());
     auto text_pos = (-w.GetSize() / 2.f) + raylib::Vector2{10, 10};

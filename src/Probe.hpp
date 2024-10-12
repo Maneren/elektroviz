@@ -8,8 +8,9 @@
 
 class Probe {
 public:
-  Probe(std::unique_ptr<Position> position, const raylib::Color &color)
-      : _position(std::move(position)), color(color) {};
+  Probe(std::unique_ptr<Position> position, const raylib::Color &color,
+        float radius = 8.f)
+      : _position(std::move(position)), color(color), radius(radius) {};
 
   Probe(Probe &&) = default;
   Probe &operator=(Probe &&) = default;
@@ -17,11 +18,10 @@ public:
   void update(const float timeDelta, const float elapsedTime,
               const std::vector<Charge> &charges);
 
-  template <const float CIRCLE_RADIUS = 8.f, const bool TEXT = false>
-  void draw() {
+  template <const bool TEXT = false> void draw() {
     auto draw_position = (*_position)() * GLOBAL_SCALE;
 
-    draw_position.DrawCircle(CIRCLE_RADIUS, color);
+    draw_position.DrawCircle(radius, color);
 
     auto sample = this->sample();
     if constexpr (TEXT) {
@@ -55,6 +55,8 @@ public:
   };
 
   raylib::Vector2 sample() const { return _sample; };
+
+  float radius;
 
 private:
   std::unique_ptr<Position> _position;
