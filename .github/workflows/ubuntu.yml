@@ -13,6 +13,8 @@ jobs:
         run: sudo apt-get update
       - name: install raylib dependencies
         run: sudo apt install libasound2-dev mesa-common-dev libx11-dev libxrandr-dev libxi-dev xorg-dev libgl1-mesa-dev libglu1-mesa-dev
+      - name: CXX version
+        run: clang++ --version
       - name: make setup
         run: make setup
       - name: make bin/elektroviz

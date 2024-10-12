@@ -14,6 +14,9 @@ jobs:
         with:
           version: 14
           platform: x64
+      - name: CXX version
+        run: g++ --version
+        shell: cmd
       - name: make setup
         run: mingw32-make setup
         shell: cmd

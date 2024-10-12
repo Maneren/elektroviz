@@ -9,6 +9,8 @@ jobs:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
+      - name: CXX version
+        run: clang++ --version
       - name: make setup
         run: make setup
       - name: make bin/elektroviz
