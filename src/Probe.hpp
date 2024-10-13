@@ -2,6 +2,7 @@
 #include "Charge.hpp"
 #include "Position.hpp"
 #include "defs.hpp"
+#include "utils.hpp"
 #include <format>
 #include <memory>
 #include <raylib-cpp.hpp>
@@ -11,7 +12,7 @@ public:
   Probe(std::unique_ptr<Position> position, const raylib::Color &color,
         float radius = 8.f)
       : radius(radius), scale(1.f), _position(std::move(position)),
-        color(color) {};
+        _color(color) {};
 
   Probe(Probe &&) = default;
   Probe &operator=(Probe &&) = default;
@@ -23,6 +24,10 @@ public:
     auto draw_position = (*_position)() * GLOBAL_SCALE;
 
     auto sample = this->sample();
+
+    auto color = lerpColor(raylib::Color::RayWhite(), _color,
+                           1.f / (1.f + std::expf(-sample.Length() / 2e10)));
+
     if constexpr (!ONLY_ARROW) {
       draw_position.DrawCircle(radius, color);
 
@@ -65,7 +70,7 @@ public:
 
 private:
   std::unique_ptr<Position> _position;
-  raylib::Color color;
+  raylib::Color _color;
   raylib::Vector2 _sample;
 
   friend struct std::formatter<Probe>;
