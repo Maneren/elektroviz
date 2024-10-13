@@ -83,6 +83,7 @@ int main(int argc, char const *argv[]) {
   Probe probe(
       std::make_unique<RotatingPosition>(raylib::Vector2{0, 0}, 1.f, PI / 6.f),
       raylib::Color::Green());
+  probe.scale = 1.5f;
 
   auto last_screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -98,7 +99,8 @@ int main(int argc, char const *argv[]) {
 
   w.SetTargetFPS(60);
 
-  raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, 1.0f);
+  float zoom = 200.f / GLOBAL_SCALE;
+  raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, zoom);
 
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
@@ -109,8 +111,9 @@ int main(int argc, char const *argv[]) {
     if (auto screen_size = w.GetSize(); !screen_size.Equals(last_screen_size)) {
       last_screen_size = screen_size;
       // make 0,0 the center of the screen
-      camera.SetOffset(w.GetSize() / 2.f);
-      grid.resize(screen_size, grid_spacing);
+      camera.SetOffset(screen_size / 2.f);
+      camera.SetZoom(zoom);
+      grid.resize(screen_size, grid_spacing / zoom);
     }
 
     // Update
@@ -131,8 +134,10 @@ int main(int argc, char const *argv[]) {
     }
     probe.draw();
 
+    camera.EndMode();
+
     auto fps_text = std::format("FPS: {}", GetFPS());
-    auto text_pos = (-w.GetSize() / 2.f) + raylib::Vector2{10, 10};
+    auto text_pos = raylib::Vector2{10, 10};
     DrawText(fps_text, text_pos.x, text_pos.y, FONT_SIZE, textColor);
 
     // window size
@@ -145,7 +150,6 @@ int main(int argc, char const *argv[]) {
     DrawText(scenario_text, text_pos.x, text_pos.y + 2 * FONT_SIZE, FONT_SIZE,
              textColor);
 
-    camera.EndMode();
     w.EndDrawing();
   }
 
