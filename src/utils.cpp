@@ -15,3 +15,11 @@ raylib::Color lerpColor3(const raylib::Color a, const raylib::Color b,
     return lerpColor(b, c, (t - 0.5) * 2);
   }
 }
+
+std::string trim(const std::string &str) {
+  auto first = str.find_first_not_of(' ');
+  if (first == std::string::npos)
+    return "";
+  auto last = str.find_last_not_of(' ');
+  return str.substr(first, last - first + 1);
+}

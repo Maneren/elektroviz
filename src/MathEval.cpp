@@ -1,19 +1,10 @@
 #include "MathEval.hpp"
+#include "utils.hpp"
 #include <cmath>
 #include <functional>
 #include <stack>
-#include <stdexcept>
 
-class parser_exception : public std::runtime_error {
-public:
-  parser_exception(const std::string &message)
-      : std::runtime_error("Parser Error: " + message) {}
-
-  parser_exception(const std::string &message, const std::string &input,
-                   int index)
-      : std::runtime_error(std::format("Parser Error: {}\n{}\n{}\n^", message,
-                                       std::string(index, ' '), input)) {}
-};
+namespace math {
 
 const std::unordered_map<std::string, std::function<float(float)>> functions = {
     {"sin", [](float x) { return std::sin(x); }},
@@ -272,13 +263,7 @@ auto evaluate_RPN(const std::deque<Token> &postfix) {
   return stack.top();
 }
 
-std::string trim(const std::string &str) {
-  auto first = str.find_first_not_of(' ');
-  if (first == std::string::npos)
-    return "";
-  auto last = str.find_last_not_of(' ');
-  return str.substr(first, last - first + 1);
-}
+} // namespace math
 
 float evaluate(const std::string &expr,
                const std::unordered_map<std::string, float> &vars) {
@@ -287,6 +272,6 @@ float evaluate(const std::string &expr,
   if (trimmedInput.empty())
     throw parser_exception("No input");
 
-  auto rpn = parse_to_RPN(trimmedInput, vars);
-  return evaluate_RPN(rpn);
+  auto rpn = math::parse_to_RPN(trimmedInput, vars);
+  return math::evaluate_RPN(rpn);
 }

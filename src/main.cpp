@@ -25,11 +25,11 @@ void load_charges_from_json(std::vector<Charge> &charges, nlohmann::json data) {
     auto strength = charge["strength"];
     if (strength.is_number()) {
       charges.push_back(
-          Charge{pos, std::make_unique<ConstantChargeStrength>(strength)});
+          Charge{pos, std::make_unique<charge::ConstantStrength>(strength)});
     } else if (strength.is_string()) {
       const std::string func = strength.get<std::string>();
       charges.push_back(
-          Charge{pos, std::make_unique<VariableChargeStrength>(func)});
+          Charge{pos, std::make_unique<charge::VariableStrength>(func)});
     }
   }
 }
@@ -80,9 +80,9 @@ int main(int argc, char const *argv[]) {
   }
   std::cout << "]" << std::endl;
 
-  Probe probe(
-      std::make_unique<RotatingPosition>(raylib::Vector2{0, 0}, 1.f, PI / 6.f),
-      raylib::Color::Green());
+  Probe probe(std::make_unique<position::Rotating>(raylib::Vector2{0, 0}, 1.f,
+                                                   PI / 6.f),
+              raylib::Color::Green());
   probe.scale = 1.5f;
 
   auto last_screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);

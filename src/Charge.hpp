@@ -1,59 +1,62 @@
 #pragma once
-#include "defs.hpp"
 #include <format>
 #include <memory>
 #include <raylib-cpp.hpp>
 
-class ChargeStrength {
+namespace charge {
+
+class Strength {
 public:
   virtual float operator()(const float elapsed) const = 0;
-  virtual ~ChargeStrength() = default;
+  virtual ~Strength() = default;
 };
 
-class ConstantChargeStrength : public ChargeStrength {
+class ConstantStrength : public Strength {
 public:
-  ConstantChargeStrength(const float strength) : strength(strength) {}
+  ConstantStrength(const float strength) : strength(strength) {}
   float operator()([[maybe_unused]] const float elapsed) const {
     return strength;
   }
   const float strength;
 };
 
-class VariableChargeStrength : public ChargeStrength {
+class VariableStrength : public Strength {
 public:
-  VariableChargeStrength(const std::string &func) : func(func) {}
+  VariableStrength(const std::string &func) : func(func) {}
   float operator()(const float elapsed) const;
   const std::string func;
 };
 
-template <> struct std::formatter<ChargeStrength> {
+} // namespace charge
+
+template <> struct std::formatter<charge::Strength> {
   constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
   template <typename FormatContext>
-  auto format(const ChargeStrength &c, FormatContext &ctx) const {
-    if (dynamic_cast<const ConstantChargeStrength *>(&c)) {
+  auto format(const charge::Strength &c, FormatContext &ctx) const {
+    if (dynamic_cast<const charge::ConstantStrength *>(&c)) {
       return std::format_to(ctx.out(), "{}",
-                            dynamic_cast<const ConstantChargeStrength &>(c));
-    } else if (dynamic_cast<const VariableChargeStrength *>(&c)) {
+                            dynamic_cast<const charge::ConstantStrength &>(c));
+    } else if (dynamic_cast<const charge::VariableStrength *>(&c)) {
       return std::format_to(ctx.out(), "{}",
-                            dynamic_cast<const VariableChargeStrength &>(c));
+                            dynamic_cast<const charge::VariableStrength &>(c));
     } else {
       return std::format_to(ctx.out(), "Unknown");
     }
   }
 };
 
-template <> struct std::formatter<VariableChargeStrength> {
+template <> struct std::formatter<charge::VariableStrength> {
   constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
   template <typename FormatContext>
-  auto format(const VariableChargeStrength &c, FormatContext &ctx) const {
+  auto format(const charge::VariableStrength &c, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "Variable({})", c.func);
   }
 };
 
-template <> struct std::formatter<ConstantChargeStrength> {
+template <> struct std::formatter<charge::ConstantStrength> {
   constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
   template <typename FormatContext>
-  auto format(const ConstantChargeStrength &c, FormatContext &ctx) const {
+  auto format(const charge::ConstantStrength &c, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "Constant({})", c.strength);
   }
 };
@@ -62,7 +65,7 @@ class Charge {
 public:
   Charge(const Charge &) = delete;
   Charge(const raylib::Vector2 &position,
-         std::unique_ptr<ChargeStrength> strength)
+         std::unique_ptr<charge::Strength> strength)
       : _position(position), strengthFn(std::move(strength)) {};
 
   Charge(Charge &&) = default;
@@ -81,7 +84,7 @@ private:
   static const raylib::Color POSITIVE;
   static const raylib::Color NEGATIVE;
   raylib::Vector2 _position;
-  std::unique_ptr<ChargeStrength> strengthFn;
+  std::unique_ptr<charge::Strength> strengthFn;
   float _strength;
   friend struct std::formatter<Charge>;
 };

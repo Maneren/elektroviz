@@ -1,6 +1,8 @@
 #include "field.hpp"
 #include "defs.hpp"
 
+namespace field {
+
 raylib::Vector2 E(const raylib::Vector2 point,
                   const std::vector<Charge> &charges) {
   raylib::Vector2 result{0.f};
@@ -19,3 +21,5 @@ float potential(const raylib::Vector2 point,
 
   return result * K_E;
 }
+
+} // namespace field

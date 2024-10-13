@@ -4,7 +4,7 @@
 #include "utils.hpp"
 #include <raymath.hpp>
 
-float VariableChargeStrength::operator()(const float elapsed) const {
+float charge::VariableStrength::operator()(const float elapsed) const {
   auto vars = variables;
   vars["t"] = elapsed;
   return evaluate(func, vars);

@@ -41,7 +41,7 @@ std::vector<Probe> generateProbes(const raylib::Vector2 size,
       for (raylib::Vector2 pos :
            std::vector<raylib::Vector2>{{x, y}, {x, -y}, {-x, y}, {-x, -y}}) {
 
-        Probe probe{std::make_unique<StaticPosition>(pos), color, 0};
+        Probe probe{std::make_unique<position::Static>(pos), color, 0};
         probe.scale = std::min(spacing.x, spacing.y) / 30;
         probes.push_back(std::move(probe));
       }
