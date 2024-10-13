@@ -52,8 +52,8 @@ std::vector<Probe> generateProbes(const raylib::Vector2 size,
 }
 
 void Grid::resize(const raylib::Vector2 size, const raylib::Vector2 spacing) {
-  lines = generateLines(size, spacing, color);
-  probes = generateProbes(size, spacing, color);
+  lines = generateLines(size, spacing, line_color);
+  probes = generateProbes(size, spacing, probe_color);
 }
 
 void Grid::draw() const {

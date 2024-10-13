@@ -86,11 +86,12 @@ int main(int argc, char const *argv[]) {
 
   auto last_screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
 
-  Grid grid(last_screen_size, grid_spacing, LIGHTGRAY);
+  Grid grid(last_screen_size, grid_spacing, raylib::Color::LightGray(),
+            raylib::Color::Gray());
   grid.resize(last_screen_size, grid_spacing);
 
   double time = 0.0f;
-  raylib::Color textColor(GRAY);
+  raylib::Color textColor(raylib::Color::DarkGray());
   raylib::Window w(SCREEN_WIDTH, SCREEN_HEIGHT,
                    "ELEKTROVIZ - A simple simulation of electric fields",
                    FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);

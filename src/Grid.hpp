@@ -31,18 +31,27 @@ std::vector<GridLine> generateLines(const raylib::Vector2 size,
                                     const raylib::Vector2 spacing,
                                     const raylib::Color color);
 
+std::vector<Probe> generateProbes(const raylib::Vector2 size,
+                                  const raylib::Vector2 spacing,
+                                  const raylib::Color color);
+
 class Grid {
 public:
   Grid(const raylib::Vector2 size, const raylib::Vector2 spacing,
-       const raylib::Color color = raylib::Color::Gray())
-      : color(color), lines(generateLines(size, spacing, color)) {};
+       const raylib::Color line_color = raylib::Color::LightGray(),
+       const raylib::Color probe_color = raylib::Color::Gray())
+      : line_color(line_color), probe_color(probe_color),
+        origin(raylib::Vector2{0, 0}),
+        lines(generateLines(size, spacing, line_color)),
+        probes(generateProbes(size, spacing, probe_color)) {};
   void draw() const;
   void update(const float timeDelta, const float elapsedTime,
               const std::vector<Charge> &charges);
   void resize(const raylib::Vector2 size, const raylib::Vector2 spacing);
 
 private:
-  const raylib::Color color;
+  const raylib::Color line_color;
+  const raylib::Color probe_color;
   raylib::Vector2 origin;
   std::vector<GridLine> lines;
   std::vector<Probe> probes;
