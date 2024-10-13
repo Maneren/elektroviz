@@ -10,7 +10,8 @@ class Probe {
 public:
   Probe(std::unique_ptr<Position> position, const raylib::Color &color,
         float radius = 8.f)
-      : _position(std::move(position)), color(color), radius(radius) {};
+      : radius(radius), scale(1.f), _position(std::move(position)),
+        color(color) {};
 
   Probe(Probe &&) = default;
   Probe &operator=(Probe &&) = default;
@@ -31,7 +32,7 @@ public:
                        draw_position.y - 2 * FONT_SIZE, FONT_SIZE, color);
     }
 
-    auto length = -std::log2f(sample.Length());
+    auto length = -std::log2f(sample.Length()) * scale;
     auto direction = sample.Normalize();
 
     auto draw_sample = direction.Scale(length);
@@ -60,6 +61,7 @@ public:
   raylib::Vector2 sample() const { return _sample; };
 
   float radius;
+  float scale;
 
 private:
   std::unique_ptr<Position> _position;
