@@ -1,25 +1,20 @@
 #include "field.hpp"
 #include "defs.hpp"
 
-raylib::Vector2 EFieldAt(const raylib::Vector2 point,
-                         const std::vector<Charge> &charges) {
-  raylib::Vector2 result = {0.0f, 0.0f};
+raylib::Vector2 E(const raylib::Vector2 point,
+                  const std::vector<Charge> &charges) {
+  raylib::Vector2 result{0.f};
   for (const auto &charge : charges) {
-    const auto distV = charge.position() - point;
-    const auto dist = distV.Length();
-
-    result += distV / (dist * dist * dist) * charge.strength();
+    result += charge.E(point);
   }
-
   return result * K_E;
 }
 
-float eFieldAt(const raylib::Vector2 point,
-               const std::vector<Charge> &charges) {
+float potential(const raylib::Vector2 point,
+                const std::vector<Charge> &charges) {
   float result = 0.0f;
   for (const auto &charge : charges) {
-    const auto distV = charge.position() - point;
-    result += charge.strength() / distV.LengthSqr();
+    result += charge.potential(point);
   }
 
   return result * K_E;

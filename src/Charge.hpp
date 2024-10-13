@@ -1,4 +1,5 @@
 #pragma once
+#include "defs.hpp"
 #include <format>
 #include <memory>
 #include <raylib-cpp.hpp>
@@ -72,6 +73,9 @@ public:
 
   raylib::Vector2 position() const { return _position; }
   float strength() const { return _strength; }
+
+  raylib::Vector2 E(const raylib::Vector2 &point) const;
+  float potential(const raylib::Vector2 &point) const;
 
 private:
   static const raylib::Color POSITIVE;

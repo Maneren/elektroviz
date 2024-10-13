@@ -29,5 +29,16 @@ void Charge::draw() const {
   (_position * GLOBAL_SCALE).DrawCircle(10 * std::abs(_strength), color);
 }
 
+raylib::Vector2 Charge::E(const raylib::Vector2 &point) const {
+  auto direction = (point - _position);
+  auto distance = direction.Length();
+  return direction * _strength * K_E / (distance * distance * distance);
+}
+
+float Charge::potential(const raylib::Vector2 &point) const {
+  auto distanceSqr = (point - _position).LengthSqr();
+  return _strength / distanceSqr * K_E;
+}
+
 const raylib::Color Charge::POSITIVE = raylib::Color(255, 0, 0, 255);
 const raylib::Color Charge::NEGATIVE = raylib::Color(0, 0, 255, 255);
