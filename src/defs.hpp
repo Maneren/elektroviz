@@ -1,7 +1,7 @@
 #pragma once
 #include "Color.hpp"
-#include "raylib.h"
 #include <format>
+#include <numbers>
 #include <raylib-cpp.hpp>
 #include <unordered_map>
 
@@ -10,7 +10,7 @@ static size_t SCREEN_WIDTH = 800;
 static size_t SCREEN_HEIGHT = 600;
 
 constexpr float EPSILON_0 = 8.8541878128e-12;
-constexpr float K_E = 1 / (4 * PI * EPSILON_0);
+constexpr float K_E = 1 / (4 * std::numbers::pi * EPSILON_0);
 
 constexpr float GLOBAL_SCALE = 120.0f;
 constexpr float FONT_SIZE = 24.0f;
@@ -31,5 +31,5 @@ template <> struct std::formatter<raylib::Color> {
   }
 };
 
-static const std::unordered_map<std::string, float> variables = {{"t", 0.0f},
-                                                                 {"pi", PI}};
+static const std::unordered_map<std::string, float> variables = {
+    {"t", 0.0f}, {"pi", std::numbers::pi}, {"e", std::numbers::e}};
