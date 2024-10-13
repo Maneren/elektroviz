@@ -12,7 +12,7 @@ static size_t SCREEN_HEIGHT = 600;
 constexpr float EPSILON_0 = 8.8541878128e-12;
 constexpr float K_E = 1 / (4 * std::numbers::pi * EPSILON_0);
 
-constexpr float GLOBAL_SCALE = 120.0f;
+constexpr float GLOBAL_SCALE = 100.0f;
 constexpr float FONT_SIZE = 24.0f;
 
 template <> struct std::formatter<raylib::Vector2> {

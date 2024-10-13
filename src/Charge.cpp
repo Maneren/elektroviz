@@ -18,7 +18,7 @@ void Charge::update([[maybe_unused]] const float timeDelta,
 void Charge::draw() const {
   // outline
   (_position * GLOBAL_SCALE)
-      .DrawCircle(2 + 10 * std::abs(_strength), raylib::Color::Black());
+      .DrawCircle(2 + 8 * std::abs(_strength), raylib::Color::Black());
 
   auto normalized = _strength / 5;
 
@@ -26,7 +26,7 @@ void Charge::draw() const {
                     ? lerpColor(raylib::Color::White(), POSITIVE, normalized)
                     : lerpColor(raylib::Color::White(), NEGATIVE, -normalized));
 
-  (_position * GLOBAL_SCALE).DrawCircle(10 * std::abs(_strength), color);
+  (_position * GLOBAL_SCALE).DrawCircle(8 * std::abs(_strength), color);
 }
 
 raylib::Vector2 Charge::E(const raylib::Vector2 &point) const {

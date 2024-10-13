@@ -113,7 +113,7 @@ int main(int argc, char const *argv[]) {
       // make 0,0 the center of the screen
       camera.SetOffset(screen_size / 2.f);
       camera.SetZoom(zoom);
-      grid.resize(screen_size, grid_spacing / zoom);
+      grid.resize(screen_size / zoom, grid_spacing / zoom);
     }
 
     // Update
