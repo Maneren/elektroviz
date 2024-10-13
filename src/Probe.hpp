@@ -37,7 +37,7 @@ public:
                        draw_position.y - 2 * FONT_SIZE, FONT_SIZE, color);
     }
 
-    auto length = -std::log2f(sample.Length()) * scale;
+    auto length = std::log2f(sample.Length()) * scale;
     auto direction = sample.Normalize();
 
     auto draw_sample = direction.Scale(length);

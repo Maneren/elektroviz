@@ -32,12 +32,12 @@ void Charge::draw() const {
 raylib::Vector2 Charge::E(const raylib::Vector2 &point) const {
   auto direction = (point - _position);
   auto distance = direction.Length();
-  return direction * _strength * K_E / (distance * distance * distance);
+  return direction * _strength / (distance * distance * distance);
 }
 
 float Charge::potential(const raylib::Vector2 &point) const {
   auto distanceSqr = (point - _position).LengthSqr();
-  return _strength / distanceSqr * K_E;
+  return _strength / distanceSqr;
 }
 
 const raylib::Color Charge::POSITIVE = raylib::Color(255, 0, 0, 255);
