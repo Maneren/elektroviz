@@ -31,21 +31,24 @@ public:
                        draw_position.y - 2 * FONT_SIZE, FONT_SIZE, color);
     }
 
-    sample /= 1000000000.;
-
-    auto length = sample.Length();
+    auto length = -std::log2f(sample.Length());
     auto direction = sample.Normalize();
 
-    auto tip = draw_position + sample;
+    auto draw_sample = direction.Scale(length);
+
+    auto tip = draw_position + draw_sample;
 
     // Calculate arrowhead size
     constexpr float head_scale = 1.f / 5.f;
-    float head_width = length * head_scale / 2.f;
+    constexpr float line_scale = 1.f - head_scale;
 
-    auto head_base = draw_position + sample.Scale(1 - head_scale);
+    auto head_base = draw_position + direction.Scale(line_scale * length);
+
+    // Draw the line
     draw_position.DrawLine(head_base, 1, color);
 
     // Calculate points for the arrowhead
+    float head_width = length * head_scale / 2.f;
     raylib::Vector2 perpendicular(-direction.y, direction.x);
     auto head_left = head_base + perpendicular.Scale(head_width);
     auto head_right = head_base - perpendicular.Scale(head_width);
