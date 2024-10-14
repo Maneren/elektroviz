@@ -56,13 +56,16 @@ void FieldLine::update(const float timeDelta, const float elapsedTime,
       next_position = (position + next_position) / 2;
     }
 
-    auto collision = std::ranges::any_of(charges, [&](const auto &charge) {
-      return CheckCollisionCircleLine(charge.position(), 0.02f, position,
+    auto is_colliding = [&](const auto &charge) {
+      return CheckCollisionCircleLine(charge.position(), 0.01f, position,
                                       next_position);
-    });
+    };
 
-    if (collision)
-      break;
+    if (auto charge = std::ranges::find_if(charges, is_colliding);
+        charge != charges.end()) {
+      points.push_back(charge->position());
+      return;
+    }
 
     position = next_position;
   }
