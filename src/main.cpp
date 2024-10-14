@@ -1,12 +1,17 @@
 #include "Charge.hpp"
+#include "FieldLine.hpp"
 #include "Grid.hpp"
 #include "Probe.hpp"
 #include "defs.hpp"
 #include <format>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <ostream>
+#include <print>
+#include <ranges>
 #include <raylib-cpp.hpp>
 #include <string>
 #include <vector>
@@ -102,6 +107,17 @@ int main(int argc, char const *argv[]) {
   float zoom = 200.f / GLOBAL_SCALE;
   raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, zoom);
 
+  std::vector<FieldLine> field_lines;
+
+  for (const auto &charge : charges) {
+    for (auto angle = 0.0f; angle < 2 * PI; angle += 2 * PI / 16.f) {
+      field_lines.push_back(FieldLine{
+          charge.position() +
+              raylib::Vector2{cos(angle), sin(angle)}.Scale(0.2f),
+          raylib::Vector2{cos(angle), sin(angle)}, raylib::Color::Red()});
+    }
+  }
+
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
   {
@@ -129,6 +145,9 @@ int main(int argc, char const *argv[]) {
     camera.BeginMode();
 
     grid.draw();
+    for (auto &field_line : field_lines) {
+      field_line.draw();
+    }
     for (auto &charge : charges) {
       charge.draw();
     }
