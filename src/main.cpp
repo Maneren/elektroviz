@@ -111,7 +111,7 @@ int main(int argc, char const *argv[]) {
   float zoom = 200.f / GLOBAL_SCALE;
   raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, zoom);
 
-  constexpr auto field_lines_per_charge = 8;
+  constexpr auto field_lines_per_charge = 16;
 
   std::vector<FieldLine> field_lines;
   for (const auto &[i, charge] : charges | std::views::enumerate) {
