@@ -2,6 +2,7 @@
 #include "Position.hpp"
 #include "Probe.hpp"
 #include "defs.hpp"
+#include "parallel.hpp"
 #include <memory>
 #include <vector>
 
@@ -68,7 +69,8 @@ void Grid::draw() const {
 
 void Grid::update(const float timeDelta, const float elapsedTime,
                   const std::vector<Charge> &charges) {
-  for (auto &probe : probes) {
-    probe.update(timeDelta, elapsedTime, charges);
-  }
+  parallel::for_each(probes.size(), [&](int start, int end) {
+    for (int i = start; i < end; ++i)
+      probes[i].update(timeDelta, elapsedTime, charges);
+  });
 }

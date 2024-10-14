@@ -3,6 +3,7 @@
 #include "Grid.hpp"
 #include "Probe.hpp"
 #include "defs.hpp"
+#include "parallel.hpp"
 #include <format>
 #include <fstream>
 #include <functional>
@@ -138,6 +139,12 @@ int main(int argc, char const *argv[]) {
     }
     grid.update(frameTime, time, charges);
     probe.update(frameTime, time, charges);
+
+    parallel::for_each(field_lines.size(), [&](int start, int end) {
+      for (int i = start; i < end; ++i) {
+        field_lines[i].update(frameTime, time, charges);
+      }
+    });
 
     // Draw
     w.BeginDrawing();
