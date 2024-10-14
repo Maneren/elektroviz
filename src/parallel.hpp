@@ -30,8 +30,6 @@ static void for_each(unsigned nb_elements,
   unsigned batch_size = nb_elements / nb_threads;
   unsigned batch_remainder = nb_elements % nb_threads;
 
-  std::println("Running {} on {} threads", nb_elements, nb_threads);
-
   std::vector<std::thread> my_threads(nb_threads);
 
   if (use_threads) {

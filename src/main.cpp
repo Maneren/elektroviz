@@ -12,7 +12,6 @@
 #include <nlohmann/json.hpp>
 #include <ostream>
 #include <print>
-#include <ranges>
 #include <raylib-cpp.hpp>
 #include <string>
 #include <vector>
@@ -111,10 +110,11 @@ int main(int argc, char const *argv[]) {
   std::vector<FieldLine> field_lines;
 
   for (const auto &charge : charges) {
-    for (auto angle = 0.0f; angle < 2 * PI; angle += 2 * PI / 16.f) {
+    for (auto angle = 0.1f; angle < 2 * std::numbers::pi;
+         angle += 2 * PI / 16.f) {
       field_lines.push_back(FieldLine{
           charge.position() +
-              raylib::Vector2{cos(angle), sin(angle)}.Scale(0.2f),
+              raylib::Vector2{cos(angle), sin(angle)}.Scale(0.1f),
           raylib::Vector2{cos(angle), sin(angle)}, raylib::Color::Red()});
     }
   }

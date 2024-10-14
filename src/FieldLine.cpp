@@ -2,9 +2,7 @@
 #include "defs.hpp"
 #include "field.hpp"
 #include <algorithm>
-#include <format>
 #include <functional>
-#include <print>
 #include <ranges>
 
 namespace field_line {
@@ -25,7 +23,7 @@ T Euler(const std::function<T(float, const T &)> &function, const T &value,
 
 void FieldLine::update(const float timeDelta, const float elapsedTime,
                        const std::vector<Charge> &charges) {
-  constexpr size_t STEPS = 10000000;
+  constexpr size_t STEPS = 6000;
 
   auto step = 1e-12f;
 
@@ -47,45 +45,28 @@ void FieldLine::update(const float timeDelta, const float elapsedTime,
     auto next_position =
         field_line::Euler<raylib::Vector2>(field_function, position, t, step);
 
-    if (std::ranges::any_of(charges, [&](const auto &charge) {
-          return charge.position().CheckCollisionPointLine(
-              position, next_position, std::abs(charge.strength()));
-        })) {
-      break;
+    while ((next_position - position).LengthSqr() > 0.1) {
+      next_position = (position + next_position) / 2;
     }
 
+    auto collision = std::ranges::any_of(charges, [&](const auto &charge) {
+      return CheckCollisionPointLine(charge.position(), position, next_position,
+                                     0.5f);
+    });
+
+    if (collision)
+      break;
+
     position = next_position;
-
-    // auto velocity = start_direction;
-
-    // for (const size_t i : std::views::iota(0) | std::views::take(STEPS)) {
-    //   float t = static_cast<float>(i) / STEPS;
-    //   points.push_back(position);
-    //
-    //   auto force = field_function(t, position) / 1e9;
-    //   velocity = velocity + force * step;
-    //   position = position + velocity * step;
-    //
-    //   std::println("Position: {}, Velocity: {}, Force: {}", position,
-    //   velocity,
-    //                force);
-    // }
   }
 }
 
 void FieldLine::draw() const {
-  std::println("Drawing {} points", points.size());
-  // std::println("Points: [");
-  // for (const auto &point : points) {
-  //   std::println("\t{}", point);
-  // }
-  // std::println("]");
-
   for (const auto &[begin, end] :
        points | std::views::transform([](const auto &p) {
          return p * GLOBAL_SCALE;
        }) | std::views::adjacent<2>)
-    begin.DrawLine(end, 1.f, raylib::Color::Red());
+    begin.DrawLine(end, 0.6f, raylib::Color::DarkGreen());
 }
 
 // void CalculateEquipotential() {
