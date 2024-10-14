@@ -13,7 +13,7 @@ class Probe {
 public:
   Probe(std::unique_ptr<Position> position, const raylib::Color &color,
         float radius = 8.f)
-      : radius(radius), scale(1.f), _position(std::move(position)),
+      : radius(radius), _position(std::move(position)),
         _color(color) {};
 
   Probe(Probe &&) = default;
@@ -28,7 +28,7 @@ public:
     auto sample = this->sample();
 
     auto color = lerpColor(raylib::Color::RayWhite(), _color,
-                           1.f / (1.f + std::expf(-sample.Length() / 2e10)));
+                           1.f / (1.f + std::expf(-sample.Length() / 2e10f)));
 
     if constexpr (!ONLY_ARROW) {
       draw_position.DrawCircle(radius, color);
@@ -68,7 +68,7 @@ public:
   raylib::Vector2 sample() const { return _sample; };
 
   float radius;
-  float scale;
+  float scale = 1.f;
 
 private:
   std::unique_ptr<Position> _position;
@@ -79,7 +79,7 @@ private:
 };
 
 template <> struct std::formatter<Probe> {
-  constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
+  constexpr auto parse(std::format_parse_context const &ctx) const { return ctx.begin(); }
   template <typename FormatContext>
   auto format(const Probe &p, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "Probe(position: {}, sample: {})",

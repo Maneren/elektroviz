@@ -119,7 +119,7 @@ parse_to_RPN(const std::string &input,
       while (++it != input.end()) {
         if (std::isdigit(*it)) {
           if (isDecimal) {
-            factor *= 0.1;
+            factor *= 0.1f;
             value += (*it - '0') * factor;
           } else {
             value *= 10;

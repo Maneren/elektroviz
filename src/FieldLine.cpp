@@ -6,6 +6,8 @@
 #include <functional>
 #include <ranges>
 
+namespace views = std::views;
+
 namespace field_line {
 // Calculate the next value of the function with Euler's method
 //
@@ -38,14 +40,14 @@ void FieldLine::update(const std::vector<Charge> &charges) {
 
   const auto field_function =
       [&charges, direction](const float time,
-                            const raylib::Vector2 &point) -> raylib::Vector2 {
+                            const raylib::Vector2 &point)  {
     return field::E(point, charges) * direction;
   };
 
   points.push_back(charges[charge_index].position());
   auto position = start_position;
 
-  for (const size_t i : std::views::iota(0) | std::views::take(STEPS)) {
+  for (const size_t i : views::iota(0) | views::take(STEPS)) {
     float t = static_cast<float>(i) / STEPS;
     points.push_back(position);
 
@@ -78,9 +80,8 @@ void FieldLine::update(const std::vector<Charge> &charges) {
 }
 
 void FieldLine::draw() const {
-  for (const auto &[begin, end] :
-       points | std::views::transform([](const auto &p) {
-         return p * GLOBAL_SCALE;
-       }) | std::views::adjacent<2>)
+  for (const auto &[begin, end] : points | views::transform([](const auto &p) {
+                                    return p * GLOBAL_SCALE;
+                                  }) | views::adjacent<2>)
     begin.DrawLine(end, 0.6f, raylib::Color::DarkGreen());
 }

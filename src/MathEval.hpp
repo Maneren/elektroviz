@@ -7,11 +7,11 @@
 
 class parser_exception : public std::runtime_error {
 public:
-  parser_exception(const std::string &message)
+  explicit parser_exception(const std::string &message)
       : std::runtime_error("Parser Error: " + message) {}
 
   parser_exception(const std::string &message, const std::string &input,
-                   int index)
+                   size_t index)
       : std::runtime_error(std::format("Parser Error: {}\n{}\n{}\n^", message,
                                        std::string(index, ' '), input)) {}
 };
@@ -68,7 +68,7 @@ template <> struct std::formatter<math::Operator> {
 };
 
 template <> struct std::formatter<math::TokenType> {
-  constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
+  constexpr auto parse(std::format_parse_context const &ctx) const { return ctx.begin(); }
   template <typename FormatContext>
   auto format(const math::TokenType &p, FormatContext &ctx) const {
     switch (p) {
@@ -81,7 +81,7 @@ template <> struct std::formatter<math::TokenType> {
 };
 
 template <> struct std::formatter<math::Token> {
-  constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
+  constexpr auto parse(std::format_parse_context const &ctx) const { return ctx.begin(); }
   template <typename FormatContext>
   auto format(const math::Token &p, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "Token(value: {})",

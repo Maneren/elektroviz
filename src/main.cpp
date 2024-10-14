@@ -20,6 +20,8 @@
 #include <string>
 #include <vector>
 
+namespace views = std::views;
+
 std::optional<nlohmann::json> load_scenario_json(std::string scenario) {
   auto scenarioFile = std::ifstream{"scenarios/" + scenario};
   return scenarioFile ? std::optional{nlohmann::json::parse(scenarioFile)}
@@ -33,12 +35,12 @@ void load_charges_from_json(std::vector<Charge> &charges, nlohmann::json data) {
 
     auto strength = charge["strength"];
     if (strength.is_number()) {
-      charges.push_back(
-          Charge{pos, std::make_unique<charge::ConstantStrength>(strength)});
+      charges.emplace_back(
+          pos, std::make_unique<charge::ConstantStrength>(strength));
     } else if (strength.is_string()) {
       const std::string func = strength.get<std::string>();
-      charges.push_back(
-          Charge{pos, std::make_unique<charge::VariableStrength>(func)});
+      charges.emplace_back(pos,
+                           std::make_unique<charge::VariableStrength>(func));
     }
   }
 }
@@ -51,8 +53,8 @@ int main(int argc, char const *argv[]) {
 
   raylib::Vector2 grid_spacing = {50.f, 50.f};
   if (argc > 2) {
-    std::string size_spec = std::string{argv[2]};
-    if (size_spec.find("x") != std::string::npos) {
+    auto size_spec = std::string{argv[2]};
+    if (size_spec.contains("x")) {
       grid_spacing =
           raylib::Vector2{std::stof(size_spec.substr(0, size_spec.find("x"))),
                           std::stof(size_spec.substr(size_spec.find("x") + 1))};
@@ -114,7 +116,7 @@ int main(int argc, char const *argv[]) {
   constexpr auto field_lines_per_charge = 16;
 
   std::vector<FieldLine> field_lines;
-  for (const auto &[i, charge] : charges | std::views::enumerate) {
+  for (const auto &[i, charge] : charges | views::enumerate | views::as_const) {
     // start with slight offset to align less with axis and other charges
     float angle_offset = std::numbers::pi * static_cast<float>(std::rand()) /
                          static_cast<float>(RAND_MAX);
@@ -125,8 +127,8 @@ int main(int argc, char const *argv[]) {
 
       auto origin = charge.position() + offset;
 
-      field_lines.push_back(
-          FieldLine{origin, static_cast<size_t>(i), raylib::Color::Red()});
+      field_lines.emplace_back(origin, static_cast<size_t>(i),
+                               raylib::Color::Red());
     }
   }
 
@@ -173,7 +175,7 @@ int main(int argc, char const *argv[]) {
 
     camera.EndMode();
 
-    auto fps_text = std::format("FPS: {}", GetFPS());
+    auto fps_text = std::format("FPS: {}", w.GetFPS());
     auto text_pos = raylib::Vector2{10, 10};
     raylib::DrawText(fps_text, text_pos.x, text_pos.y, FONT_SIZE, textColor);
 

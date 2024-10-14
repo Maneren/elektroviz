@@ -12,7 +12,7 @@ raylib::Color lerpColor3(const raylib::Color a, const raylib::Color b,
   if (t < 0.5) {
     return lerpColor(a, b, t * 2);
   } else {
-    return lerpColor(b, c, (t - 0.5) * 2);
+    return lerpColor(b, c, (t - 0.5f) * 2);
   }
 }
 
