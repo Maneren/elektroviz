@@ -2,6 +2,7 @@
 #include "MathEval.hpp"
 #include "defs.hpp"
 #include "utils.hpp"
+#include <algorithm>
 
 float charge::VariableStrength::operator()(const float elapsed) const {
   auto vars = variables;
@@ -15,17 +16,18 @@ void Charge::update([[maybe_unused]] const float timeDelta,
 }
 
 void Charge::draw() const {
+  auto radius = std::sqrt(std::abs(_strength)) * 12;
   // outline
-  (_position * GLOBAL_SCALE)
-      .DrawCircle(2 + 8 * std::abs(_strength), raylib::Color::Black());
+  (_position * GLOBAL_SCALE).DrawCircle(radius + 1, raylib::Color::Black());
 
-  auto normalized = _strength / 5;
+  auto normalized = std::clamp(_strength / 5, -1.f, 1.f);
 
-  auto color = (normalized > 0
-                    ? lerpColor(raylib::Color::White(), POSITIVE, normalized)
-                    : lerpColor(raylib::Color::White(), NEGATIVE, -normalized));
+  auto color =
+      (normalized > 0
+           ? lerpColor(raylib::Color::RayWhite(), POSITIVE, normalized)
+           : lerpColor(raylib::Color::RayWhite(), NEGATIVE, -normalized));
 
-  (_position * GLOBAL_SCALE).DrawCircle(8 * std::abs(_strength), color);
+  (_position * GLOBAL_SCALE).DrawCircle(radius, color);
 }
 
 raylib::Vector2 Charge::E(const raylib::Vector2 &point) const {
