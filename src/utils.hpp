@@ -1,5 +1,6 @@
 #pragma once
-#include <raylib-cpp.hpp>
+#include <Color.hpp>
+#include <Vector2.hpp>
 
 raylib::Color lerpColor(const raylib::Color a, const raylib::Color b,
                         const float t);

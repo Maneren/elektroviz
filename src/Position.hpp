@@ -1,6 +1,6 @@
 #pragma once
+#include <Vector2.hpp>
 #include <format>
-#include <raylib-cpp.hpp>
 
 class Position {
 public:

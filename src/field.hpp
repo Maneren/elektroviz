@@ -1,6 +1,6 @@
 #pragma once
 #include "Charge.hpp"
-#include <raylib-cpp.hpp>
+#include <Vector2.hpp>
 #include <vector>
 
 namespace field {

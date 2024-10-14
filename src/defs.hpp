@@ -1,8 +1,8 @@
 #pragma once
-#include "Color.hpp"
 #include <format>
+#include <Color.hpp>
+#include <Vector2.hpp>
 #include <numbers>
-#include <raylib-cpp.hpp>
 #include <unordered_map>
 
 // Global screen dimensions, updated on window resize

@@ -4,6 +4,11 @@
 #include "Probe.hpp"
 #include "defs.hpp"
 #include "parallel.hpp"
+#include <Camera2D.hpp>
+#include <Color.hpp>
+#include <Functions.hpp>
+#include <Vector2.hpp>
+#include <Window.hpp>
 #include <format>
 #include <fstream>
 #include <functional>
@@ -12,7 +17,6 @@
 #include <nlohmann/json.hpp>
 #include <ostream>
 #include <print>
-#include <raylib-cpp.hpp>
 #include <string>
 #include <vector>
 
@@ -164,17 +168,17 @@ int main(int argc, char const *argv[]) {
 
     auto fps_text = std::format("FPS: {}", GetFPS());
     auto text_pos = raylib::Vector2{10, 10};
-    DrawText(fps_text, text_pos.x, text_pos.y, FONT_SIZE, textColor);
+    raylib::DrawText(fps_text, text_pos.x, text_pos.y, FONT_SIZE, textColor);
 
     // window size
     auto window_text =
         std::format("Window size: {}x{}", w.GetWidth(), w.GetHeight());
-    DrawText(window_text, text_pos.x, text_pos.y + FONT_SIZE, FONT_SIZE,
-             textColor);
+    raylib::DrawText(window_text, text_pos.x, text_pos.y + FONT_SIZE, FONT_SIZE,
+                     textColor);
 
     auto scenario_text = std::format("Scenario: {}", scenario);
-    DrawText(scenario_text, text_pos.x, text_pos.y + 2 * FONT_SIZE, FONT_SIZE,
-             textColor);
+    raylib::DrawText(scenario_text, text_pos.x, text_pos.y + 2 * FONT_SIZE,
+                     FONT_SIZE, textColor);
 
     w.EndDrawing();
   }

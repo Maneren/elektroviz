@@ -1,7 +1,8 @@
 #pragma once
+#include <Color.hpp>
+#include <Vector2.hpp>
 #include <format>
 #include <memory>
-#include <raylib-cpp.hpp>
 
 namespace charge {
 

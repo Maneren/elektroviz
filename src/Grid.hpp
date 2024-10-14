@@ -1,7 +1,8 @@
 #pragma once
 #include "Charge.hpp"
 #include "Probe.hpp"
-#include <raylib-cpp.hpp>
+#include <Color.hpp>
+#include <Vector2.hpp>
 
 class GridLine {
 public:

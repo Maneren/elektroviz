@@ -2,7 +2,6 @@
 #include "MathEval.hpp"
 #include "defs.hpp"
 #include "utils.hpp"
-#include <raymath.hpp>
 
 float charge::VariableStrength::operator()(const float elapsed) const {
   auto vars = variables;

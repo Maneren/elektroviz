@@ -3,9 +3,11 @@
 #include "Position.hpp"
 #include "defs.hpp"
 #include "utils.hpp"
+#include <Color.hpp>
+#include <Functions.hpp>
+#include <Vector2.hpp>
 #include <format>
 #include <memory>
-#include <raylib-cpp.hpp>
 
 class Probe {
 public:
