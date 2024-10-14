@@ -97,7 +97,7 @@ int main(int argc, char const *argv[]) {
   auto last_screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
 
   Grid grid(last_screen_size, grid_spacing, raylib::Color::LightGray(),
-            raylib::Color::Gray());
+            {150, 150, 150, 255});
   grid.resize(last_screen_size, grid_spacing);
 
   double time = 0.0f;
