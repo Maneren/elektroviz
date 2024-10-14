@@ -1,6 +1,7 @@
 #include "FieldLine.hpp"
 #include "defs.hpp"
 #include "field.hpp"
+#include "raylib.h"
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -36,32 +37,35 @@ void FieldLine::update(const std::vector<Charge> &charges) {
     return;
   }
 
-  auto step = 1e-12f;
+  auto step = 5e-12f;
 
   const auto field_function =
-      [&charges, direction](const float time,
-                            const raylib::Vector2 &point)  {
-    return field::E(point, charges) * direction;
-  };
+      [&charges, direction](const float, const raylib::Vector2 &point) {
+        return field::E(point, charges) * direction;
+      };
 
-  points.push_back(charges[charge_index].position());
+  points.push_back(charges[charge_index].position() * GLOBAL_SCALE);
   auto position = start_position;
 
   for (const size_t i : views::iota(0) | views::take(STEPS)) {
     float t = static_cast<float>(i) / STEPS;
-    points.push_back(position);
+    points.push_back(position * GLOBAL_SCALE);
 
     auto next_position =
         field_line::Euler<raylib::Vector2>(field_function, position, t, step);
 
-    auto diff = (next_position - position);
-    auto dist = (diff).LengthSqr();
+    // clamp position change to 0.05
+    {
+      auto diff = (next_position - position);
+      auto dist = diff.Length();
+      if (dist >= 0.05f) {
+        next_position = position + diff.Scale(0.05f / dist);
+      }
+    }
 
-    constexpr float MAX_DIST = 0.1f * 0.2f;
-
-    if (dist > MAX_DIST) {
-      diff = diff.Scale(MAX_DIST / dist);
-      next_position = position + diff;
+    // stop if next_position is too far from origin
+    if ((next_position - start_position).LengthSqr() > 50.f) {
+      break;
     }
 
     auto is_colliding = [&](const auto &charge) {
@@ -71,7 +75,7 @@ void FieldLine::update(const std::vector<Charge> &charges) {
 
     if (auto charge = std::ranges::find_if(charges, is_colliding);
         charge != charges.end()) {
-      points.push_back(charge->position());
+      points.push_back(charge->position() * GLOBAL_SCALE);
       return;
     }
 
@@ -80,8 +84,7 @@ void FieldLine::update(const std::vector<Charge> &charges) {
 }
 
 void FieldLine::draw() const {
-  for (const auto &[begin, end] : points | views::transform([](const auto &p) {
-                                    return p * GLOBAL_SCALE;
-                                  }) | views::adjacent<2>)
-    begin.DrawLine(end, 0.6f, raylib::Color::DarkGreen());
+  // use the direct OpenGL line drawing method
+  raylib::Color::DarkGreen().DrawLineStrip((Vector2 *)points.data(),
+                                           points.size());
 }

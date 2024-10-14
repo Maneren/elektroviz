@@ -18,5 +18,5 @@ private:
   raylib::Color color;
   raylib::Vector2 start_position;
   size_t charge_index;
-  std::vector<raylib::Vector2> points{};
+  std::vector<Vector2> points{};
 };
