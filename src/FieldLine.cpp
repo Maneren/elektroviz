@@ -85,6 +85,8 @@ void FieldLine::update(const std::vector<Charge> &charges) {
 
 void FieldLine::draw() const {
   // use the direct OpenGL line drawing method
+  // TODO: remove the cast once https://github.com/RobLoach/raylib-cpp/pull/333
+  // is merged
   raylib::Color::DarkGreen().DrawLineStrip((Vector2 *)points.data(),
                                            points.size());
 }
