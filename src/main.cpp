@@ -111,15 +111,22 @@ int main(int argc, char const *argv[]) {
   float zoom = 200.f / GLOBAL_SCALE;
   raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, zoom);
 
-  std::vector<FieldLine> field_lines;
+  constexpr auto field_lines_per_charge = 8;
 
-  for (const auto &charge : charges) {
-    for (auto angle = 0.1f; angle < 2 * std::numbers::pi;
-         angle += 2 * PI / 16.f) {
-      field_lines.push_back(FieldLine{
-          charge.position() +
-              raylib::Vector2{cos(angle), sin(angle)}.Scale(0.1f),
-          raylib::Vector2{cos(angle), sin(angle)}, raylib::Color::Red()});
+  std::vector<FieldLine> field_lines;
+  for (const auto &[i, charge] : charges | std::views::enumerate) {
+    // start with slight offset to align less with axis and other charges
+    float angle_offset = std::numbers::pi * static_cast<float>(std::rand()) /
+                         static_cast<float>(RAND_MAX);
+    auto offset = raylib::Vector2{0.f, 0.1f}.Rotate(angle_offset);
+
+    for (size_t j = 0; j < field_lines_per_charge; ++j) {
+      offset = offset.Rotate(2 * PI / field_lines_per_charge);
+
+      auto origin = charge.position() + offset;
+
+      field_lines.push_back(
+          FieldLine{origin, static_cast<size_t>(i), raylib::Color::Red()});
     }
   }
 

@@ -23,26 +23,3 @@ std::string trim(const std::string &str) {
   auto last = str.find_last_not_of(' ');
   return str.substr(first, last - first + 1);
 }
-
-// adapted from raylib/rshapes.c to allow float threashold
-bool CheckCollisionPointLine(Vector2 point, Vector2 p1, Vector2 p2,
-                             float threshold) {
-  bool collision = false;
-
-  float dxc = point.x - p1.x;
-  float dyc = point.y - p1.y;
-  float dxl = p2.x - p1.x;
-  float dyl = p2.y - p1.y;
-  float cross = dxc * dyl - dyc * dxl;
-
-  if (fabsf(cross) < (threshold * fmaxf(fabsf(dxl), fabsf(dyl)))) {
-    if (fabsf(dxl) >= fabsf(dyl))
-      collision = (dxl > 0) ? ((p1.x <= point.x) && (point.x <= p2.x))
-                            : ((p2.x <= point.x) && (point.x <= p1.x));
-    else
-      collision = (dyl > 0) ? ((p1.y <= point.y) && (point.y <= p2.y))
-                            : ((p2.y <= point.y) && (point.y <= p1.y));
-  }
-
-  return collision;
-}

@@ -18,10 +18,10 @@ struct Segment {
 
 class FieldLine {
 public:
-  FieldLine(const raylib::Vector2 &start_position,
-            const raylib::Vector2 &start_direction, const raylib::Color &color)
+  FieldLine(const raylib::Vector2 &start_position, const size_t charge_index,
+            const raylib::Color &color)
       : color(color), start_position(start_position),
-        start_direction(start_direction), points{} {};
+        charge_index(charge_index), points{} {};
   virtual ~FieldLine() = default;
   virtual void update(const float timeDelta, const float elapsedTime,
                       const std::vector<Charge> &charges);
@@ -30,6 +30,6 @@ public:
 private:
   raylib::Color color;
   raylib::Vector2 start_position;
-  raylib::Vector2 start_direction;
+  size_t charge_index;
   std::vector<raylib::Vector2> points;
 };
