@@ -29,7 +29,7 @@ bool is_letter(char c) {
 int op_precedence(Operator &op, uint nesting_level) {
   nesting_level *= 5; // one more than the max precedence
   //
-  if (op.type == OperatorType::Function || op.type == OperatorType::Unary) {
+  if (op.type == OperatorType::Function) {
     return nesting_level + 4;
   }
 
@@ -144,7 +144,7 @@ parse_to_RPN(const std::string &input,
       wasNumber = true;
     } else if (is_letter(character)) {
       if (wasNumber) {
-        push_with_precedence(op_stack, Operator{OperatorType::Binary, {'*'}, 0},
+        push_with_precedence(op_stack, Operator{OperatorType::Binary, {'*'}},
                              rpn_queue, bracketLevel);
       }
 
@@ -166,9 +166,8 @@ parse_to_RPN(const std::string &input,
       case '+':
       case '-':
         if (!wasNumber) {
-          // rpn_queue.emplace_back({TokenType::OperatorT, character, 0});
-          push_with_precedence(op_stack, Operator{OperatorType::Unary, '-'},
-                               rpn_queue, bracketLevel);
+          rpn_queue.emplace_back(0.f);
+          wasNumber = true;
         }
         [[fallthrough]];
       case '^':
@@ -232,12 +231,6 @@ auto evaluate_RPN(const std::deque<Token> &postfix) {
             stack.push(token);
           } else if constexpr (std::is_same_v<T, Operator>) {
             switch (token.type) {
-            case OperatorType::Unary: {
-              double op = stack.top();
-              stack.pop();
-              if (std::get<char>(token.value) == '-')
-                op = -op;
-            }; break;
             case OperatorType::Binary: {
               auto op2 = stack.top();
               stack.pop();

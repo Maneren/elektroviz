@@ -27,7 +27,6 @@ struct BinaryOperator {
 enum class TokenType { Number, OperatorT };
 
 enum class OperatorType {
-  Unary,
   Binary,
   Function,
 };
@@ -58,9 +57,6 @@ template <> struct std::formatter<math::Operator> {
   template <typename FormatContext>
   auto format(math::Operator const &op, FormatContext const &ctx) const {
     switch (op.type) {
-    case math::OperatorType::Unary:
-      return std::format_to(ctx.out(), "UnaryOperator({})",
-                            std::get<char>(op.value));
     case math::OperatorType::Binary:
       return std::format_to(ctx.out(), "BinaryOperator({})",
                             std::get<char>(op.value));
