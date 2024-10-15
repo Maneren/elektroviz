@@ -27,14 +27,14 @@ void FieldLine::update(const std::vector<Charge> &charges) {
 
   auto direction = charges[charge_index].strength() >= 0.f ? 1.f : -1.f;
 
+  points.clear();
+  points.reserve(STEPS);
+
   if (direction == -1.f) {
     return;
   }
 
   auto step = 1e-12f;
-
-  points.clear();
-  points.reserve(STEPS);
 
   const auto field_function =
       [&charges, direction](const float time,
@@ -55,7 +55,7 @@ void FieldLine::update(const std::vector<Charge> &charges) {
     auto diff = (next_position - position);
     auto dist = (diff).LengthSqr();
 
-    constexpr float MAX_DIST = 0.2f * 0.2f;
+    constexpr float MAX_DIST = 0.1f * 0.2f;
 
     if (dist > MAX_DIST) {
       diff = diff.Scale(MAX_DIST / dist);
