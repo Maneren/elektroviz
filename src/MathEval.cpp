@@ -38,6 +38,7 @@ int op_precedence(Operator &op, uint nesting_level) {
     return nesting_level + 3;
   case '*':
   case '/':
+  case '%':
     return nesting_level + 2;
   case '+':
   case '-':
@@ -173,6 +174,7 @@ parse_to_RPN(const std::string &input,
       case '^':
       case '*':
       case '/':
+      case '%':
         if (!wasNumber) {
           throw parser_exception(
               std::format("Unexpected symbol '{}'. Number expected", character),
@@ -247,6 +249,8 @@ auto evaluate_RPN(const std::deque<Token> &postfix) {
                 op1 = op1 / op2;
               else if (ch == '^')
                 op1 = std::pow(op1, op2);
+              else if (ch == '%')
+                op1 = std::fmod(op1, op2);
               stack.push(op1);
             }; break;
             case OperatorType::Function: {
