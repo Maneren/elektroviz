@@ -18,14 +18,12 @@ void Charge::update([[maybe_unused]] const float timeDelta,
 void Charge::draw() const {
   auto radius = std::sqrt(std::abs(_strength)) * 12;
   // outline
-  (_position * GLOBAL_SCALE).DrawCircle(radius + 1, raylib::Color::Black());
+  (_position * GLOBAL_SCALE).DrawCircle(radius + 1, raylib::Color::RayWhite());
 
-  auto normalized = std::clamp(_strength / 5, -1.f, 1.f);
+  auto normalized = 1.f / (1.f + std::exp(-_strength));
 
   auto color =
-      (normalized > 0
-           ? lerpColor(raylib::Color::RayWhite(), POSITIVE, normalized)
-           : lerpColor(raylib::Color::RayWhite(), NEGATIVE, -normalized));
+      lerpColor3(NEGATIVE, raylib::Color::DarkGray(), POSITIVE, normalized);
 
   (_position * GLOBAL_SCALE).DrawCircle(radius, color);
 }
@@ -42,4 +40,4 @@ float Charge::potential(const raylib::Vector2 &point) const {
 }
 
 const raylib::Color Charge::POSITIVE = raylib::Color(255, 0, 0, 255);
-const raylib::Color Charge::NEGATIVE = raylib::Color(0, 0, 255, 255);
+const raylib::Color Charge::NEGATIVE = raylib::Color(40, 40, 255, 255);
