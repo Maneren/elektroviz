@@ -13,8 +13,7 @@ class Probe {
 public:
   Probe(std::unique_ptr<Position> position, const raylib::Color &color,
         float radius = 8.f)
-      : radius(radius), _position(std::move(position)),
-        _color(color) {};
+      : radius(radius), _position(std::move(position)), _color(color) {};
 
   Probe(Probe &&) = default;
   Probe &operator=(Probe &&) = default;
@@ -27,7 +26,7 @@ public:
 
     auto sample = this->sample();
 
-    auto color = lerpColor(raylib::Color::RayWhite(), _color,
+    auto color = lerpColor(raylib::Color::Gray(), _color,
                            1.f / (1.f + std::expf(-sample.Length() / 2e10f)));
 
     if constexpr (!ONLY_ARROW) {
@@ -53,7 +52,7 @@ public:
     auto head_base = draw_position + direction.Scale(line_scale * length);
 
     // Draw the line
-    draw_position.DrawLine(head_base, 1, color);
+    draw_position.DrawLine(head_base, color);
 
     // Calculate points for the arrowhead
     float head_width = length * head_scale / 2.f;
@@ -79,7 +78,9 @@ private:
 };
 
 template <> struct std::formatter<Probe> {
-  constexpr auto parse(std::format_parse_context const &ctx) const { return ctx.begin(); }
+  constexpr auto parse(std::format_parse_context const &ctx) const {
+    return ctx.begin();
+  }
   template <typename FormatContext>
   auto format(const Probe &p, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "Probe(position: {}, sample: {})",
