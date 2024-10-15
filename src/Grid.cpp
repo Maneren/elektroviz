@@ -37,8 +37,10 @@ std::vector<Probe> generateProbes(const raylib::Vector2 size,
 
   std::vector<Probe> probes;
 
-  for (float y = 0; y <= world_size_half.y; y += world_spacing.y) {
-    for (float x = 0; x <= world_size_half.x; x += world_spacing.x) {
+  for (float y = 0; y <= world_size_half.y + world_spacing.y;
+       y += world_spacing.y) {
+    for (float x = 0; x <= world_size_half.x + world_spacing.x;
+         x += world_spacing.x) {
       for (raylib::Vector2 pos :
            std::vector<raylib::Vector2>{{x, y}, {x, -y}, {-x, y}, {-x, -y}}) {
 
@@ -69,7 +71,8 @@ void Grid::draw() const {
 
 void Grid::update(const float timeDelta, const float elapsedTime,
                   const std::vector<Charge> &charges) {
-  parallel::for_each(probes.size(), [this, &timeDelta, &elapsedTime, &charges](int start, int end) {
+  parallel::for_each(probes.size(), [this, &timeDelta, &elapsedTime,
+                                     &charges](int start, int end) {
     for (int i = start; i < end; ++i)
       probes[i].update(timeDelta, elapsedTime, charges);
   });
