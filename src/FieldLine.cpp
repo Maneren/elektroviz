@@ -26,7 +26,7 @@ T Euler(const std::function<T(float, const T &)> &function, const T &value,
 } // namespace field_line
 
 void FieldLine::update(const std::vector<Charge> &charges) {
-  constexpr size_t STEPS = 2000;
+  constexpr size_t STEPS = 10000;
 
   auto direction = charges[charge_index].strength() >= 0.f ? 1.f : -1.f;
 
@@ -37,7 +37,7 @@ void FieldLine::update(const std::vector<Charge> &charges) {
     return;
   }
 
-  auto step = 5e-12f;
+  auto step = 1e-11f;
 
   const auto field_function =
       [&charges, direction](const float, const raylib::Vector2 &point) {
@@ -58,8 +58,8 @@ void FieldLine::update(const std::vector<Charge> &charges) {
     {
       auto diff = (next_position - position);
       auto dist = diff.Length();
-      if (dist >= 0.05f) {
-        next_position = position + diff.Scale(0.05f / dist);
+      if (dist >= 0.1f) {
+        next_position = position + diff.Scale(0.1f / dist);
       }
     }
 
