@@ -26,29 +26,33 @@ bool is_letter(char c) {
   return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
 }
 
-int op_precedence(char ch, uint nested) {
-  nested *= 5; // one more than max precedence
-  switch (ch) {
-  case 0: // function
-    return nested + 4;
+int op_precedence(Operator &op, uint nesting_level) {
+  nesting_level *= 5; // one more than the max precedence
+  //
+  if (op.type == OperatorType::Function || op.type == OperatorType::Unary) {
+    return nesting_level + 4;
+  }
+
+  switch (std::get<char>(op.value)) {
   case '^':
-    return nested + 3;
+    return nesting_level + 3;
   case '*':
   case '/':
-    return nested + 3;
+    return nesting_level + 2;
   case '+':
   case '-':
-    return nested + 1;
+    return nesting_level + 1;
   default:
     return -1;
   }
 }
 
-static void push_with_precedence(std::stack<Token> &stack, Token token,
-                                 std::deque<Token> &postfix, uint nested) {
-  token.prec = op_precedence(token.ch, nested);
-  while (!stack.empty() && stack.top().prec >= token.prec) {
-    postfix.push_back(stack.top());
+static void push_with_precedence(std::stack<Operator> &stack, Operator &&token,
+                                 std::deque<Token> &postfix,
+                                 const size_t nesting_level) {
+  token.precedence = op_precedence(token, nesting_level);
+  while (!stack.empty() && stack.top().precedence >= token.precedence) {
+    postfix.emplace_back(std::move(stack.top()));
     stack.pop();
   }
   stack.push(token);
@@ -84,13 +88,13 @@ std::string load_brackets(const std::string &input,
 std::deque<Token>
 parse_to_RPN(const std::string &input,
              const std::unordered_map<std::string, float> &vars) {
-  std::deque<Token> rpn_queue;
-  std::stack<Token> op_stack;
+  std::deque<Token> rpn_queue{};
+  std::stack<Operator> op_stack{};
 
   auto it = input.begin();
   bool wasNumber = false;
 
-  uint bracketLevel = 0;
+  size_t bracketLevel = 0;
 
   while (it != input.end()) {
     if (std::isspace(*it)) {
@@ -136,11 +140,11 @@ parse_to_RPN(const std::string &input,
           break;
         }
       }
-      rpn_queue.push_back({TokenType::Number, 0, value});
+      rpn_queue.emplace_back(value);
       wasNumber = true;
     } else if (is_letter(character)) {
       if (wasNumber) {
-        push_with_precedence(op_stack, Token{TokenType::BinaryOperator, '*', 0},
+        push_with_precedence(op_stack, Operator{OperatorType::Binary, {'*'}, 0},
                              rpn_queue, bracketLevel);
       }
 
@@ -150,11 +154,10 @@ parse_to_RPN(const std::string &input,
       }
       std::string token(start, it);
       if (auto var = vars.find(token); var != vars.end()) {
-        rpn_queue.push_back({TokenType::Number, 0, var->second});
+        rpn_queue.emplace_back(var->second);
         wasNumber = true;
       } else {
-        push_with_precedence(op_stack,
-                             {TokenType::UnaryOperator, 0, 0, 0, token},
+        push_with_precedence(op_stack, Operator{OperatorType::Function, token},
                              rpn_queue, bracketLevel);
         wasNumber = false;
       }
@@ -162,8 +165,11 @@ parse_to_RPN(const std::string &input,
       switch (character) {
       case '+':
       case '-':
-        if (!wasNumber)
-          rpn_queue.push_back({TokenType::UnaryOperator, character, 0});
+        if (!wasNumber) {
+          // rpn_queue.emplace_back({TokenType::OperatorT, character, 0});
+          push_with_precedence(op_stack, Operator{OperatorType::Unary, '-'},
+                               rpn_queue, bracketLevel);
+        }
         [[fallthrough]];
       case '^':
       case '*':
@@ -176,14 +182,13 @@ parse_to_RPN(const std::string &input,
 
         wasNumber = false;
         push_with_precedence(op_stack,
-                             Token{TokenType::BinaryOperator, character, 0},
+                             Operator{OperatorType::Binary, character},
                              rpn_queue, bracketLevel);
         ++it;
         break;
       case '(': {
         if (wasNumber) {
-          push_with_precedence(op_stack,
-                               Token{TokenType::BinaryOperator, '*', 0},
+          push_with_precedence(op_stack, Operator{OperatorType::Binary, '*'},
                                rpn_queue, bracketLevel);
         }
 
@@ -209,7 +214,7 @@ parse_to_RPN(const std::string &input,
   }
 
   while (!op_stack.empty()) {
-    rpn_queue.push_back(op_stack.top());
+    rpn_queue.emplace_back(op_stack.top());
     op_stack.pop();
   }
 
@@ -220,41 +225,55 @@ auto evaluate_RPN(const std::deque<Token> &postfix) {
   std::stack<float> stack{};
 
   for (const auto &token : postfix) {
-    if (token.type == TokenType::Number) {
-      stack.push(token.value);
-    } else if (token.type == TokenType::UnaryOperator && token.ch != 0) {
-      double op = stack.top();
-      stack.pop();
-      if (token.ch == '-')
-        op = -op;
-      stack.push(op);
-    } else if (token.type == TokenType::UnaryOperator && token.ch == 0) {
-      if (auto function = functions.find(token.name);
-          function != functions.end()) {
-        auto n = stack.top();
-        stack.pop();
-        stack.push(function->second(n));
-      } else {
-        throw parser_exception(
-            std::format("Unknown function '{}'", token.name));
-      }
-    } else if (token.type == TokenType::BinaryOperator && token.ch != 0) {
-      auto op2 = stack.top();
-      stack.pop();
-      auto op1 = stack.top();
-      stack.pop();
-      if (token.ch == '+')
-        op1 = op1 + op2;
-      else if (token.ch == '-')
-        op1 = op1 - op2;
-      else if (token.ch == '*')
-        op1 = op1 * op2;
-      else if (token.ch == '/')
-        op1 = op1 / op2;
-      else if (token.ch == '^')
-        op1 = std::pow(op1, op2);
-      stack.push(op1);
-    }
+    std::visit(
+        [&stack](auto &&token) {
+          using T = std::decay_t<decltype(token)>;
+          if constexpr (std::is_same_v<T, float>) {
+            stack.push(token);
+          } else if constexpr (std::is_same_v<T, Operator>) {
+            switch (token.type) {
+            case OperatorType::Unary: {
+              double op = stack.top();
+              stack.pop();
+              if (std::get<char>(token.value) == '-')
+                op = -op;
+            }; break;
+            case OperatorType::Binary: {
+              auto op2 = stack.top();
+              stack.pop();
+              auto op1 = stack.top();
+              stack.pop();
+              auto ch = std::get<char>(token.value);
+              if (ch == '+')
+                op1 = op1 + op2;
+              else if (ch == '-')
+                op1 = op1 - op2;
+              else if (ch == '*')
+                op1 = op1 * op2;
+              else if (ch == '/')
+                op1 = op1 / op2;
+              else if (ch == '^')
+                op1 = std::pow(op1, op2);
+              stack.push(op1);
+            }; break;
+            case OperatorType::Function: {
+              auto function_name = std::get<std::string>(token.value);
+              auto function = functions.find(function_name);
+
+              if (function == functions.end())
+                throw parser_exception(
+                    std::format("Unknown function '{}'", function_name));
+
+              auto n = stack.top();
+              stack.pop();
+              stack.push(function->second(n));
+
+            }; break;
+            }
+          } else
+            static_assert(false, "non-exhaustive visitor!");
+        },
+        token);
   }
 
   if (stack.size() != 1)
