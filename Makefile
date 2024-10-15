@@ -106,18 +106,6 @@ $(buildLibDir)/libraylib.a: submodules
 
 build: $(target)
 
-xorg-macros:
-	mkdir -p vendor/xorg-macros
-	curl -L "https://xorg.freedesktop.org/releases/individual/util/util-macros-1.20.1.tar.xz" | \
-		tar -xvJ --directory=vendor/xorg-macros --strip-components=1
-	cd vendor/xorg-macros $(THEN) ./configure 
-	cd vendor/xorg-macros $(THEN) "$(MAKE)" xorg-macros.m4
-
-x11: submodules xorg-macros
-	cd vendor/X11 $(THEN) NOCONFIGURE=1 ./autogen.sh
-	cd vendor/X11 $(THEN) CFLAGS="$CFLAGS -ffat-lto-objects" ./configure --prefix="/usr" --disable-xf86bigfont
-	cd vendor/X11 $(THEN) "$(MAKE)"
-
 # Link the program and create the executable
 $(target): $(objects)
 	$(CXX) $(objects) -o $(target) $(linkFlags)
