@@ -10,9 +10,9 @@ raylib::Color lerpColor(const raylib::Color a, const raylib::Color b,
 raylib::Color lerpColor3(const raylib::Color a, const raylib::Color b,
                          const raylib::Color c, const float t) {
   if (t < 0.5) {
-    return lerpColor(a, b, t * 2);
+    return lerpColor(a, b, 2.f * t);
   } else {
-    return lerpColor(b, c, (t - 0.5f) * 2);
+    return lerpColor(b, c, 2.f * (t - 0.5f));
   }
 }
 

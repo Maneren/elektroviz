@@ -81,9 +81,10 @@ public:
   raylib::Vector2 E(const raylib::Vector2 &point) const;
   float potential(const raylib::Vector2 &point) const;
 
-private:
   static const raylib::Color POSITIVE;
   static const raylib::Color NEGATIVE;
+
+private:
   raylib::Vector2 _position;
   std::unique_ptr<charge::Strength> strengthFn;
   float _strength;

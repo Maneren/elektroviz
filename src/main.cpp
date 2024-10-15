@@ -3,10 +3,14 @@
 #include "Grid.hpp"
 #include "Probe.hpp"
 #include "defs.hpp"
+#include "field.hpp"
 #include "parallel.hpp"
+#include "utils.hpp"
 #include <Camera2D.hpp>
 #include <Color.hpp>
 #include <Functions.hpp>
+#include <Image.hpp>
+#include <Texture.hpp>
 #include <Vector2.hpp>
 #include <Window.hpp>
 #include <format>
@@ -97,13 +101,15 @@ int main(int argc, char const *argv[]) {
   probe.scale = 1.5f;
 
   auto last_screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
+  auto half_screen_size = last_screen_size / 2.f;
+  auto world_size = last_screen_size / GLOBAL_SCALE;
 
-  Grid grid(last_screen_size, grid_spacing, raylib::Color::LightGray(),
+  Grid grid(last_screen_size, grid_spacing, raylib::Color::RayWhite(),
             {150, 150, 150, 255});
   grid.resize(last_screen_size, grid_spacing);
 
   double time = 0.0f;
-  raylib::Color textColor(raylib::Color::DarkGray());
+  raylib::Color textColor(raylib::Color::LightGray());
   raylib::Window w(SCREEN_WIDTH, SCREEN_HEIGHT,
                    "ELEKTROVIZ - A simple simulation of electric fields",
                    FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
@@ -128,9 +134,13 @@ int main(int argc, char const *argv[]) {
       auto origin = charge.position() + offset;
 
       field_lines.emplace_back(origin, static_cast<size_t>(i),
-                               raylib::Color::Red());
+                               raylib::Color::White());
     }
   }
+
+  raylib::Image background_image = raylib::Image::Color(
+      SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, raylib::Color::Blank());
+  auto background_texture = raylib::Texture2D(background_image);
 
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
@@ -140,10 +150,15 @@ int main(int argc, char const *argv[]) {
 
     if (auto screen_size = w.GetSize(); !screen_size.Equals(last_screen_size)) {
       last_screen_size = screen_size;
+      half_screen_size = screen_size / 2.f;
+      world_size = screen_size / GLOBAL_SCALE;
       // make 0,0 the center of the screen
-      camera.SetOffset(screen_size / 2.f);
+      camera.SetOffset(half_screen_size);
       camera.SetZoom(zoom);
       grid.resize(screen_size / zoom, grid_spacing / zoom);
+      background_texture.Unload();
+      background_image.Resize(half_screen_size.x, half_screen_size.y);
+      background_texture = raylib::Texture2D(background_image);
     }
 
     // Update
@@ -153,16 +168,48 @@ int main(int argc, char const *argv[]) {
     grid.update(frameTime, time, charges);
     probe.update(frameTime, time, charges);
 
-    parallel::for_each(field_lines.size(), [&](int start, int end) {
-      for (int i = start; i < end; ++i) {
-        field_lines[i].update(charges);
-      }
-    });
+    parallel::for_each(field_lines.size(),
+                       [&charges, &field_lines](int start, int end) {
+                         for (int i = start; i < end; ++i) {
+                           field_lines[i].update(charges);
+                         }
+                       });
+
+    {
+      auto half_world_size = world_size / 2.f;
+      parallel::for_each(
+          background_image.width * background_image.height,
+          [&](size_t start, size_t end) {
+            for (size_t i = start; i < end; ++i) {
+              auto x = i % background_image.width;
+              auto y = i / background_image.width;
+
+              auto x_screen = static_cast<float>(2 * x);
+              auto y_screen = static_cast<float>(2 * y);
+              auto position =
+                  raylib::Vector2{x_screen, y_screen} / GLOBAL_SCALE -
+                  half_world_size;
+
+              auto potencial = field::potential(position, charges) / 2e10f;
+
+              auto strength = 1.f / (1.f + std::exp(-potencial));
+
+              auto color = lerpColor3(Charge::NEGATIVE, raylib::Color::Black(),
+                                      Charge::POSITIVE, strength);
+
+              ((raylib::Color *)background_image.data)[i] = color;
+            }
+          });
+    }
+
+    background_texture.Update(background_image.data);
 
     // Draw
     w.BeginDrawing();
-    w.ClearBackground(RAYWHITE);
+
     camera.BeginMode();
+
+    background_texture.Draw(-half_screen_size, 0.f, 2.f);
 
     grid.draw();
     for (auto &field_line : field_lines) {
