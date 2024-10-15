@@ -27,7 +27,7 @@ public:
     auto sample = this->sample();
 
     auto color = lerpColor(raylib::Color::Gray(), _color,
-                           1.f / (1.f + std::expf(-sample.Length() / 2e10f)));
+                           1.f / (1.f + std::exp(-sample.Length() / 2e10f)));
 
     if constexpr (!ONLY_ARROW) {
       draw_position.DrawCircle(radius, color);
