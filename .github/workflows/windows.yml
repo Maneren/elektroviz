@@ -25,7 +25,7 @@ jobs:
       - name: "export binary"
         uses: actions/upload-artifact@v4
         with:
-          name: app.exe
+          name: elektroviz.exe
           path: build/Windows/release/elektroviz.exe
       - name: make clean
         run: mingw32-make clean

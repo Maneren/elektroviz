@@ -19,10 +19,12 @@ jobs:
         run: make setup
       - name: make build
         run: make build
+        env:
+          CXX: clang++
       - name: "export binary"
         uses: actions/upload-artifact@v4
         with:
-          name: app
+          name: elektroviz
           path: build/Linux/release/elektroviz
       - name: make clean
         run: make clean
