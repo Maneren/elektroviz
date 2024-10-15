@@ -10,13 +10,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: CXX version
-        run: clang++ --version
+        run: '"$(brew --prefix llvm@18)"/bin/clang++ --version'
       - name: make setup
         run: make setup
       - name: make build
-        run: make build
-        env:
-          CXX: $(brew --prefix llvm@18)/bin/clang++
+        run: CXX="$(brew --prefix llvm@18)/bin/clang++" make build
       - name: "export binary"
         uses: actions/upload-artifact@v4
         with:
