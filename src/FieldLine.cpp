@@ -2,6 +2,7 @@
 #include "defs.hpp"
 #include "field.hpp"
 #include <algorithm>
+#include <cmath>
 #include <functional>
 #include <ranges>
 
@@ -23,7 +24,7 @@ T Euler(const std::function<T(float, const T &)> &function, const T &value,
 
 void FieldLine::update(const float timeDelta, const float elapsedTime,
                        const std::vector<Charge> &charges) {
-  constexpr size_t STEPS = 10000;
+  constexpr size_t STEPS = 2000;
 
   auto direction = charges[charge_index].strength() >= 0.f ? 1.f : -1.f;
 
@@ -52,8 +53,14 @@ void FieldLine::update(const float timeDelta, const float elapsedTime,
     auto next_position =
         field_line::Euler<raylib::Vector2>(field_function, position, t, step);
 
-    while ((next_position - position).LengthSqr() > 0.1) {
-      next_position = (position + next_position) / 2;
+    auto diff = (next_position - position);
+    auto dist = (diff).LengthSqr();
+
+    constexpr float MAX_DIST = 0.2f * 0.2f;
+
+    if (dist > MAX_DIST) {
+      diff = diff.Scale(MAX_DIST / dist);
+      next_position = position + diff;
     }
 
     auto is_colliding = [&](const auto &charge) {
