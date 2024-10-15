@@ -153,7 +153,7 @@ int main(int argc, char const *argv[]) {
 
     parallel::for_each(field_lines.size(), [&](int start, int end) {
       for (int i = start; i < end; ++i) {
-        field_lines[i].update(frameTime, time, charges);
+        field_lines[i].update(charges);
       }
     });
 

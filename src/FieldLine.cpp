@@ -22,8 +22,7 @@ T Euler(const std::function<T(float, const T &)> &function, const T &value,
 
 } // namespace field_line
 
-void FieldLine::update(const float timeDelta, const float elapsedTime,
-                       const std::vector<Charge> &charges) {
+void FieldLine::update(const std::vector<Charge> &charges) {
   constexpr size_t STEPS = 2000;
 
   auto direction = charges[charge_index].strength() >= 0.f ? 1.f : -1.f;

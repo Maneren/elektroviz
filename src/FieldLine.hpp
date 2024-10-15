@@ -23,8 +23,7 @@ public:
       : color(color), start_position(start_position),
         charge_index(charge_index), points{} {};
   virtual ~FieldLine() = default;
-  virtual void update(const float timeDelta, const float elapsedTime,
-                      const std::vector<Charge> &charges);
+  virtual void update(const std::vector<Charge> &charges);
   virtual void draw() const;
 
 private:
