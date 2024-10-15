@@ -20,7 +20,6 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <ostream>
-#include <print>
 #include <string>
 #include <vector>
 
@@ -114,7 +113,7 @@ int main(int argc, char const *argv[]) {
                    "ELEKTROVIZ - A simple simulation of electric fields",
                    FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
 
-  w.SetTargetFPS(60);
+  // w.SetTargetFPS(60);
 
   float zoom = 200.f / GLOBAL_SCALE;
   raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, zoom);
