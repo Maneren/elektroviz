@@ -47,7 +47,7 @@ void FieldLine::update(const std::vector<Charge> &charges) {
   points.push_back(charges[charge_index].position() * GLOBAL_SCALE);
   auto position = start_position;
 
-  for (const size_t i : views::iota(0) | views::take(STEPS)) {
+  for (const size_t i : views::iota(0uz, STEPS)) {
     float t = static_cast<float>(i) / STEPS;
     points.push_back(position * GLOBAL_SCALE);
 
