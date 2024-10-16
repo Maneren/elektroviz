@@ -3,14 +3,14 @@
 #include "defs.hpp"
 #include "utils.hpp"
 
-float charge::VariableStrength::operator()(const float elapsed) const {
+float charge::VariableStrength::operator()(const double elapsed) const {
   auto vars = variables;
   vars["t"] = elapsed;
   return evaluate(func, vars);
 }
 
 void Charge::update([[maybe_unused]] const float timeDelta,
-                    const float elapsedTime) {
+                    const double elapsedTime) {
   _strength = (*strengthFn)(elapsedTime);
 }
 

@@ -69,7 +69,7 @@ void Grid::draw() const {
   }
 }
 
-void Grid::update(const float timeDelta, const float elapsedTime,
+void Grid::update(const float timeDelta, const double elapsedTime,
                   const std::vector<Charge> &charges) {
   parallel::for_each<Probe>(probes, [&](auto, auto &probe) {
     probe.update(timeDelta, elapsedTime, charges);

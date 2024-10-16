@@ -46,7 +46,7 @@ public:
         lines(generateLines(size, spacing, line_color)),
         probes(generateProbes(size, spacing, probe_color)) {};
   void draw() const;
-  void update(const float timeDelta, const float elapsedTime,
+  void update(const float timeDelta, const double elapsedTime,
               const std::vector<Charge> &charges);
   void resize(const raylib::Vector2 size, const raylib::Vector2 spacing);
 

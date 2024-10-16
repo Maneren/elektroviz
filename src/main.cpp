@@ -19,8 +19,6 @@
 #include <iostream>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include <numeric>
-#include <ostream>
 #include <ranges>
 #include <span>
 #include <string>
@@ -116,7 +114,7 @@ int main(int argc, char const *argv[]) {
                    "ELEKTROVIZ - A simple simulation of electric fields",
                    FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
 
-  // w.SetTargetFPS(60);
+  w.SetTargetFPS(60);
 
   float zoom = 200.f / GLOBAL_SCALE;
   raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, zoom);
@@ -126,7 +124,8 @@ int main(int argc, char const *argv[]) {
   std::vector<FieldLine> field_lines;
   for (const auto &[i, charge] : charges | views::enumerate | views::as_const) {
     // start with slight offset to align less with axis and other charges
-    float angle_offset = std::numbers::pi * static_cast<float>(std::rand()) /
+    float angle_offset = std::numbers::pi_v<float> *
+                         static_cast<float>(std::rand()) /
                          static_cast<float>(RAND_MAX);
     auto offset = raylib::Vector2{0.f, 0.1f}.Rotate(angle_offset);
 
@@ -172,16 +171,14 @@ int main(int argc, char const *argv[]) {
 
     parallel::for_each<FieldLine>(
         field_lines,
-        [&charges = std::as_const(charges)](auto, auto &field_line) {
-          field_line.update(charges);
-        });
+        [&charges](auto, auto &field_line) { field_line.update(charges); });
 
     // SAFETY: each thread will access independent portion of the image and the
     // image is internally composed of Colors, so it's safe to treat it as such
     parallel::for_each<raylib::Color>(
         std::span((raylib::Color *)background_image.data,
                   background_image.width * background_image.height),
-        [&background_image, &charges = std::as_const(charges),
+        [&background_image, &charges,
          half_world_size = world_size / 2.f](auto i, auto &pixel) {
           auto x = i % background_image.width;
           auto y = i / background_image.width;
@@ -220,17 +217,18 @@ int main(int argc, char const *argv[]) {
     camera.EndMode();
 
     auto fps_text = std::format("FPS: {}", w.GetFPS());
-    auto text_pos = raylib::Vector2{10, 10};
-    raylib::DrawText(fps_text, text_pos.x, text_pos.y, FONT_SIZE, textColor);
+    auto text_pos_x = 10;
+    auto text_pos_y = 10;
+    raylib::DrawText(fps_text, text_pos_x, text_pos_y, FONT_SIZE, textColor);
 
     // window size
     auto window_text =
         std::format("Window size: {}x{}", w.GetWidth(), w.GetHeight());
-    raylib::DrawText(window_text, text_pos.x, text_pos.y + FONT_SIZE, FONT_SIZE,
+    raylib::DrawText(window_text, text_pos_x, text_pos_y + FONT_SIZE, FONT_SIZE,
                      textColor);
 
     auto scenario_text = std::format("Scenario: {}", scenario);
-    raylib::DrawText(scenario_text, text_pos.x, text_pos.y + 2 * FONT_SIZE,
+    raylib::DrawText(scenario_text, text_pos_x, text_pos_y + 2 * FONT_SIZE,
                      FONT_SIZE, textColor);
 
     w.EndDrawing();

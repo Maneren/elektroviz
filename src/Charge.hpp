@@ -8,14 +8,14 @@ namespace charge {
 
 class Strength {
 public:
-  virtual float operator()(const float elapsed) const = 0;
+  virtual float operator()(const double elapsed) const = 0;
   virtual ~Strength() = default;
 };
 
 class ConstantStrength : public Strength {
 public:
   explicit ConstantStrength(const float strength) : strength(strength) {}
-  float operator()([[maybe_unused]] const float elapsed) const override {
+  float operator()([[maybe_unused]] const double elapsed) const override {
     return strength;
   }
   const float strength;
@@ -24,7 +24,7 @@ public:
 class VariableStrength : public Strength {
 public:
   explicit VariableStrength(const std::string &func) : func(func) {}
-  float operator()(const float elapsed) const override;
+  float operator()(const double elapsed) const override;
   const std::string func;
 };
 
@@ -78,7 +78,7 @@ public:
   Charge(Charge &&) = default;
   Charge &operator=(Charge &&) = default;
 
-  void update(const float timeDelta, const float elapsedTime);
+  void update(const float timeDelta, const double elapsedTime);
   void draw() const;
 
   raylib::Vector2 position() const { return _position; }

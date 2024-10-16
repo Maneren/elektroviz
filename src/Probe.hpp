@@ -18,7 +18,7 @@ public:
   Probe(Probe &&) = default;
   Probe &operator=(Probe &&) = default;
 
-  void update(const float timeDelta, const float elapsedTime,
+  void update(const float timeDelta, const double elapsedTime,
               const std::vector<Charge> &charges);
 
   template <const bool ONLY_ARROW = false> void draw() const {
