@@ -191,10 +191,8 @@ int main(int argc, char const *argv[]) {
 
               auto potencial = field::potential(position, charges) / 2e10f;
 
-              auto strength = 1.f / (1.f + std::exp(-potencial));
-
               auto color = lerpColor3(Charge::NEGATIVE, raylib::Color::Black(),
-                                      Charge::POSITIVE, strength);
+                                      Charge::POSITIVE, sigmoid(potencial));
 
               ((raylib::Color *)background_image.data)[i] = color;
             }

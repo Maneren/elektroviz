@@ -2,7 +2,6 @@
 #include "MathEval.hpp"
 #include "defs.hpp"
 #include "utils.hpp"
-#include <algorithm>
 
 float charge::VariableStrength::operator()(const float elapsed) const {
   auto vars = variables;
@@ -20,10 +19,8 @@ void Charge::draw() const {
   // outline
   (_position * GLOBAL_SCALE).DrawCircle(radius + 1, raylib::Color::RayWhite());
 
-  auto normalized = 1.f / (1.f + std::exp(-_strength));
-
-  auto color =
-      lerpColor3(NEGATIVE, raylib::Color::DarkGray(), POSITIVE, normalized);
+  auto color = lerpColor3(NEGATIVE, raylib::Color::DarkGray(), POSITIVE,
+                          sigmoid(_strength));
 
   (_position * GLOBAL_SCALE).DrawCircle(radius, color);
 }

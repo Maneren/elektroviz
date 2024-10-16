@@ -16,6 +16,8 @@ raylib::Color lerpColor3(const raylib::Color a, const raylib::Color b,
   }
 }
 
+float sigmoid(float x) { return 1.f / (1.f + std::exp(-x)); }
+
 std::string trim(const std::string &str) {
   auto first = str.find_first_not_of(' ');
   if (first == std::string::npos)
