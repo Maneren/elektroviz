@@ -19,7 +19,10 @@
 #include <iostream>
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <numeric>
 #include <ostream>
+#include <ranges>
+#include <span>
 #include <string>
 #include <vector>
 
@@ -167,41 +170,34 @@ int main(int argc, char const *argv[]) {
     grid.update(frameTime, time, charges);
     probe.update(frameTime, time, charges);
 
-    // SAFETY: field lines are independent
-    parallel::for_each(field_lines.size(),
-                       [&charges, &field_lines](int start, int end) {
-                         for (int i = start; i < end; ++i) {
-                           field_lines[i].update(charges);
-                         }
-                       });
+    parallel::for_each<FieldLine>(
+        field_lines,
+        [&charges = std::as_const(charges)](auto, auto &field_line) {
+          field_line.update(charges);
+        });
 
-    {
-      // SAFETY: each thread will access independent portion of the image
-      parallel::for_each(
-          background_image.width * background_image.height,
-          [&background_image, &charges,
-           half_world_size = world_size / 2.f](auto start, auto end) {
-            for (size_t i = start; i < end; ++i) {
-              auto x = i % background_image.width;
-              auto y = i / background_image.width;
+    // SAFETY: each thread will access independent portion of the image and the
+    // image is internally composed of Colors, so it's safe to treat it as such
+    parallel::for_each<raylib::Color>(
+        std::span((raylib::Color *)background_image.data,
+                  background_image.width * background_image.height),
+        [&background_image, &charges = std::as_const(charges),
+         half_world_size = world_size / 2.f](auto i, auto &pixel) {
+          auto x = i % background_image.width;
+          auto y = i / background_image.width;
 
-              auto x_screen = static_cast<float>(2 * x);
-              auto y_screen = static_cast<float>(2 * y);
-              auto position =
-                  raylib::Vector2{x_screen, y_screen} / GLOBAL_SCALE -
-                  half_world_size;
+          auto x_screen = static_cast<float>(2 * x);
+          auto y_screen = static_cast<float>(2 * y);
+          auto position = raylib::Vector2{x_screen, y_screen} / GLOBAL_SCALE -
+                          half_world_size;
 
-              auto potencial = field::potential(position, charges) / 2e10f;
+          auto potencial = field::potential(position, charges) / 2e10f;
 
-              auto color = lerpColor3(Charge::NEGATIVE, raylib::Color::Black(),
-                                      Charge::POSITIVE, sigmoid(potencial));
+          auto color = lerpColor3(Charge::NEGATIVE, raylib::Color::Black(),
+                                  Charge::POSITIVE, sigmoid(potencial));
 
-              // SAFETY: image data for the default format is a internally an
-              // array of Colors, so we may change it directly
-              ((raylib::Color *)background_image.data)[i] = color;
-            }
-          });
-    }
+          pixel = color;
+        });
 
     background_texture.Update(background_image.data);
 
