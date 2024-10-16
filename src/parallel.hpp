@@ -15,7 +15,9 @@ namespace parallel {
 /// @endcode
 /// @param use_threads : enable / disable threads.
 ///
-///
+/// @safety Each thread only recieves it's own range of input values, but it's
+/// up to the user provided function to not access elements outside of that
+/// range, or to not invalidate any references or pointers, etc.
 void for_each(size_t nb_elements,
               std::function<void(size_t start, size_t end)> functor,
               bool use_threads = true);
