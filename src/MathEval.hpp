@@ -68,7 +68,9 @@ template <> struct std::formatter<math::Operator> {
 };
 
 template <> struct std::formatter<math::TokenType> {
-  constexpr auto parse(std::format_parse_context const &ctx) const { return ctx.begin(); }
+  constexpr auto parse(std::format_parse_context const &ctx) const {
+    return ctx.begin();
+  }
   template <typename FormatContext>
   auto format(const math::TokenType &p, FormatContext &ctx) const {
     switch (p) {
@@ -81,12 +83,14 @@ template <> struct std::formatter<math::TokenType> {
 };
 
 template <> struct std::formatter<math::Token> {
-  constexpr auto parse(std::format_parse_context const &ctx) const { return ctx.begin(); }
+  constexpr auto parse(std::format_parse_context const &ctx) const {
+    return ctx.begin();
+  }
   template <typename FormatContext>
   auto format(const math::Token &p, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "Token(value: {})",
                           std::visit([](auto &&x) { return x; }, p));
-  };
+  }
 };
 
 float evaluate(const std::string &expr,

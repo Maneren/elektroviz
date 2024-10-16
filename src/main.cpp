@@ -63,7 +63,6 @@ int main(int argc, char const *argv[]) {
           raylib::Vector2{std::stof(size_spec.substr(0, size_spec.find("x"))),
                           std::stof(size_spec.substr(size_spec.find("x") + 1))};
     } else {
-
       std::cerr
           << std::format(
                  "Invalid size spec: '{}'. Expected format is 'WIDTHxHEIGHT'",
@@ -86,7 +85,7 @@ int main(int argc, char const *argv[]) {
     std::cout << "Loaded scenario: " << scenario << std::endl;
 
     load_charges_from_json(charges, data);
-  };
+  }
 
   std::cout << std::format("Loaded {} charge(s)", charges.size()) << std::endl;
   std::cout << "Charges: [" << std::endl;

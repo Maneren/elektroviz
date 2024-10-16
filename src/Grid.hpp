@@ -3,12 +3,13 @@
 #include "Probe.hpp"
 #include <Color.hpp>
 #include <Vector2.hpp>
+#include <vector>
 
 class GridLine {
 public:
   GridLine(const raylib::Vector2 start, const raylib::Vector2 end,
            raylib::Color color = raylib::Color::Gray())
-      : start(start), end(end), color(color) {};
+      : start(start), end(end), color(color) {}
   void draw() const;
 
 private:
@@ -20,7 +21,9 @@ private:
 };
 
 template <> struct std::formatter<GridLine> {
-  constexpr auto parse(std::format_parse_context &ctx) { return ctx.begin(); }
+  constexpr auto parse(std::format_parse_context const &ctx) const {
+    return ctx.begin();
+  }
   template <typename FormatContext>
   auto format(const GridLine &p, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "GridLine(start: {}, end: {}, color: {})",
@@ -44,7 +47,7 @@ public:
       : line_color(line_color), probe_color(probe_color),
         origin(raylib::Vector2{0, 0}),
         lines(generateLines(size, spacing, line_color)),
-        probes(generateProbes(size, spacing, probe_color)) {};
+        probes(generateProbes(size, spacing, probe_color)) {}
   void draw() const;
   void update(const float timeDelta, const double elapsedTime,
               const std::vector<Charge> &charges);

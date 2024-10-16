@@ -3,6 +3,7 @@
 #include <Vector2.hpp>
 #include <format>
 #include <numbers>
+#include <string>
 #include <unordered_map>
 
 // Global screen dimensions, updated on window resize
@@ -36,4 +37,6 @@ template <> struct std::formatter<raylib::Color> {
 };
 
 static const std::unordered_map<std::string, float> variables = {
-    {"t", 0.0f}, {"pi", std::numbers::pi}, {"e", std::numbers::e}};
+    {"t", 0.0f},
+    {"pi", std::numbers::pi_v<float>},
+    {"e", std::numbers::e_v<float>}};

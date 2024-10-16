@@ -1,6 +1,7 @@
 #include "MathEval.hpp"
 #include "utils.hpp"
 #include <cmath>
+#include <deque>
 #include <functional>
 #include <stack>
 
@@ -264,11 +265,11 @@ auto evaluate_RPN(const std::deque<Token> &postfix) {
               auto n = stack.top();
               stack.pop();
               stack.push(function->second(n));
-
             }; break;
             }
-          } else
+          } else {
             static_assert(false, "non-exhaustive visitor!");
+          }
         },
         token);
   }

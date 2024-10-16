@@ -3,6 +3,7 @@
 #include <Vector2.hpp>
 #include <format>
 #include <memory>
+#include <string>
 
 namespace charge {
 
@@ -73,7 +74,7 @@ public:
   Charge(const Charge &) = delete;
   Charge(const raylib::Vector2 &position,
          std::unique_ptr<charge::Strength> strength)
-      : _position(position), strengthFn(std::move(strength)) {};
+      : _position(position), strengthFn(std::move(strength)) {}
 
   Charge(Charge &&) = default;
   Charge &operator=(Charge &&) = default;

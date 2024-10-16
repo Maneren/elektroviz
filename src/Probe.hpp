@@ -8,12 +8,13 @@
 #include <Vector2.hpp>
 #include <format>
 #include <memory>
+#include <vector>
 
 class Probe {
 public:
   Probe(std::unique_ptr<Position> position, const raylib::Color &color,
         float radius = 8.f)
-      : radius(radius), _position(std::move(position)), _color(color) {};
+      : radius(radius), _position(std::move(position)), _color(color) {}
 
   Probe(Probe &&) = default;
   Probe &operator=(Probe &&) = default;
@@ -62,9 +63,9 @@ public:
 
     // Draw the triangular arrowhead
     DrawTriangle(head_left, tip, head_right, color);
-  };
+  }
 
-  raylib::Vector2 sample() const { return _sample; };
+  raylib::Vector2 sample() const { return _sample; }
 
   float radius;
   float scale = 1.f;
