@@ -180,7 +180,7 @@ int main(int argc, char const *argv[]) {
     // SAFETY: each thread will access independent portion of the image and the
     // image is internally composed of Colors, so it's safe to treat it as such
     parallel::for_each<raylib::Color>(
-        std::span((raylib::Color *)background_image.data,
+        std::span(static_cast<raylib::Color *>(background_image.data),
                   background_image.width * background_image.height),
         [&background_image, &charges,
          half_world_size = world_size / 2.f](auto i, auto &pixel) {
