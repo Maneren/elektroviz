@@ -5,25 +5,12 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <ostream>
+#include <print>
 #include <ranges>
+#include <span>
 
 namespace views = std::views;
-
-namespace field_line {
-// Calculate the next value of the function with Euler's method
-//
-// @param function The function to calculate in form
-// $value_{n+1} = value_n + step * function(time, value_n)$
-// @param value Current value
-// @param time Current time
-// @param step Step size
-template <typename T>
-T Euler(const std::function<T(float, const T &)> &function, const T &value,
-        const float &time, const float &step = 0.01f) {
-  return value + function(time, value) * step;
-}
-
-} // namespace field_line
 
 void FieldLine::update(const std::vector<Charge> &charges) {
   constexpr size_t STEPS = 10000;
@@ -37,43 +24,27 @@ void FieldLine::update(const std::vector<Charge> &charges) {
     return;
   }
 
-  auto step = 1e-11f;
-
-  const auto field_function =
-      [&charges, direction](const float, const raylib::Vector2 &point) {
-        return field::E(point, charges) * direction;
-      };
+  const auto charges_span = std::span{charges};
 
   points.push_back(charges[charge_index].position() * GLOBAL_SCALE);
   auto position = start_position;
 
-  for (const size_t i : views::iota(0uz, STEPS)) {
-    float t = static_cast<float>(i) / STEPS;
+  for (const auto _ : views::iota(0uz, STEPS)) {
     points.push_back(position * GLOBAL_SCALE);
 
-    auto next_position =
-        field_line::Euler<raylib::Vector2>(field_function, position, t, step);
+    auto sample = field_function(charges_span, position, direction);
+    auto next_position = position + sample.Clamp(0.05f, 0.05f);
 
-    // clamp position change to 0.05
-    {
-      auto diff = (next_position - position);
-      auto dist = diff.Length();
-      if (dist >= 0.1f) {
-        next_position = position + diff.Scale(0.1f / dist);
-      }
-    }
-
-    // stop if next_position is too far from origin
+    // Stop if next_position is too far from origin
     if ((next_position - start_position).LengthSqr() > 50.f) {
       break;
     }
 
-    auto is_colliding = [&](const auto &charge) {
-      return CheckCollisionCircleLine(charge.position(), 0.01f, position,
-                                      next_position);
+    auto found_end = [=, this](const Charge &charge) {
+      return this->found_end(charge, position, next_position);
     };
 
-    if (auto charge = std::ranges::find_if(charges, is_colliding);
+    if (auto charge = std::ranges::find_if(charges, found_end);
         charge != charges.end()) {
       points.push_back(charge->position() * GLOBAL_SCALE);
       return;
@@ -84,6 +55,87 @@ void FieldLine::update(const std::vector<Charge> &charges) {
 }
 
 void FieldLine::draw() const {
-  // use the direct OpenGL line drawing method
+  // Use the direct OpenGL line drawing method
   color.DrawLineStrip(const_cast<Vector2 *>(points.data()), points.size());
+}
+
+void FieldLines::update(const std::span<const Charge> &charges) {
+  field_lines.clear();
+  equipotencial_lines.clear();
+
+  auto field_function = [charges](auto point) {
+    return field::E(point, charges);
+  };
+
+  auto end_point_function = [charges](raylib::Vector2 point) {
+    auto charge = std::ranges::find_if(charges, [point](auto &charge) {
+      return CheckCollisionPointCircle(point, charge.position(), 0.01f);
+    });
+    return charge != charges.end();
+  };
+
+  for (const auto &[i, charge] : charges | views::enumerate | views::as_const) {
+    // Start with slight offset to align less with axis and other charges
+    float initial_angle_offset = std::numbers::pi_v<float> *
+                                 static_cast<float>(std::rand()) /
+                                 static_cast<float>(RAND_MAX);
+
+    auto offset = raylib::Vector2{0.f, 0.1f}.Rotate(initial_angle_offset);
+
+    for (size_t j = 0; j < lines_per_charge; ++j) {
+      offset = offset.Rotate(2 * std::numbers::pi_v<float> / lines_per_charge);
+
+      field_lines.push_back(calculate_line(
+          charge.position(), offset, field_function, end_point_function, 1.f));
+    }
+  }
+}
+
+FieldLines::Line FieldLines::calculate_line(
+    const raylib::Vector2 &start_point, const raylib::Vector2 &start_direction,
+    const std::function<raylib::Vector2(raylib::Vector2)> &field_function,
+    const std::function<std::optional<raylib::Vector2>(raylib::Vector2)>
+        &end_point_function,
+    const float direction) {
+  constexpr size_t STEPS = 10000;
+
+  std::vector<Vector2> points;
+
+  points.push_back(world_to_screen(start_point));
+
+  raylib::Vector2 position = start_point + start_direction;
+
+  std::println("Calculating line from {} ({})", start_point, position);
+
+  for (const auto _ : views::iota(0uz, STEPS)) {
+    points.push_back(position * GLOBAL_SCALE);
+
+    auto sample = field_function(position) * direction;
+    auto next_position = position + sample.Clamp(0.05f, 0.05f);
+
+    // Stop if next_position is too far from origin
+    if ((next_position - start_point).LengthSqr() > 50.f) {
+      break;
+    }
+
+    if (auto end_point = end_point_function(next_position);
+        end_point.has_value()) {
+      points.push_back(world_to_screen(end_point.value()));
+      return points;
+    }
+
+    position = next_position;
+  }
+
+  return points;
+}
+
+void FieldLines::draw() const {
+  for (const auto &line : field_lines) {
+    draw_line(line);
+  }
+}
+
+void FieldLines::draw_line(const Line &line) const {
+  color.DrawLineStrip(const_cast<Vector2 *>(line.data()), line.size());
 }

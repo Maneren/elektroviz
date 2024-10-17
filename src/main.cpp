@@ -114,32 +114,15 @@ int main(int argc, char const *argv[]) {
                    "ELEKTROVIZ - A simple simulation of electric fields",
                    FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
 
-  w.SetTargetFPS(60);
+  // w.SetTargetFPS(60);
 
   float zoom = 200.f / GLOBAL_SCALE;
   raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, zoom);
 
-  constexpr auto field_lines_per_charge = 16;
+  constexpr auto lines_per_charge = 3;
+  FieldLines field_lines{lines_per_charge};
 
-  std::vector<FieldLine> field_lines;
-  for (const auto &[i, charge] : charges | views::enumerate | views::as_const) {
-    // Start with slight offset to align less with axis and other charges
-    float angle_offset = std::numbers::pi_v<float> *
-                         static_cast<float>(std::rand()) /
-                         static_cast<float>(RAND_MAX);
-    auto offset = raylib::Vector2{0.f, 0.1f}.Rotate(angle_offset);
-
-    for (size_t j = 0; j < field_lines_per_charge; ++j) {
-      offset = offset.Rotate(2 * PI / field_lines_per_charge);
-
-      auto origin = charge.position() + offset;
-
-      field_lines.emplace_back(origin, static_cast<size_t>(i),
-                               raylib::Color::White());
-    }
-  }
-
-  constexpr int BACKGROUND_SUBSAMPLING = 8;
+  constexpr int BACKGROUND_SUBSAMPLING = 2;
 
   raylib::Image background_image = raylib::Image::Color(
       SCREEN_WIDTH / BACKGROUND_SUBSAMPLING,
@@ -172,10 +155,10 @@ int main(int argc, char const *argv[]) {
     }
     grid.update(frameTime, time, charges);
     probe.update(frameTime, time, charges);
-
-    parallel::for_each<FieldLine>(
-        field_lines,
-        [&charges](auto, auto &field_line) { field_line.update(charges); });
+    field_lines.update(charges);
+    // parallel::for_each<FieldLine>(
+    //     field_lines,
+    //     [&charges](auto, auto &field_line) { field_line.update(charges); });
 
     // SAFETY: each thread will access independent portion of the image and the
     // image is internally composed of Colors, so it's safe to treat it as such
@@ -211,9 +194,7 @@ int main(int argc, char const *argv[]) {
                             static_cast<float>(BACKGROUND_SUBSAMPLING));
 
     grid.draw();
-    for (auto &field_line : field_lines) {
-      field_line.draw();
-    }
+    field_lines.draw();
     for (auto &charge : charges) {
       charge.draw();
     }

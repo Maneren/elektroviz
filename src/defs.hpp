@@ -13,8 +13,16 @@ static int SCREEN_HEIGHT = 600;
 constexpr float EPSILON_0 = 8.8541878128e-12f;
 constexpr float K_E = 1 / (4 * std::numbers::pi_v<float> * EPSILON_0);
 
-constexpr float GLOBAL_SCALE = 100.0f;
 constexpr int FONT_SIZE = 24;
+constexpr float GLOBAL_SCALE = 100.0f;
+
+constexpr raylib::Vector2 world_to_screen(const raylib::Vector2 &point) {
+  return point * GLOBAL_SCALE;
+}
+
+constexpr raylib::Vector2 screen_to_world(const raylib::Vector2 &point) {
+  return point / GLOBAL_SCALE;
+}
 
 template <> struct std::formatter<raylib::Vector2> {
   constexpr auto parse(std::format_parse_context const &ctx) const {
