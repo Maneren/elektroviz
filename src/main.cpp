@@ -123,7 +123,7 @@ int main(int argc, char const *argv[]) {
 
   std::vector<FieldLine> field_lines;
   for (const auto &[i, charge] : charges | views::enumerate | views::as_const) {
-    // start with slight offset to align less with axis and other charges
+    // Start with slight offset to align less with axis and other charges
     float angle_offset = std::numbers::pi_v<float> *
                          static_cast<float>(std::rand()) /
                          static_cast<float>(RAND_MAX);
@@ -139,7 +139,7 @@ int main(int argc, char const *argv[]) {
     }
   }
 
-  constexpr int BACKGROUND_SUBSAMPLING = 2;
+  constexpr int BACKGROUND_SUBSAMPLING = 8;
 
   raylib::Image background_image = raylib::Image::Color(
       SCREEN_WIDTH / BACKGROUND_SUBSAMPLING,
@@ -156,7 +156,7 @@ int main(int argc, char const *argv[]) {
       last_screen_size = screen_size;
       half_screen_size = screen_size / 2.f;
       world_size = screen_size / GLOBAL_SCALE;
-      // make 0,0 the center of the screen
+      // Make 0,0 the center of the screen
       camera.SetOffset(half_screen_size);
       camera.SetZoom(zoom);
       grid.resize(screen_size / zoom, grid_spacing / zoom);
@@ -221,12 +221,12 @@ int main(int argc, char const *argv[]) {
 
     camera.EndMode();
 
-    auto fps_text = std::format("FPS: {}", w.GetFPS());
     auto text_pos_x = 10;
     auto text_pos_y = 10;
+
+    auto fps_text = std::format("FPS: {}", w.GetFPS());
     raylib::DrawText(fps_text, text_pos_x, text_pos_y, FONT_SIZE, textColor);
 
-    // window size
     auto window_text =
         std::format("Window size: {}x{}", w.GetWidth(), w.GetHeight());
     raylib::DrawText(window_text, text_pos_x, text_pos_y + FONT_SIZE, FONT_SIZE,
