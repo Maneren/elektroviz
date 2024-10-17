@@ -20,6 +20,7 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <ranges>
+#include <rlgl.h>
 #include <span>
 #include <string>
 #include <vector>
@@ -138,8 +139,11 @@ int main(int argc, char const *argv[]) {
     }
   }
 
+  constexpr int BACKGROUND_SUBSAMPLING = 2;
+
   raylib::Image background_image = raylib::Image::Color(
-      SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, raylib::Color::Blank());
+      SCREEN_WIDTH / BACKGROUND_SUBSAMPLING,
+      SCREEN_HEIGHT / BACKGROUND_SUBSAMPLING, raylib::Color::Blank());
   auto background_texture = raylib::Texture2D(background_image);
 
   // Main game loop
@@ -157,7 +161,8 @@ int main(int argc, char const *argv[]) {
       camera.SetZoom(zoom);
       grid.resize(screen_size / zoom, grid_spacing / zoom);
       background_texture.Unload();
-      background_image.Resize(half_screen_size.x, half_screen_size.y);
+      background_image.Resize(screen_size.x / BACKGROUND_SUBSAMPLING,
+                              screen_size.y / BACKGROUND_SUBSAMPLING);
       background_texture = raylib::Texture2D(background_image);
     }
 
@@ -182,8 +187,8 @@ int main(int argc, char const *argv[]) {
           auto x = i % background_image.width;
           auto y = i / background_image.width;
 
-          auto x_screen = static_cast<float>(2 * x);
-          auto y_screen = static_cast<float>(2 * y);
+          auto x_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * x);
+          auto y_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * y);
           auto position = raylib::Vector2{x_screen, y_screen} / GLOBAL_SCALE -
                           half_world_size;
 
@@ -202,7 +207,8 @@ int main(int argc, char const *argv[]) {
 
     camera.BeginMode();
 
-    background_texture.Draw(-half_screen_size, 0.f, 2.f);
+    background_texture.Draw(-half_screen_size, 0.f,
+                            static_cast<float>(BACKGROUND_SUBSAMPLING));
 
     grid.draw();
     for (auto &field_line : field_lines) {
