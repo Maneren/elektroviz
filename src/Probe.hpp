@@ -33,7 +33,7 @@ public:
     if constexpr (!ONLY_ARROW) {
       draw_position.DrawCircle(radius, color);
 
-      auto msg = std::format("E = {} N/C", sample.Length());
+      auto msg = std::format("E = {:.1E} N/C", sample.Length());
       int width = raylib::MeasureText(msg, FONT_SIZE);
       raylib::DrawText(msg.c_str(), draw_position.x - width / 2.f,
                        draw_position.y - 2 * FONT_SIZE, FONT_SIZE, color);

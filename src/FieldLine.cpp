@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <optional>
 #include <ostream>
 #include <print>
 #include <ranges>
@@ -67,18 +68,18 @@ void FieldLines::update(const std::span<const Charge> &charges) {
     return field::E(point, charges);
   };
 
-  auto end_point_function = [charges](raylib::Vector2 point) {
+  auto end_point_function =
+      [charges](raylib::Vector2 point) -> std::optional<raylib::Vector2> {
     auto charge = std::ranges::find_if(charges, [point](auto &charge) {
       return CheckCollisionPointCircle(point, charge.position(), 0.01f);
     });
-    return charge != charges.end();
+    return charge != charges.end() ? std::optional(charge->position())
+                                   : std::nullopt;
   };
 
   for (const auto &[i, charge] : charges | views::enumerate | views::as_const) {
     // Start with slight offset to align less with axis and other charges
-    float initial_angle_offset = std::numbers::pi_v<float> *
-                                 static_cast<float>(std::rand()) /
-                                 static_cast<float>(RAND_MAX);
+    float initial_angle_offset = 0.1f;
 
     auto offset = raylib::Vector2{0.f, 0.1f}.Rotate(initial_angle_offset);
 
@@ -100,18 +101,17 @@ FieldLines::Line FieldLines::calculate_line(
   constexpr size_t STEPS = 10000;
 
   std::vector<Vector2> points;
+  points.reserve(STEPS);
 
   points.push_back(world_to_screen(start_point));
 
   raylib::Vector2 position = start_point + start_direction;
 
-  std::println("Calculating line from {} ({})", start_point, position);
-
   for (const auto _ : views::iota(0uz, STEPS)) {
-    points.push_back(position * GLOBAL_SCALE);
+    points.push_back(world_to_screen(position));
 
     auto sample = field_function(position) * direction;
-    auto next_position = position + sample.Clamp(0.05f, 0.05f);
+    auto next_position = position + sample.Clamp(0.f, 0.01f);
 
     // Stop if next_position is too far from origin
     if ((next_position - start_point).LengthSqr() > 50.f) {
@@ -121,7 +121,7 @@ FieldLines::Line FieldLines::calculate_line(
     if (auto end_point = end_point_function(next_position);
         end_point.has_value()) {
       points.push_back(world_to_screen(end_point.value()));
-      return points;
+      break;
     }
 
     position = next_position;

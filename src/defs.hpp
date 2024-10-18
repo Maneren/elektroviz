@@ -17,7 +17,7 @@ constexpr int FONT_SIZE = 24;
 constexpr float GLOBAL_SCALE = 100.0f;
 
 constexpr raylib::Vector2 world_to_screen(const raylib::Vector2 &point) {
-  return point * GLOBAL_SCALE;
+  return raylib::Vector2{point.x * GLOBAL_SCALE, -point.y * GLOBAL_SCALE};
 }
 
 constexpr raylib::Vector2 screen_to_world(const raylib::Vector2 &point) {

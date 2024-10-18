@@ -119,7 +119,7 @@ int main(int argc, char const *argv[]) {
   float zoom = 200.f / GLOBAL_SCALE;
   raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, zoom);
 
-  constexpr auto lines_per_charge = 3;
+  constexpr auto lines_per_charge = 16;
   FieldLines field_lines{lines_per_charge};
 
   constexpr int BACKGROUND_SUBSAMPLING = 2;
@@ -156,9 +156,6 @@ int main(int argc, char const *argv[]) {
     grid.update(frameTime, time, charges);
     probe.update(frameTime, time, charges);
     field_lines.update(charges);
-    // parallel::for_each<FieldLine>(
-    //     field_lines,
-    //     [&charges](auto, auto &field_line) { field_line.update(charges); });
 
     // SAFETY: each thread will access independent portion of the image and the
     // image is internally composed of Colors, so it's safe to treat it as such
