@@ -140,6 +140,7 @@ $(docTarget): $(docSource)
 package: $(target) $(docTarget)
 	$(MKDIR) ./dist
 	$(MKDIR) ./dist/doc
+	$(MKDIR) ./dist/bin
 	$(call COPY,./$(buildTargetDir),./dist/bin,$(executable))
 	$(call COPY,.,./dist,src)
 	$(call COPY,.,./dist,Makefile)
