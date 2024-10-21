@@ -3,7 +3,8 @@ FROM ubuntu:24.10
 RUN apt-get update && apt-get install -y --no-install-recommends \
   libasound2-dev libx11-dev libxrandr-dev libxi-dev \
   libgl1-mesa-dev libglu1-mesa-dev libxcursor-dev libxinerama-dev \
-  libwayland-dev libxkbcommon-dev make clang git build-essential
+  libwayland-dev libxkbcommon-dev make clang git build-essential \
+  ca-certificates
 
 RUN mkdir /workspace
 
