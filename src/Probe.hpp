@@ -23,9 +23,10 @@ public:
               const std::vector<Charge> &charges);
 
   template <const bool ONLY_ARROW = false> void draw() const {
-    auto draw_position = (*_position)() * GLOBAL_SCALE;
+    auto draw_position = world_to_screen((*_position)());
 
     auto sample = this->sample();
+    sample = raylib::Vector2{sample.x, -sample.y};
 
     auto color = lerpColor(raylib::Color::Gray(), _color,
                            1.f / (1.f + std::exp(-sample.Length() / 2e10f)));

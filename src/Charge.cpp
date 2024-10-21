@@ -17,12 +17,12 @@ void Charge::update([[maybe_unused]] const float timeDelta,
 void Charge::draw() const {
   auto radius = std::sqrt(std::abs(_strength)) * 12;
   // outline
-  (_position * GLOBAL_SCALE).DrawCircle(radius + 1, raylib::Color::RayWhite());
+  world_to_screen(_position).DrawCircle(radius + 1, raylib::Color::RayWhite());
 
   auto color = lerpColor3(NEGATIVE, raylib::Color::DarkGray(), POSITIVE,
                           sigmoid(_strength));
 
-  (_position * GLOBAL_SCALE).DrawCircle(radius, color);
+  world_to_screen(_position).DrawCircle(radius, color);
 }
 
 raylib::Vector2 Charge::E(const raylib::Vector2 &point) const {
