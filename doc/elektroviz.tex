@@ -1,0 +1,200 @@
+% LTeX: language=cs-CZ
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[czech]{babel}
+\usepackage{hyphsubst}
+\usepackage{graphicx}
+\usepackage{indentfirst}
+\usepackage{microtype}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{esvect}
+
+\selectlanguage{czech}
+\PassOptionsToPackage{hyphens}{url}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=blue,
+    pdftitle={Elektroviz},
+}
+\urlstyle{same}
+
+% define helper command for typesetting code
+\newcommand{\code}[1]{\mbox{\texttt{#1}}}
+
+\chardef\_=`_
+
+% increase spacing between table rows
+\renewcommand{\arraystretch}{1.25}
+
+\begin{document}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.8\textwidth]{pic/LOGO_KIV_CMYK.png}
+\end{figure}
+
+\begin{center}
+	\vspace{.5cm}
+	\LARGE{Elektroviz - Vizualizace elektrického pole}\\
+	\small{Semestrální práce - KIV/UPG 2024/25}
+\end{center}
+
+\vfill
+
+\noindent
+Západočeská univerzita v Plzni \hfill Pavel Altmann - A23B0264P\\
+Katedra informatiky a výpočetní techniky \hfill 1. odevzdání\\
+Stráveno hodin: 30 \hfill \today
+\thispagestyle{empty}
+
+\newpage
+\setcounter{page}{1}
+
+\tableofcontents
+
+\newpage
+
+\section{Zadání}
+
+Úkolem semestrální práce je vytvoření interaktivního programu pro vizualizaci
+elektrostatického pole vytvořeného bodovými elektrickými náboji rozmístěných
+v prostoru.
+
+Program bude možné spustit z příkazové řádky skriptem \code{./run.sh} s volitelným
+celočíselným parametrem určujícím scénář (viz níže) k vizualizaci. Nebude-li
+parametr zadán, bude zvolen scénář 0. Po spuštění programu se zobrazí okno
+o minimální počáteční velikosti 800x600px, ve kterém se zobrazí přehledně
+všechny bodové náboje zvoleného scénáře. Vizuální reprezentace náboje
+(v nejjednodušší podobě kružnice s popiskem) musí být volena tak, aby bylo možné
+jednoznačně určit velikost náboje a jeho znaménko. V místě sondy bude zobrazen
+šipkou vektor intenzity vektorového pole 𝐸⃗ a opatřen popiskem udávající jeho
+velikost $\|E\|$. Všechny elementy vizualizace (náboje, popisky, šipky) musí být
+plně viditelné.
+
+Intenzita vektorového pole v daném místě $\vec{x}$ se spočte
+z Coulombova zákona jako:
+\[ \vec{E}(\vec{x}) = \frac{1}{4 \pi \epsilon_0}
+\sum_i q_i \frac{\vv{x_i - x}}{\|\vv{x_i - x}\|^3} \]
+
+Vizualizace se bude pravidelně (s časem) aktualizovat. Jednotlivé elementy
+vizualizace budou automaticky svou velikost a rozmístění přizpůsobovat velikosti
+(a tvaru) okna tak, aby se prostor okna „maximálně“ využil, ale zároveň aby
+nedošlo ke zkreslení souřadnic.
+
+Scénáře:
+
+\begin{itemize}
+  \item Scénář 0 = pouze jeden bodový náboj +1C v počátku souřadnic (0, 0);
+  \item Scénář 1 = jeden náboj +1C v (-1, 0), druhý +1C v (1, 0);
+  \item Scénář 2 = jeden náboj -1C v (-1, 0), druhý +2C v (1, 0);
+  \item Scénář 3 = čtyři náboje: +1C v (-1, -1), +2C v (1, -1), -3C v (1, 1)
+    a -4C v (-1, 1);
+\end{itemize}
+
+Ve všech těchto scénářích se sonda pohybuje po kružnici se středem v počátku
+souřadnic (0, 0), poloměrem 1 a úhlovou rychlostí \( \frac{\pi}{6} \frac{rad}{s} \).
+
+\subsection{Navržené řešení}
+
+
+
+\section{Vývoj a použité technologie}
+
+Vizualizace je naprogrogramována v jazyce C++ s využitím knihovny 2D grafické
+knihovny \href{https://www.raylib.com/}{Raylib}.
+
+\section{Implementace řešení}
+
+\subsection{}
+
+
+\section{Ovládání programu}
+
+Program přebírá z přikazové řádky jeden povinný parametr \code{scenario} a jeden
+volitelný \code{spacing}. \code{scenario} určuje který scénář má být spuštěn po
+zapnutí aplikace a \code{spacing} určuje rozestupy mřízky na pozadí.
+
+
+\subsection{Architektura}
+
+Program využívá OOP architekturu, kde každý grafický prvek je uzavřený do své
+třídy a zodpovědný za veškeré výpočty a kreslení, které se ho týkají. Funkce
+main má na starost pouze počáteční nastavení a následné předávání událostí
+(nový snímek, změna velikosti okna, apod.) objektům. Některé objekty jako
+součást obsahují další podobjekty a potom mají na starost předávání událostí.
+
+\subsection{Objekty}
+
+Každý objekt má především 2 metody \code{update} a \code{draw}. \code{update} je
+zodpovědná za přepočítání vlastností objektu v závislosti na čase, popř. změně
+vlastností jiných objektů (např. sonda mění polohu podle času a naměřenou
+hodnotu podle síly a polohy nábojů).
+
+Každý zde popsaný objekt se nachází ve svém vlastním souboru
+
+\subsubsection{\code{Charge}}
+
+Reprezentuje v simulaci jeden náboj. 
+
+Velikost náboje může být buď konstantní nebo proměnlivá v čase - reprezentováno
+třídami \code{StaticStrength} a \code{VariableStrength}. 
+
+Vykresluje se jako kruh, jehož plocha je přímo úměrná velikosti náboje. Dále má
+bílé ohraničení a barvu výplně reprezentující velikost náboje - červená 5 C a více,
+modrou 5 C a méně a lineární interpolaci přes tmavě šedou pro hodnoty mezi tím.
+
+\subsubsection{\code{Probe}}
+
+Reprezentuje v simulaci elektrickou sondu.
+
+Může být buď otáčivě pohyblivá nebo statická (využití v třídě \code{Grid}) -
+reprezentováno třídami \code{Static}, \code{Rotating} ze jmenného prostředí
+
+Vykresluje se jako šipka reprezentující směr a sílu el. pole v daném bodě.
+Délka šipky odpovídá binárnímu logaritmu normy vektoru el. pole namísto přímé
+úměry, neboť ta se pohybuje v rozmezí několika řádů a tedy je buď velmi malá
+nebo větší než celá obrazovka. Zárověň je volitelně může zobrazovat text s
+numerickou velikostí intenzity ve vědecké notaci.
+
+\subsubsection{\code{Grid}}
+
+Představuje mřížku na pozadí, včetně sond v jejích průsečících.
+
+Má nezávisle nastavitelné rozestupy mezi čárami v obou směrech v pixelech - ve
+výchozím nastavení to je 50x50. Je dobré nenastavovat příliš malé rozestupy,
+protože pak je jednak obraz nepřehledný a zároveň se velmi zvyšují nároky na
+výpočetní výkon.
+
+Pro zrychlení kreslení se čáry i sondy generují pouze při inicializaci a při
+změně rozměrů a jinak jsou uložené předpočítané v soukromých atributech třídy.
+
+\subsection{Ostatní soubory}
+
+\subsubsection{\code{field}}
+
+Jmenné prostředí obsahuje funkce \code{E} a \code{potential}, počítající vektor,
+resp. potenciál elektrického pole v zadaném bodě.
+
+\subsubsection{\code{utils}}
+
+Obsahuje pomocné funkce pro míchání barev \code{lerpColor} a \code{lerpColor3},
+funkci \code{sigmoid} pro počítání stejnjmenné matematické funkce a funkci
+\code{trim} pro odstranění bílých znaků z řetězce.
+
+\subsubsection{\code{MathEval}}
+
+Sada funkcí pro vyhodnocovaní libovolných matematických výrazů, využívaná pro
+dynamicky nastavitelné vlastnosti. Další info patří do pozdějšího odevzdaní.
+
+\section{Limitace}
+
+Program pouze minimálně ošetřuje nesprávné uživatelské vstupy a reaguje na ně
+vyjímkami, které způsobují pád aplikace. Dále zatím neumí zobrazit siločáry
+záporně nabitých částic.
+
+\end{document}

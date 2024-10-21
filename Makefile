@@ -60,6 +60,9 @@ buildTargetDir := $(buildDir)/$(platform)/$(buildName)
 buildLibDir := $(buildTargetDir)/lib
 executable := elektroviz
 target := $(buildTargetDir)/$(executable)
+docBuildDir := doc/build
+docSource := doc/$(executable).tex
+docTarget := $(docBuildDir)/$(executable).pdf
 sources := $(call rwildcard,src/,*.cpp)
 objects := $(patsubst src/%, $(buildTargetDir)/%, $(patsubst %.cpp, %.o, $(sources)))
 depends := $(patsubst %.o, %.d, $(objects))
@@ -129,3 +132,7 @@ valgrind: $(target)
 # Clean up all relevant files
 clean:
 	$(RM) $(call platformpth, $(buildDir)/*)
+
+$(docTarget): $(docSource)
+	$(MKDIR) $(docBuildDir)
+	tectonic $(docSource) -o $(docBuildDir)
