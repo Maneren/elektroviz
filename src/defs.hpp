@@ -16,11 +16,13 @@ constexpr float K_E = 1 / (4 * std::numbers::pi_v<float> * EPSILON_0);
 constexpr int FONT_SIZE = 24;
 constexpr float GLOBAL_SCALE = 100.0f;
 
-constexpr raylib::Vector2 world_to_screen(const raylib::Vector2 &point) {
+constexpr int LINES_PER_CHARGE = 16;
+
+static raylib::Vector2 world_to_screen(const raylib::Vector2 &point) {
   return raylib::Vector2{point.x * GLOBAL_SCALE, -point.y * GLOBAL_SCALE};
 }
 
-constexpr raylib::Vector2 screen_to_world(const raylib::Vector2 &point) {
+static raylib::Vector2 screen_to_world(const raylib::Vector2 &point) {
   return point / GLOBAL_SCALE;
 }
 

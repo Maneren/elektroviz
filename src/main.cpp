@@ -119,8 +119,7 @@ int main(int argc, char const *argv[]) {
   float zoom = 200.f / GLOBAL_SCALE;
   raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, zoom);
 
-  constexpr auto lines_per_charge = 16;
-  FieldLines field_lines{lines_per_charge};
+  FieldLines field_lines{LINES_PER_CHARGE};
 
   constexpr int BACKGROUND_SUBSAMPLING = 2;
 
