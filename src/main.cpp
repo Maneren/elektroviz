@@ -187,11 +187,12 @@ int main(int argc, char const *argv[]) {
 
     camera.BeginMode();
 
-    background_texture.Draw(-half_screen_size, 0.f,
-                            static_cast<float>(BACKGROUND_SUBSAMPLING));
+    w.ClearBackground(raylib::Color::Black());
+    // background_texture.Draw(-half_screen_size, 0.f,
+    //                         static_cast<float>(BACKGROUND_SUBSAMPLING));
 
-    grid.draw();
-    field_lines.draw();
+    // grid.draw();
+    // field_lines.draw();
     for (auto &charge : charges) {
       charge.draw();
     }
