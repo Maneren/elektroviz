@@ -99,25 +99,12 @@ Scénáře:
 Ve všech těchto scénářích se sonda pohybuje po kružnici se středem v počátku
 souřadnic (0, 0), poloměrem 1 a úhlovou rychlostí \( \frac{\pi}{6} \frac{rad}{s} \).
 
-\subsection{Navržené řešení}
-
-
-
-\section{Vývoj a použité technologie}
-
-Vizualizace je naprogrogramována v jazyce C++ s využitím knihovny 2D grafické
-knihovny \href{https://www.raylib.com/}{Raylib}.
-
 \section{Implementace řešení}
 
-\subsection{}
+\subsection{Použité technologie}
 
-
-\section{Ovládání programu}
-
-Program přebírá z přikazové řádky jeden povinný parametr \code{scenario} a jeden
-volitelný \code{spacing}. \code{scenario} určuje který scénář má být spuštěn po
-zapnutí aplikace a \code{spacing} určuje rozestupy mřízky na pozadí.
+Vizualizace je naprogrogramována v jazyce C++ (verze 23) s využitím knihovny 2D
+grafické knihovny \href{https://www.raylib.com/}{Raylib} verze 5.5.
 
 
 \subsection{Architektura}
@@ -191,10 +178,32 @@ funkci \code{sigmoid} pro počítání stejnjmenné matematické funkce a funkci
 Sada funkcí pro vyhodnocovaní libovolných matematických výrazů, využívaná pro
 dynamicky nastavitelné vlastnosti. Další info patří do pozdějšího odevzdaní.
 
+\section{Ovládání programu}
+
+\subsection{Sestavení}
+
+Program je kompatibilní s GNU/Linux systémy s podporou grafického protokolu X11.
+
+Protože mnoho systémů ale nemá hlavičkové soubory pro X11 (potřebné pro vývoj
+všech grafických aplikací), má zastaralé verze překladačů (obzvlástě ty založené
+na Debianu), apod. zvolil jsem použití systému Docker. Sestavovací skript
+\code{./build.sh} vytvoří kontejner z přiloženého souboru \code{Dockerfile} a
+spustí ho. Ten spustí přiložený \code{Makefile}, který do složky \code{vendor}
+stáhne knihovny a vše sestaví do složky \code{build}. Skript tedy ještě přesune
+výsledný soubor do složky \code{bin}.
+
+\subsection{Spuštění}
+
+Program přebírá z přikazové řádky jeden povinný parametr \code{scenario} a jeden
+volitelný \code{spacing}. \code{scenario} určuje který scénář má být spuštěn po
+zapnutí aplikace a \code{spacing} určuje rozestupy mřízky na pozadí.
+
+Program je nutné spustit ve stejné složce, jake se nechází složka
+\code{scenarios} jinak nebude schopný načíst žadný z výchozích scénářů.
+
 \section{Limitace}
 
 Program pouze minimálně ošetřuje nesprávné uživatelské vstupy a reaguje na ně
-vyjímkami, které způsobují pád aplikace. Dále zatím neumí zobrazit siločáry
-záporně nabitých částic.
+vyjímkami, které většinou způsobují pád aplikace. 
 
 \end{document}
