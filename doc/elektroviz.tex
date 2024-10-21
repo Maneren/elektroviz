@@ -184,13 +184,16 @@ dynamicky nastavitelné vlastnosti. Další info patří do pozdějšího odevzd
 
 Program je kompatibilní s GNU/Linux systémy s podporou grafického protokolu X11.
 
-Protože mnoho systémů ale nemá hlavičkové soubory pro X11 (potřebné pro vývoj
-všech grafických aplikací), má zastaralé verze překladačů (obzvlástě ty založené
-na Debianu), apod. zvolil jsem použití systému Docker. Sestavovací skript
-\code{./build.sh} vytvoří kontejner z přiloženého souboru \code{Dockerfile} a
-spustí ho. Ten spustí přiložený \code{Makefile}, který do složky \code{vendor}
-stáhne knihovny a vše sestaví do složky \code{build}. Skript tedy ještě přesune
-výsledný soubor do složky \code{bin}.
+Sestavení se provádí pomocí přiloženého \code{Makefile} příkazem \code{make
+setup build}.
+
+Protože ale mnoho systémů nemá nainstalované hlavičkové soubory pro knihovnu X11
+(potřebné pro vývoj většiny grafických aplikací), má zastaralé verze překladačů
+(obzvlástě ty založené na Debianu), apod. zvolil jsem použití systému Docker.
+Sestavovací skript \code{./build.sh} vytvoří kontejner z přiloženého souboru
+\code{Dockerfile} a spustí ho. Ten spustí přiložený \code{Makefile}, který do
+složky \code{vendor} stáhne knihovny a vše sestaví do složky \code{build}.
+Skript pak ještě přesune výsledný soubor do složky \code{bin}.
 
 \subsection{Spuštění}
 
