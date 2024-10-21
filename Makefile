@@ -70,7 +70,7 @@ compileFlags += -std=c++23 -I include
 linkFlags = -L $(buildLibDir) -l raylib
 
 # Lists phony targets for Makefile
-.PHONY: all setup submodules lib build execute clean
+.PHONY: all setup submodules lib build execute clean package
 
 # Default target, compiles, executes and cleans
 all: $(target) execute clean
@@ -132,7 +132,20 @@ valgrind: $(target)
 # Clean up all relevant files
 clean:
 	$(RM) $(call platformpth, $(buildDir)/*)
+	$(RM) $(call platformpth, ./dist/*)
 
 $(docTarget): $(docSource)
 	$(MKDIR) $(docBuildDir)
 	tectonic $(docSource) -o $(docBuildDir)
+
+package: $(target) $(docTarget)
+	$(MKDIR) ./dist
+	$(MKDIR) ./dist/doc
+	$(call COPY,./$(buildTargetDir),./dist/bin,$(executable))
+	$(call COPY,.,./dist,src)
+	$(call COPY,.,./dist,Makefile)
+	$(call COPY,.,./dist,Dockerfile)
+	$(call COPY,.,./dist,.git)
+	$(call COPY,.,./dist,scenarios)
+	$(call COPY,./scripts,./dist,*)
+	$(call COPY,./$(docBuildDir),./dist/doc,*.pdf)
