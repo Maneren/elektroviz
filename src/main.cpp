@@ -1,3 +1,4 @@
+#include "BoundingSquare.hpp"
 #include "Charge.hpp"
 #include "FieldLine.hpp"
 #include "Grid.hpp"
@@ -47,6 +48,19 @@ void load_charges_from_json(std::vector<Charge> &charges, nlohmann::json data) {
                            std::make_unique<charge::VariableStrength>(func));
     }
   }
+}
+
+BoundingSquare world_bounding_square(const std::span<Charge> &charges,
+                                     const Probe &probe) {
+  BoundingSquare bounding_square = {{0.f, 0.f}, {0.f, 0.f}};
+
+  for (const auto &charge : charges) {
+    bounding_square += charge.bounding_square();
+  }
+
+  bounding_square += probe.bounding_square();
+
+  return bounding_square;
 }
 
 int main(int argc, char const *argv[]) {
@@ -115,8 +129,8 @@ int main(int argc, char const *argv[]) {
 
   // w.SetTargetFPS(60);
 
-  float zoom = 200.f / GLOBAL_SCALE;
-  raylib::Camera2D camera({0, 0}, {0, 0}, 0.0f, zoom);
+  auto zoom = 2.f;
+  raylib::Camera2D camera({0, 0}, {0, 0}, 0.f, zoom);
 
   FieldLines field_lines{LINES_PER_CHARGE};
 
@@ -137,6 +151,13 @@ int main(int argc, char const *argv[]) {
       last_screen_size = screen_size;
       half_screen_size = screen_size / 2.f;
       world_size = screen_size / GLOBAL_SCALE;
+
+      auto bounding_square = world_bounding_square(charges, probe);
+      auto bounding_size =
+          bounding_square.size * GLOBAL_SCALE + raylib::Vector2{150.f, 150.f};
+      zoom = std::min(last_screen_size.x / bounding_size.x,
+                      last_screen_size.y / bounding_size.y);
+
       // Make 0,0 the center of the screen
       camera.SetOffset(half_screen_size);
       camera.SetZoom(zoom);

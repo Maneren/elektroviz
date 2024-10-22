@@ -1,4 +1,5 @@
 #pragma once
+#include "BoundingSquare.hpp"
 #include <Color.hpp>
 #include <Vector2.hpp>
 #include <format>
@@ -86,6 +87,8 @@ public:
   raylib::Vector2 position() const { return _position; }
   float strength() const { return _strength; }
 
+  BoundingSquare bounding_square() const;
+
   raylib::Vector2 E(const raylib::Vector2 &point) const;
   float potential(const raylib::Vector2 &point) const;
 
@@ -93,6 +96,8 @@ public:
   static const raylib::Color NEGATIVE;
 
 private:
+  float draw_radius() const { return 12.f * std::sqrt(std::abs(_strength)); };
+
   raylib::Vector2 _position;
   std::unique_ptr<charge::Strength> strengthFn;
   float _strength;

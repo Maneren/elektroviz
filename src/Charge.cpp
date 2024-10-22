@@ -19,14 +19,20 @@ void Charge::update([[maybe_unused]] const float timeDelta,
 }
 
 void Charge::draw() const {
-  auto radius = std::sqrt(std::abs(_strength)) * 12;
+  auto radius = draw_radius();
   // outline
-  world_to_screen(_position).DrawCircle(radius + 1, raylib::Color::RayWhite());
+  world_to_screen(_position).DrawCircle(radius, raylib::Color::RayWhite());
 
   auto color = lerpColor3(NEGATIVE, raylib::Color::DarkGray(), POSITIVE,
                           sigmoid(_strength));
 
-  world_to_screen(_position).DrawCircle(radius, color);
+  world_to_screen(_position).DrawCircle(radius - 1, color);
+}
+
+BoundingSquare Charge::bounding_square() const {
+  auto radius = draw_radius() / GLOBAL_SCALE;
+  raylib::Vector2 half_size{radius, radius};
+  return {_position - half_size, half_size * 2.f};
 }
 
 raylib::Vector2 Charge::E(const raylib::Vector2 &point) const {
