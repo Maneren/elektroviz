@@ -37,6 +37,7 @@ void load_charges_from_json(std::vector<Charge> &charges, nlohmann::json data) {
   for (const auto &charge : data["charges"]) {
     auto position = charge["position"];
     raylib::Vector2 pos{position["x"], position["y"]};
+    pos.y *= -1.f;
 
     auto strength = charge["strength"];
     if (strength.is_number()) {

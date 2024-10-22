@@ -19,7 +19,7 @@ constexpr float GLOBAL_SCALE = 100.0f;
 constexpr int LINES_PER_CHARGE = 16;
 
 static raylib::Vector2 world_to_screen(const raylib::Vector2 &point) {
-  return raylib::Vector2{point.x * GLOBAL_SCALE, -point.y * GLOBAL_SCALE};
+  return raylib::Vector2{point.x * GLOBAL_SCALE, point.y * GLOBAL_SCALE};
 }
 
 static raylib::Vector2 screen_to_world(const raylib::Vector2 &point) {
