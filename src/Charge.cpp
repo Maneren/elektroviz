@@ -1,7 +1,11 @@
 #include "Charge.hpp"
+#include "Color.hpp"
 #include "MathEval.hpp"
+#include "Vector2.hpp"
 #include "defs.hpp"
 #include "utils.hpp"
+#include <cmath>
+#include <unordered_map>
 
 float charge::VariableStrength::operator()(const double elapsed) const {
   auto vars = variables;

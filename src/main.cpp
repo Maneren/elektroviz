@@ -1,6 +1,7 @@
 #include "Charge.hpp"
 #include "FieldLine.hpp"
 #include "Grid.hpp"
+#include "Position.hpp"
 #include "Probe.hpp"
 #include "defs.hpp"
 #include "field.hpp"
@@ -19,13 +20,11 @@
 #include <iostream>
 #include <memory>
 #include <nlohmann/json.hpp>
-#include <ranges>
-#include <rlgl.h>
+#include <optional>
+#include <raylib.h>
 #include <span>
 #include <string>
 #include <vector>
-
-namespace views = std::views;
 
 std::optional<nlohmann::json> load_scenario_json(std::string scenario) {
   auto scenarioFile = std::ifstream{"scenarios/" + scenario};

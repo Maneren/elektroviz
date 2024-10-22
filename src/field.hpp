@@ -1,6 +1,7 @@
 #pragma once
 #include "Charge.hpp"
 #include <Vector2.hpp>
+#include <span>
 
 namespace field {
 

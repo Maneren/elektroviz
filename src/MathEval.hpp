@@ -1,5 +1,6 @@
 #pragma once
 #include <format>
+#include <stddef.h>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>

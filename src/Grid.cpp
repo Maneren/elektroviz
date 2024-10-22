@@ -3,7 +3,13 @@
 #include "Probe.hpp"
 #include "defs.hpp"
 #include "parallel.hpp"
+#include <Color.hpp>
+#include <Vector2.hpp>
+#include <algorithm>
+#include <functional>
 #include <memory>
+#include <span>
+#include <utility>
 #include <vector>
 
 void GridLine::draw() const { start.DrawLine(end, color); }
@@ -68,7 +74,7 @@ void Grid::draw() const {
 }
 
 void Grid::update(const float timeDelta, const double elapsedTime,
-                  const std::vector<Charge> &charges) {
+                  const std::span<Charge> &charges) {
   parallel::for_each<Probe>(probes, [&](auto, auto &probe) {
     probe.update(timeDelta, elapsedTime, charges);
   });

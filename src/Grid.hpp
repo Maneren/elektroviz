@@ -3,6 +3,7 @@
 #include "Probe.hpp"
 #include <Color.hpp>
 #include <Vector2.hpp>
+#include <format>
 #include <vector>
 
 class GridLine {
@@ -50,7 +51,7 @@ public:
         probes(generateProbes(size, spacing, probe_color)) {}
   void draw() const;
   void update(const float timeDelta, const double elapsedTime,
-              const std::vector<Charge> &charges);
+              const std::span<Charge> &charges);
   void resize(const raylib::Vector2 size, const raylib::Vector2 spacing);
 
 private:

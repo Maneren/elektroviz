@@ -1,4 +1,5 @@
 #include "utils.hpp"
+#include <Color.hpp>
 #include <cmath>
 
 raylib::Color lerpColor(const raylib::Color a, const raylib::Color b,

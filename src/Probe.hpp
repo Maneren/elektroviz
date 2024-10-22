@@ -2,13 +2,16 @@
 #include "Charge.hpp"
 #include "Position.hpp"
 #include "defs.hpp"
+#include "raylib.h"
 #include "utils.hpp"
 #include <Color.hpp>
 #include <Functions.hpp>
 #include <Vector2.hpp>
+#include <cmath>
 #include <format>
 #include <memory>
-#include <vector>
+#include <span>
+#include <utility>
 
 class Probe {
 public:
@@ -20,7 +23,7 @@ public:
   Probe &operator=(Probe &&) = default;
 
   void update(const float timeDelta, const double elapsedTime,
-              const std::vector<Charge> &charges);
+              const std::span<Charge> &charges);
 
   template <const bool ONLY_ARROW = false> void draw() const {
     auto draw_position = world_to_screen((*_position)());

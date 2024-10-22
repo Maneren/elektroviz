@@ -1,8 +1,10 @@
 #include "field.hpp"
 #include "defs.hpp"
+#include <Vector2.hpp>
 #include <algorithm>
 #include <functional>
 #include <ranges>
+#include <span>
 
 namespace field {
 

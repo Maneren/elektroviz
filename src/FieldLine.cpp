@@ -11,53 +11,6 @@
 
 namespace views = std::views;
 
-void FieldLine::update(const std::vector<Charge> &charges) {
-  constexpr size_t STEPS = 10000;
-
-  auto direction = charges[charge_index].strength() >= 0.f ? 1.f : -1.f;
-
-  points.clear();
-  points.reserve(STEPS);
-
-  if (direction == -1.f) {
-    return;
-  }
-
-  const auto charges_span = std::span{charges};
-
-  points.push_back(charges[charge_index].position() * GLOBAL_SCALE);
-  auto position = start_position;
-
-  for (const auto _ : views::iota(0uz, STEPS)) {
-    points.push_back(position * GLOBAL_SCALE);
-
-    auto sample = field_function(charges_span, position, direction);
-    auto next_position = position + sample.Clamp(0.05f, 0.05f);
-
-    // Stop if next_position is too far from origin
-    if ((next_position - start_position).LengthSqr() > 50.f) {
-      break;
-    }
-
-    auto found_end = [=, this](const Charge &charge) {
-      return this->found_end(charge, position, next_position);
-    };
-
-    if (auto charge = std::ranges::find_if(charges, found_end);
-        charge != charges.end()) {
-      points.push_back(charge->position() * GLOBAL_SCALE);
-      return;
-    }
-
-    position = next_position;
-  }
-}
-
-void FieldLine::draw() const {
-  // Use the direct OpenGL line drawing method
-  color.DrawLineStrip(const_cast<Vector2 *>(points.data()), points.size());
-}
-
 void FieldLines::update(const std::span<const Charge> &charges) {
   field_lines.clear();
   equipotencial_lines.clear();

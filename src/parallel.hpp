@@ -2,6 +2,8 @@
 
 #include <functional>
 #include <ranges>
+#include <span>
+#include <stddef.h>
 #include <thread>
 #include <vector>
 
