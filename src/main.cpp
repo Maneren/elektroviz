@@ -149,12 +149,13 @@ int main(int argc, char const *argv[]) {
     if (auto screen_size = w.GetSize(); !screen_size.Equals(last_screen_size)) {
       last_screen_size = screen_size;
       half_screen_size = screen_size / 2.f;
-      half_world_size = screen_to_world(half_screen_size);
 
       auto bounding_square = world_bounding_square(charges, probe);
       auto bounding_size = world_to_screen(bounding_square.size) * 2.f;
       zoom = std::min(last_screen_size.x / bounding_size.x,
                       last_screen_size.y / bounding_size.y);
+
+      half_world_size = screen_to_world(half_screen_size, zoom);
 
       // Make 0,0 the center of the screen
       camera.SetOffset(half_screen_size);
@@ -180,12 +181,10 @@ int main(int argc, char const *argv[]) {
     //     std::span(static_cast<raylib::Color *>(background_image.data),
     //               background_image.width * background_image.height);
     //
-    // auto background_world_offset = half_world_size / zoom;
-    //
     // // SAFETY: each thread will access independent portion of the image
     // parallel::for_each<raylib::Color>(
     //     background_pixels, [&background_image, &charges, zoom,
-    //                         background_world_offset](auto i, auto &pixel) {
+    //                         half_world_size](auto i, auto &pixel) {
     //       auto x = i % background_image.width;
     //       auto y = i / background_image.width;
     //
@@ -193,7 +192,7 @@ int main(int argc, char const *argv[]) {
     //       auto y_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * y);
     //       auto position =
     //           screen_to_world(raylib::Vector2{x_screen, y_screen}, zoom) -
-    //           background_world_offset;
+    //           half_world_size;
     //
     //       auto potencial = field::potential(position, charges) / 2e10f;
     //

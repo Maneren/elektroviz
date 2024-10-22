@@ -37,8 +37,8 @@ std::vector<GridLine> generateLines(const raylib::Vector2 size,
 std::vector<Probe> generateProbes(const raylib::Vector2 size,
                                   const raylib::Vector2 spacing,
                                   const raylib::Color color) {
-  const auto world_size_half = size / 2.0f / GLOBAL_SCALE;
-  const auto world_spacing = spacing / GLOBAL_SCALE;
+  const auto world_size_half = screen_to_world(size);
+  const auto world_spacing = screen_to_world(spacing);
 
   std::vector<Probe> probes;
 
