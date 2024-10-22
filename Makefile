@@ -44,13 +44,13 @@ else
 endif
 
 buildName := release
-CXXFLAGS := -g0 -O3
+CXXFLAGS := -g0 -Ofast 
 RAYLIB_BUILD_MODE := RELEASE
 
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
 	buildName := debug
-	CXXFLAGS := -g3 -gdwarf-2 -O0 -Wall -Wextra
+	CXXFLAGS := -g3 -gdwarf-2 -Og -fno-omit-frame-pointer -Wall -Wextra
 	RAYLIB_BUILD_MODE := DEBUG
 endif
 
@@ -101,8 +101,7 @@ $(buildLibDir)/libraylib.a: submodules
 		RAYLIB_BUILD_MODE=$(RAYLIB_BUILD_MODE) \
 		RAYLIB_MODULE_AUDIO=FALSE \
 		RAYLIB_MODULE_MODELS=FALSE \
-		GRAPHICS=GRAPHICS_API_OPENGL_43 \
-		CC=clang
+		GRAPHICS=GRAPHICS_API_OPENGL_43
 	$(MKDIR) $(call platformpth, $(buildLibDir))
 	$(call COPY,vendor/raylib/src,$(buildLibDir),libraylib.a)
 
