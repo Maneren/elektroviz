@@ -116,7 +116,7 @@ int main(int argc, char const *argv[]) {
 
   auto last_screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
   auto half_screen_size = last_screen_size / 2.f;
-  auto world_size = last_screen_size / GLOBAL_SCALE;
+  auto half_world_size = screen_to_world(half_screen_size);
 
   Grid grid(last_screen_size, grid_spacing, raylib::Color::RayWhite(),
             {150, 150, 150, 255});
@@ -149,7 +149,7 @@ int main(int argc, char const *argv[]) {
     if (auto screen_size = w.GetSize(); !screen_size.Equals(last_screen_size)) {
       last_screen_size = screen_size;
       half_screen_size = screen_size / 2.f;
-      world_size = screen_size / GLOBAL_SCALE;
+      half_world_size = screen_to_world(half_screen_size);
 
       auto bounding_square = world_bounding_square(charges, probe);
       auto bounding_size = world_to_screen(bounding_square.size) * 2.f;
@@ -175,16 +175,17 @@ int main(int argc, char const *argv[]) {
     // field_lines.update(charges);
 
     // // SAFETY: the image is internally an array of raylib::Colors, so it's
-    // safe to treat it as such auto background_pixels =
+    // // safe to treat it as such
+    // auto background_pixels =
     //     std::span(static_cast<raylib::Color *>(background_image.data),
     //               background_image.width * background_image.height);
     //
-    // auto background_world_size = world_size / 2.f / zoom;
+    // auto background_world_offset = half_world_size / zoom;
     //
     // // SAFETY: each thread will access independent portion of the image
     // parallel::for_each<raylib::Color>(
     //     background_pixels, [&background_image, &charges, zoom,
-    //                         background_world_size](auto i, auto &pixel) {
+    //                         background_world_offset](auto i, auto &pixel) {
     //       auto x = i % background_image.width;
     //       auto y = i / background_image.width;
     //
@@ -192,7 +193,7 @@ int main(int argc, char const *argv[]) {
     //       auto y_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * y);
     //       auto position =
     //           screen_to_world(raylib::Vector2{x_screen, y_screen}, zoom) -
-    //           background_world_size;
+    //           background_world_offset;
     //
     //       auto potencial = field::potential(position, charges) / 2e10f;
     //
