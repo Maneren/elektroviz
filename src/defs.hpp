@@ -6,9 +6,9 @@
 #include <string>
 #include <unordered_map>
 
-// Global screen dimensions, updated on window resize
-static int SCREEN_WIDTH = 800;
-static int SCREEN_HEIGHT = 600;
+// Initial screen dimensions, irrelevant after first resize
+constexpr int SCREEN_WIDTH = 800;
+constexpr int SCREEN_HEIGHT = 600;
 
 constexpr float EPSILON_0 = 8.8541878128e-12f;
 constexpr float K_E = 1 / (4 * std::numbers::pi_v<float> * EPSILON_0);
@@ -18,12 +18,15 @@ constexpr float GLOBAL_SCALE = 100.0f;
 
 constexpr int LINES_PER_CHARGE = 16;
 
-static raylib::Vector2 world_to_screen(const raylib::Vector2 &point) {
-  return raylib::Vector2{point.x * GLOBAL_SCALE, point.y * GLOBAL_SCALE};
+constexpr int BACKGROUND_SUBSAMPLING = 2;
+
+inline raylib::Vector2 world_to_screen(const raylib::Vector2 &point) {
+  return point * GLOBAL_SCALE;
 }
 
-static raylib::Vector2 screen_to_world(const raylib::Vector2 &point) {
-  return point / GLOBAL_SCALE;
+inline raylib::Vector2 screen_to_world(const raylib::Vector2 &point,
+                                       float zoom = 1.f) {
+  return point / (GLOBAL_SCALE * zoom);
 }
 
 template <> struct std::formatter<raylib::Vector2> {

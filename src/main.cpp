@@ -135,8 +135,6 @@ int main(int argc, char const *argv[]) {
 
   FieldLines field_lines{LINES_PER_CHARGE};
 
-  constexpr int BACKGROUND_SUBSAMPLING = 2;
-
   raylib::Image background_image = raylib::Image::Color(
       SCREEN_WIDTH / BACKGROUND_SUBSAMPLING,
       SCREEN_HEIGHT / BACKGROUND_SUBSAMPLING, raylib::Color::Blank());
@@ -154,8 +152,7 @@ int main(int argc, char const *argv[]) {
       world_size = screen_size / GLOBAL_SCALE;
 
       auto bounding_square = world_bounding_square(charges, probe);
-      auto bounding_size =
-          bounding_square.size * GLOBAL_SCALE + raylib::Vector2{150.f, 150.f};
+      auto bounding_size = world_to_screen(bounding_square.size) * 2.f;
       zoom = std::min(last_screen_size.x / bounding_size.x,
                       last_screen_size.y / bounding_size.y);
 
@@ -177,28 +174,30 @@ int main(int argc, char const *argv[]) {
     probe.update(frameTime, time, charges);
     // field_lines.update(charges);
 
-    // SAFETY: each thread will access independent portion of the image and the
-    // image is internally composed of Colors, so it's safe to treat it as such
-    // parallel::for_each<raylib::Color>(
+    // // SAFETY: the image is internally an array of raylib::Colors, so it's
+    // safe to treat it as such auto background_pixels =
     //     std::span(static_cast<raylib::Color *>(background_image.data),
-    //               background_image.width * background_image.height),
-    //     [&background_image, &charges,
-    //      half_world_size = world_size / 2.f](auto i, auto &pixel) {
+    //               background_image.width * background_image.height);
+    //
+    // auto background_world_size = world_size / 2.f / zoom;
+    //
+    // // SAFETY: each thread will access independent portion of the image
+    // parallel::for_each<raylib::Color>(
+    //     background_pixels, [&background_image, &charges, zoom,
+    //                         background_world_size](auto i, auto &pixel) {
     //       auto x = i % background_image.width;
     //       auto y = i / background_image.width;
     //
     //       auto x_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * x);
     //       auto y_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * y);
-    //       auto position = raylib::Vector2{x_screen, y_screen} / GLOBAL_SCALE
-    //       -
-    //                       half_world_size;
+    //       auto position =
+    //           screen_to_world(raylib::Vector2{x_screen, y_screen}, zoom) -
+    //           background_world_size;
     //
     //       auto potencial = field::potential(position, charges) / 2e10f;
     //
-    //       auto color = lerpColor3(Charge::NEGATIVE, raylib::Color::Black(),
-    //                               Charge::POSITIVE, sigmoid(potencial));
-    //
-    //       pixel = color;
+    //       pixel = lerpColor3(Charge::NEGATIVE, raylib::Color::Black(),
+    //                          Charge::POSITIVE, sigmoid(potencial));
     //     });
     //
     // background_texture.Update(background_image.data);
@@ -206,11 +205,11 @@ int main(int argc, char const *argv[]) {
     // Draw
     w.BeginDrawing();
 
-    camera.BeginMode();
-
     w.ClearBackground(raylib::Color::Black());
-    // background_texture.Draw(-half_screen_size, 0.f,
+    // background_texture.Draw({0, 0}, 0.f,
     //                         static_cast<float>(BACKGROUND_SUBSAMPLING));
+
+    camera.BeginMode();
 
     // grid.draw();
     // field_lines.draw();
