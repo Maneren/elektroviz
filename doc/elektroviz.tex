@@ -25,6 +25,7 @@
 
 % define helper command for typesetting code
 \newcommand{\code}[1]{\mbox{\texttt{#1}}}
+\def\CC{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny\bf ++}}}
 
 \chardef\_=`_
 
@@ -41,7 +42,7 @@
 \begin{center}
 	\vspace{.5cm}
 	\LARGE{Elektroviz - Vizualizace elektrického pole}\\
-	\small{Semestrální práce - KIV/UPG 2024/25}
+	\large{Semestrální práce - KIV/UPG 2024/25}
 \end{center}
 
 \vfill
@@ -49,7 +50,7 @@
 \noindent
 Západočeská univerzita v Plzni \hfill Pavel Altmann - A23B0264P\\
 Katedra informatiky a výpočetní techniky \hfill 1. odevzdání\\
-Stráveno hodin: 30 \hfill \today
+Stráveno hodin: 80 \hfill \today
 \thispagestyle{empty}
 
 \newpage
@@ -103,8 +104,8 @@ souřadnic (0, 0), poloměrem 1 a úhlovou rychlostí \( \frac{\pi}{6} \frac{rad
 
 \subsection{Použité technologie}
 
-Vizualizace je naprogrogramována v jazyce C++ (verze 23) s využitím knihovny 2D
-grafické knihovny \href{https://www.raylib.com/}{Raylib} verze 5.5.
+Vizualizace je naprogrogramována v jazyce \CC{} 23 s využitím 2D grafické
+knihovny \href{https://www.raylib.com/}{Raylib} verze 5.5.
 
 
 \subsection{Architektura}
@@ -128,8 +129,8 @@ Každý zde popsaný objekt se nachází ve svém vlastním souboru
 
 Reprezentuje v simulaci jeden náboj. 
 
-Velikost náboje může být buď konstantní nebo proměnlivá v čase - reprezentováno
-třídami \code{StaticStrength} a \code{VariableStrength}. 
+% Velikost náboje může být buď konstantní nebo proměnlivá v čase - reprezentováno
+% třídami \code{StaticStrength} a \code{VariableStrength}. 
 
 Vykresluje se jako kruh, jehož plocha je přímo úměrná velikosti náboje. Dále má
 bílé ohraničení a barvu výplně reprezentující velikost náboje - červená 5 C a více,
@@ -139,8 +140,10 @@ modrou 5 C a méně a lineární interpolaci přes tmavě šedou pro hodnoty mez
 
 Reprezentuje v simulaci elektrickou sondu.
 
-Může být buď otáčivě pohyblivá nebo statická (využití v třídě \code{Grid}) -
-reprezentováno třídami \code{Static}, \code{Rotating} ze jmenného prostředí
+Může být buď otáčivě pohyblivá nebo statická 
+% (využití v třídě \code{Grid})
+- reprezentováno třídami \code{Static}, \code{Rotating} ze jmenného prostředí
+\code{position}.
 
 Vykresluje se jako šipka reprezentující směr a sílu el. pole v daném bodě.
 Délka šipky odpovídá binárnímu logaritmu normy vektoru el. pole namísto přímé
@@ -148,17 +151,17 @@ Délka šipky odpovídá binárnímu logaritmu normy vektoru el. pole namísto p
 nebo větší než celá obrazovka. Zárověň je volitelně může zobrazovat text s
 numerickou velikostí intenzity ve vědecké notaci.
 
-\subsubsection{\code{Grid}}
-
-Představuje mřížku na pozadí, včetně sond v jejích průsečících.
-
-Má nezávisle nastavitelné rozestupy mezi čárami v obou směrech v pixelech - ve
-výchozím nastavení to je 50x50. Je dobré nenastavovat příliš malé rozestupy,
-protože pak je jednak obraz nepřehledný a zároveň se velmi zvyšují nároky na
-výpočetní výkon.
-
-Pro zrychlení kreslení se čáry i sondy generují pouze při inicializaci a při
-změně rozměrů a jinak jsou uložené předpočítané v soukromých atributech třídy.
+% \subsubsection{\code{Grid}}
+%
+% Představuje mřížku na pozadí, včetně sond v jejích průsečících.
+%
+% Má nezávisle nastavitelné rozestupy mezi čárami v obou směrech v pixelech - ve
+% výchozím nastavení to je 50x50. Je dobré nenastavovat příliš malé rozestupy,
+% protože pak je jednak obraz nepřehledný a zároveň se velmi zvyšují nároky na
+% výpočetní výkon.
+%
+% Pro zrychlení kreslení se čáry i sondy generují pouze při inicializaci a při
+% změně rozměrů a jinak jsou uložené předpočítané v soukromých atributech třídy.
 
 \subsection{Ostatní soubory}
 
@@ -198,12 +201,16 @@ Skript pak ještě přesune výsledný spustitelný soubor do souboru
 
 \subsection{Spuštění}
 
-Program přebírá z přikazové řádky jeden povinný parametr \code{scenario} a jeden
-volitelný \code{spacing}. \code{scenario} určuje který scénář má být spuštěn po
-zapnutí aplikace a \code{spacing} určuje rozestupy mřízky na pozadí.
+Program přebírá z příkazové řádky parametr \code{scenario}.
+% a volitelně \code{spacing}. \code{scenario} 
+Určuje který scénář má být spuštěn po zapnutí aplikace, při absenci parametru
+se použije scénář 0.
+% a \code{spacing} určuje rozestupy mřízky na pozadí.
 
-Program je nutné spustit ve stejné složce, jake se nechází složka
-\code{scenarios} jinak nebude schopný načíst žadný z výchozích scénářů.
+\textbf{Důležité}: Program je nutné spustit ve stejné složce, v jaké se nechází
+složka \code{scenarios}, jinak nebude schopný načíst žadný z výchozích scénářů.
+Originálně je v \code{src} ale \code{./build.sh} jí pro snadnější manipulaci 
+nakopíruje i do kořenové složky.
 
 \section{Limitace}
 
