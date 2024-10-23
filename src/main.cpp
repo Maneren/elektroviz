@@ -114,15 +114,14 @@ int main(int argc, char const *argv[]) {
               raylib::Color::Green());
   probe.scale = 1.5f;
 
-  auto last_screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
-  auto half_screen_size = last_screen_size / 2.f;
+  auto screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
+  auto half_screen_size = screen_size / 2.f;
   auto half_world_size = screen_to_world(half_screen_size);
 
-  Grid grid(last_screen_size, grid_spacing, raylib::Color::RayWhite(),
+  Grid grid(screen_size, grid_spacing, raylib::Color::RayWhite(),
             {150, 150, 150, 255});
-  grid.resize(last_screen_size, grid_spacing);
+  grid.resize(screen_size, grid_spacing);
 
-  double time = 0.0f;
   raylib::Color textColor(raylib::Color::LightGray());
   raylib::Window w(SCREEN_WIDTH, SCREEN_HEIGHT,
                    "ELEKTROVIZ - A simple simulation of electric fields",
@@ -143,29 +142,34 @@ int main(int argc, char const *argv[]) {
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
   {
-    time = w.GetTime();
     auto frameTime = w.GetFrameTime();
 
-    if (auto screen_size = w.GetSize(); !screen_size.Equals(last_screen_size)) {
-      last_screen_size = screen_size;
+    if (w.IsResized()) {
+      screen_size = w.GetSize();
       half_screen_size = screen_size / 2.f;
 
       auto bounding_square = world_bounding_square(charges, probe);
       auto bounding_size = world_to_screen(bounding_square.size) * 2.f;
-      zoom = std::min(last_screen_size.x / bounding_size.x,
-                      last_screen_size.y / bounding_size.y);
+      zoom = std::min(screen_size.x / bounding_size.x,
+                      screen_size.y / bounding_size.y);
 
       half_world_size = screen_to_world(half_screen_size, zoom);
 
       // Make 0,0 the center of the screen
       camera.SetOffset(half_screen_size);
       camera.SetZoom(zoom);
+
       grid.resize(screen_size / zoom, grid_spacing / zoom);
+
       background_texture.Unload();
-      background_image.Resize(screen_size.x / BACKGROUND_SUBSAMPLING,
-                              screen_size.y / BACKGROUND_SUBSAMPLING);
+
+      auto background_size = screen_size / BACKGROUND_SUBSAMPLING;
+      background_image.Resize(background_size.x, background_size.y);
+
       background_texture = raylib::Texture2D(background_image);
     }
+
+    auto time = w.GetTime();
 
     // Update
     for (auto &charge : charges) {
