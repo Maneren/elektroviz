@@ -38,16 +38,15 @@ public:
     if constexpr (!ONLY_ARROW) {
       draw_position.DrawCircle(radius, color);
 
-      auto msg = std::format("E = {:.1E} N/C", sample.Length());
+      auto msg = std::format("E = {:.1E} N/C", K_E * sample.Length());
       int width = raylib::MeasureText(msg, FONT_SIZE);
       raylib::DrawText(msg.c_str(), draw_position.x - width / 2.f,
                        draw_position.y - 2 * FONT_SIZE, FONT_SIZE, color);
     }
 
-    auto length = std::log2f(sample.Length()) * scale;
     auto direction = sample.Normalize();
 
-    auto draw_sample = direction.Scale(length);
+    auto draw_sample = direction.Scale(scale);
 
     auto tip = draw_position + draw_sample;
 
@@ -55,13 +54,13 @@ public:
     constexpr float head_scale = 1.f / 5.f;
     constexpr float line_scale = 1.f - head_scale;
 
-    auto head_base = draw_position + direction.Scale(line_scale * length);
+    auto head_base = draw_position + direction.Scale(line_scale * scale);
 
     // Draw the line
     draw_position.DrawLine(head_base, color);
 
     // Calculate points for the arrowhead
-    float head_width = length * head_scale / 2.f;
+    float head_width = scale * head_scale / 2.f;
     raylib::Vector2 perpendicular(-direction.y, direction.x);
     auto head_left = head_base + perpendicular.Scale(head_width);
     auto head_right = head_base - perpendicular.Scale(head_width);
@@ -73,7 +72,7 @@ public:
   raylib::Vector2 sample() const { return _sample; }
 
   float radius;
-  float scale = 1.f;
+  float scale = 50.f;
 
 private:
   std::unique_ptr<Position> _position;

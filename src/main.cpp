@@ -112,7 +112,7 @@ int main(int argc, char const *argv[]) {
   Probe probe(std::make_unique<position::Rotating>(raylib::Vector2{0, 0}, 1.f,
                                                    PI / 6.f),
               raylib::Color::Green());
-  probe.scale = 1.5f;
+  probe.scale = 50.f;
 
   auto screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
   auto half_screen_size = screen_size / 2.f;
@@ -198,7 +198,7 @@ int main(int argc, char const *argv[]) {
               screen_to_world(raylib::Vector2{x_screen, y_screen}, zoom) -
               half_world_size;
 
-          auto potencial = field::potential(position, charges) / 2e10f;
+          auto potencial = field::potential(position, charges) / 2.f;
 
           auto normalized = sigmoid(potencial);
 
