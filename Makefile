@@ -137,14 +137,9 @@ $(docTarget): $(docSource)
 	tectonic $(docSource) -o $(docBuildDir)
 
 package: $(target) $(docTarget)
-	git clone file://$(shell pwd)/.git ./dist
-	$(RM) $(call platformpth, ./dist/*)
+	git clone file://$(shell pwd)/.git ./dist/src
 	$(MKDIR) ./dist/doc
 	$(MKDIR) ./dist/bin
 	$(call COPY,./$(buildTargetDir),./dist/bin,$(executable))
-	$(call COPY,.,./dist,src)
-	$(call COPY,.,./dist,Makefile)
-	$(call COPY,.,./dist,Dockerfile)
-	$(call COPY,.,./dist,scenarios)
 	$(call COPY,./scripts,./dist,*)
 	$(call COPY,./$(docBuildDir),./dist/doc,*.pdf)
