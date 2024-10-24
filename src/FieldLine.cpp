@@ -22,7 +22,7 @@ void FieldLines::update(const std::span<const Charge> &charges) {
   auto end_point_function =
       [charges](raylib::Vector2 point) -> std::optional<raylib::Vector2> {
     auto charge = std::ranges::find_if(charges, [point](auto &charge) {
-      return CheckCollisionPointCircle(point, charge.position(), 0.01f);
+      return point.CheckCollision(charge.position(), 0.01f);
     });
     return charge != charges.end() ? std::optional(charge->position())
                                    : std::nullopt;
@@ -37,8 +37,10 @@ void FieldLines::update(const std::span<const Charge> &charges) {
     for (size_t j = 0; j < lines_per_charge; ++j) {
       offset = offset.Rotate(2 * std::numbers::pi_v<float> / lines_per_charge);
 
-      field_lines.push_back(calculate_line(
-          charge.position(), offset, field_function, end_point_function, 1.f));
+      auto line = calculate_line(charge.position(), offset, field_function,
+                                 end_point_function, 1.f);
+
+      field_lines.push_back(line);
     }
   }
 }
@@ -62,7 +64,7 @@ FieldLines::Line FieldLines::calculate_line(
     points.push_back(world_to_screen(position));
 
     auto sample = field_function(position) * direction;
-    auto next_position = position + sample.Clamp(0.f, 0.01f);
+    auto next_position = position + sample.Scale(0.01f / sample.Length());
 
     // Stop if next_position is too far from origin
     if ((next_position - start_point).LengthSqr() > 50.f) {
