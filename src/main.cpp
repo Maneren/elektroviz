@@ -200,8 +200,10 @@ int main(int argc, char const *argv[]) {
 
           auto potencial = field::potential(position, charges) / 2e10f;
 
+          auto normalized = sigmoid(potencial);
+
           pixel = lerpColor3(Charge::NEGATIVE, raylib::Color::Black(),
-                             Charge::POSITIVE, sigmoid(potencial));
+                             Charge::POSITIVE, normalized);
         });
 
     background_texture.Update(background_image.data);
