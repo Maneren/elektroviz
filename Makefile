@@ -50,7 +50,7 @@ RAYLIB_BUILD_MODE := RELEASE
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
 	buildName := debug
-	CXXFLAGS := -g3 -gdwarf-2 -Og -fno-omit-frame-pointer -Wall -Wextra
+	CXXFLAGS := -g3 -gdwarf-5 -Og -fno-omit-frame-pointer -Wall -Wextra
 	RAYLIB_BUILD_MODE := DEBUG
 endif
 
