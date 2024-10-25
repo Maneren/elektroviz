@@ -125,7 +125,7 @@ execute: $(target)
 
 # Run the executable with valgrind memcheck
 valgrind: $(target)
-	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no $(target) $(ARGS)
+	valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --show-reachable=no $(target) $(ARGS) 2>&1 | tee valgrind.log
 
 # Clean up all relevant files
 clean:
