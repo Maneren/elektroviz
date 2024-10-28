@@ -11,6 +11,6 @@ void Probe::update(const float timeDelta, const double elapsedTime,
   _sample = field::E((*_position)(), charges);
 }
 
-BoundingSquare Probe::bounding_square() const {
-  return _position->bounding_square();
+BoundingRectangle Probe::bounding_square() const {
+  return _position->bounding_rectangle();
 }

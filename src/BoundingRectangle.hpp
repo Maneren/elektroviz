@@ -1,13 +1,13 @@
 #pragma once
 #include <Vector2.hpp>
 
-class BoundingSquare {
+class BoundingRectangle {
 public:
-  BoundingSquare(raylib::Vector2 position, raylib::Vector2 size)
+  BoundingRectangle(raylib::Vector2 position, raylib::Vector2 size)
       : position(position), size(size) {}
 
-  BoundingSquare operator+(const BoundingSquare &other) const;
-  void operator+=(const BoundingSquare &other) {
+  BoundingRectangle operator+(const BoundingRectangle &other) const;
+  void operator+=(const BoundingRectangle &other) {
     auto res = *this + other;
     this->position = res.position;
     this->size = res.size;

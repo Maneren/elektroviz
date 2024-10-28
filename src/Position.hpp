@@ -1,5 +1,5 @@
 #pragma once
-#include "BoundingSquare.hpp"
+#include "BoundingRectangle.hpp"
 #include <Vector2.hpp>
 #include <format>
 
@@ -7,7 +7,7 @@ class Position {
 public:
   virtual raylib::Vector2 operator()() const = 0;
   virtual void update(const float timeDelta, const float elapsedTime) = 0;
-  virtual BoundingSquare bounding_square() const = 0;
+  virtual BoundingRectangle bounding_rectangle() const = 0;
   virtual ~Position() = default;
   friend struct std::formatter<Position>;
 };
@@ -22,7 +22,7 @@ public:
               [[maybe_unused]] const float elapsedTime) override {
     // static position doesn't need update, provided just for interface sake
   }
-  BoundingSquare bounding_square() const override {
+  BoundingRectangle bounding_rectangle() const override {
     return {_position, {0.f, 0.f}};
   }
 
@@ -42,7 +42,7 @@ public:
               const float elapsedTime) override {
     _offset = raylib::Vector2{_radius, 0}.Rotate(_velocity * elapsedTime);
   }
-  BoundingSquare bounding_square() const override {
+  BoundingRectangle bounding_rectangle() const override {
     return {
         _position - raylib::Vector2{_radius, _radius},
         raylib::Vector2{_radius, _radius} * 2.f,

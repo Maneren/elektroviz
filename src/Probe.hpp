@@ -1,4 +1,5 @@
 #pragma once
+#include "BoundingRectangle.hpp"
 #include "Charge.hpp"
 #include "Position.hpp"
 #include "defs.hpp"
@@ -25,7 +26,7 @@ public:
   void update(const float timeDelta, const double elapsedTime,
               const std::span<Charge> &charges);
 
-  BoundingSquare bounding_square() const;
+  BoundingRectangle bounding_square() const;
 
   template <const bool ONLY_ARROW = false> void draw() const {
     auto draw_position = world_to_screen((*_position)());

@@ -1,8 +1,9 @@
-#include "BoundingSquare.hpp"
+#include "BoundingRectangle.hpp"
 #include "Vector2.hpp"
 #include <algorithm>
 
-BoundingSquare BoundingSquare::operator+(const BoundingSquare &other) const {
+BoundingRectangle
+BoundingRectangle::operator+(const BoundingRectangle &other) const {
   raylib::Vector2 new_position{std::min(position.x, other.position.x),
                                std::min(position.y, other.position.y)};
 

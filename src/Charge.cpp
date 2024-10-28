@@ -29,7 +29,7 @@ void Charge::draw() const {
   world_to_screen(_position).DrawCircle(radius - 1, color);
 }
 
-BoundingSquare Charge::bounding_square() const {
+BoundingRectangle Charge::bounding_square() const {
   auto radius = draw_radius() / GLOBAL_SCALE;
   raylib::Vector2 half_size{radius, radius};
   return {_position - half_size, half_size * 2.f};

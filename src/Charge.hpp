@@ -1,5 +1,5 @@
 #pragma once
-#include "BoundingSquare.hpp"
+#include "BoundingRectangle.hpp"
 #include <Color.hpp>
 #include <Vector2.hpp>
 #include <format>
@@ -87,7 +87,7 @@ public:
   raylib::Vector2 position() const { return _position; }
   float strength() const { return _strength; }
 
-  BoundingSquare bounding_square() const;
+  BoundingRectangle bounding_square() const;
 
   raylib::Vector2 E(const raylib::Vector2 &point) const;
   float potential(const raylib::Vector2 &point) const;

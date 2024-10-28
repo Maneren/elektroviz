@@ -1,4 +1,4 @@
-#include "BoundingSquare.hpp"
+#include "BoundingRectangle.hpp"
 #include "Charge.hpp"
 #include "FieldLine.hpp"
 #include "Grid.hpp"
@@ -51,9 +51,9 @@ void load_charges_from_json(std::vector<Charge> &charges, nlohmann::json data) {
   }
 }
 
-BoundingSquare world_bounding_square(const std::span<Charge> &charges,
-                                     const Probe &probe) {
-  BoundingSquare bounding_square = {{0.f, 0.f}, {0.f, 0.f}};
+BoundingRectangle world_bounding_square(const std::span<Charge> &charges,
+                                        const Probe &probe) {
+  BoundingRectangle bounding_square = {{0.f, 0.f}, {0.f, 0.f}};
 
   for (const auto &charge : charges) {
     bounding_square += charge.bounding_square();
