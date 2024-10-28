@@ -1,6 +1,5 @@
 % LTeX: language=cs-CZ
 \documentclass[12pt]{article}
-\usepackage[utf8]{inputenc}
 \usepackage[czech]{babel}
 \usepackage{hyphsubst}
 \usepackage{graphicx}
@@ -24,7 +23,7 @@
 \urlstyle{same}
 
 % define helper command for typesetting code
-\newcommand{\code}[1]{\mbox{\texttt{#1}}}
+\newcommand{\code}[1]{\texttt{#1}}
 \def\CC{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny\bf ++}}}
 
 \chardef\_=`_
@@ -63,15 +62,15 @@ Stráveno hodin: 80 \hfill \today
 \section{Zadání}
 
 Úkolem semestrální práce je vytvoření interaktivního programu pro vizualizaci
-elektrostatického pole vytvořeného bodovými elektrickými náboji rozmístěných
-v prostoru.
+elektrostatického pole vytvořeného bodovými elektrickými náboji rozmístěných v
+prostoru.
 
-Program bude možné spustit z příkazové řádky skriptem \code{./run.sh} s volitelným
-celočíselným parametrem určujícím scénář (viz níže) k vizualizaci. Nebude-li
-parametr zadán, bude zvolen scénář 0. Po spuštění programu se zobrazí okno
-o minimální počáteční velikosti 800x600px, ve kterém se zobrazí přehledně
-všechny bodové náboje zvoleného scénáře. Vizuální reprezentace náboje
-(v nejjednodušší podobě kružnice s popiskem) musí být volena tak, aby bylo možné
+Program bude možné spustit z příkazové řádky skriptem \code{./run.sh} s
+volitelným celočíselným parametrem určujícím scénář (viz níže) k vizualizaci.
+Nebude-li parametr zadán, bude zvolen scénář 0. Po spuštění programu se zobrazí
+okno o minimální počáteční velikosti 800x600px, ve kterém se zobrazí přehledně
+všechny bodové náboje zvoleného scénáře. Vizuální reprezentace náboje (v
+nejjednodušší podobě kružnice s popiskem) musí být volena tak, aby bylo možné
 jednoznačně určit velikost náboje a jeho znaménko. V místě sondy bude zobrazen
 šipkou vektor intenzity vektorového pole 𝐸⃗ a opatřen popiskem udávající jeho
 velikost $\|E\|$. Všechny elementy vizualizace (náboje, popisky, šipky) musí být
@@ -98,7 +97,8 @@ Scénáře:
 \end{itemize}
 
 Ve všech těchto scénářích se sonda pohybuje po kružnici se středem v počátku
-souřadnic (0, 0), poloměrem 1 a úhlovou rychlostí \( \frac{\pi}{6} \frac{rad}{s} \).
+souřadnic (0, 0), poloměrem 1 a úhlovou rychlostí \( \frac{\pi}{6}
+\frac{rad}{s} \).
 
 \section{Implementace řešení}
 
@@ -129,8 +129,8 @@ Každý zde popsaný objekt se nachází ve svém vlastním souboru
 
 Reprezentuje v simulaci jeden náboj. 
 
-% Velikost náboje může být buď konstantní nebo proměnlivá v čase - reprezentováno
-% třídami \code{StaticStrength} a \code{VariableStrength}. 
+Velikost náboje může být buď konstantní nebo proměnlivá v čase - reprezentováno
+třídami \code{StaticStrength} a \code{VariableStrength}. 
 
 Vykresluje se jako kruh, jehož plocha je přímo úměrná velikosti náboje. Dále má
 bílé ohraničení a barvu výplně reprezentující velikost náboje - červená 5 C a více,
@@ -140,9 +140,8 @@ modrou 5 C a méně a lineární interpolaci přes tmavě šedou pro hodnoty mez
 
 Reprezentuje v simulaci elektrickou sondu.
 
-Může být buď otáčivě pohyblivá nebo statická 
-% (využití v třídě \code{Grid})
-- reprezentováno třídami \code{Static}, \code{Rotating} ze jmenného prostředí
+Může být buď otáčivě pohyblivá nebo statická (využití v třídě \code{Grid}) -
+reprezentováno třídami \code{Static}, \code{Rotating} ze jmenného prostředí
 \code{position}.
 
 Vykresluje se jako šipka reprezentující směr a sílu el. pole v daném bodě.
@@ -151,17 +150,17 @@ Délka šipky odpovídá binárnímu logaritmu normy vektoru el. pole namísto p
 nebo větší než celá obrazovka. Zárověň je volitelně může zobrazovat text s
 numerickou velikostí intenzity ve vědecké notaci.
 
-% \subsubsection{\code{Grid}}
-%
-% Představuje mřížku na pozadí, včetně sond v jejích průsečících.
-%
-% Má nezávisle nastavitelné rozestupy mezi čárami v obou směrech v pixelech - ve
-% výchozím nastavení to je 50x50. Je dobré nenastavovat příliš malé rozestupy,
-% protože pak je jednak obraz nepřehledný a zároveň se velmi zvyšují nároky na
-% výpočetní výkon.
-%
-% Pro zrychlení kreslení se čáry i sondy generují pouze při inicializaci a při
-% změně rozměrů a jinak jsou uložené předpočítané v soukromých atributech třídy.
+\subsubsection{\code{Grid}}
+
+Představuje mřížku na pozadí, včetně sond v jejích průsečících.
+
+Má nezávisle nastavitelné rozestupy mezi čárami v obou směrech v pixelech - ve
+výchozím nastavení to je 50x50. Je dobré nenastavovat příliš malé rozestupy,
+protože pak je jednak obraz nepřehledný a zároveň se velmi zvyšují nároky na
+výpočetní výkon.
+
+Pro zrychlení kreslení se čáry i sondy generují pouze při inicializaci a při
+změně rozměrů a jinak jsou uložené předpočítané v soukromých atributech třídy.
 
 \subsection{Ostatní soubory}
 
@@ -201,11 +200,10 @@ Skript pak ještě přesune výsledný spustitelný soubor do souboru
 
 \subsection{Spuštění}
 
-Program přebírá z příkazové řádky parametr \code{scenario}.
-% a volitelně \code{spacing}. \code{scenario} 
-Určuje který scénář má být spuštěn po zapnutí aplikace, při absenci parametru
-se použije scénář 0.
-% a \code{spacing} určuje rozestupy mřízky na pozadí.
+Program přebírá z příkazové řádky parametr \code{scenario}. a volitelně
+\code{spacing}. \code{scenario} Určuje který scénář má být spuštěn po zapnutí
+aplikace, při absenci parametru se použije scénář 0. a \code{spacing} určuje
+rozestupy mřízky na pozadí.
 
 \textbf{Důležité}: Program je nutné spustit ve stejné složce, v jaké se nechází
 složka \code{scenarios}, jinak nebude schopný načíst žadný z výchozích scénářů.
