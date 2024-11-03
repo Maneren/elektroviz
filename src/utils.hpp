@@ -10,10 +10,11 @@
  * @param t interpolation factor (0..1000)
  * @return Interpolated color
  */
-constexpr raylib::Color lerpColor(const Color &a, const Color &b, int t) {
+inline raylib::Color lerpColor(const raylib::Color &a, const raylib::Color &b,
+                               int t) {
   return {static_cast<unsigned char>(a.r + t * (b.r - a.r) / 1000),
           static_cast<unsigned char>(a.g + t * (b.g - a.g) / 1000),
-          static_cast<unsigned char>(a.b + t * (b.b - a.b) / 1000)};
+          static_cast<unsigned char>(a.b + t * (b.b - a.b) / 1000), 255};
 }
 
 /**
@@ -26,7 +27,8 @@ constexpr raylib::Color lerpColor(const Color &a, const Color &b, int t) {
  *
  * Uses `lerpColor(Color, Color, int)` intenally, converting `t` to `int`.
  */
-constexpr raylib::Color lerpColor(const Color &a, const Color &b, float t) {
+inline Color lerpColor(const raylib::Color &a, const raylib::Color &b,
+                       float t) {
   return lerpColor(a, b, static_cast<int>(t * 1000.f));
 }
 
@@ -42,8 +44,8 @@ constexpr raylib::Color lerpColor(const Color &a, const Color &b, float t) {
  * Uses `lerpColor(Color, Color, int)` intenally, converting `t` to `int`, for
  * performance.
  */
-constexpr raylib::Color lerpColor3(const Color &a, const Color &b,
-                                   const Color &c, float t) {
+inline raylib::Color lerpColor3(const raylib::Color &a, const raylib::Color &b,
+                                const raylib::Color &c, float t) {
   int t_int = static_cast<int>(t * 1000.f);
 
   if (t_int <= 0) {
@@ -53,6 +55,11 @@ constexpr raylib::Color lerpColor3(const Color &a, const Color &b,
   }
 }
 
-constexpr float sigmoid(float x) { return x / (1.f + std::abs(x)); }
+/**
+ * @brief Calculate the sigmoid function
+ *
+ * Uses a fast approximation of the true sigmoid function.
+ */
+inline float sigmoid(float x) { return x / (1.f + std::abs(x)); }
 
 std::string trim(const std::string &str);
