@@ -64,6 +64,14 @@ BoundingRectangle world_bounding_square(const std::span<Charge> &charges,
   return bounding_square;
 }
 
+float calculate_zoom(std::span<Charge> charges, const Probe &probe,
+                     const raylib::Vector2 screen_size) {
+  auto bounding_square = world_bounding_square(charges, probe);
+  auto bounding_size = world_to_screen(bounding_square.size) * 2.f;
+  return std::min(screen_size.x / bounding_size.x,
+                  screen_size.y / bounding_size.y);
+}
+
 int main(int argc, char const *argv[]) {
   std::string scenario = "0.json";
   if (argc > 1) {
@@ -129,8 +137,8 @@ int main(int argc, char const *argv[]) {
 
   // w.SetTargetFPS(60);
 
-  auto zoom = 2.f;
-  raylib::Camera2D camera({0, 0}, {0, 0}, 0.f, zoom);
+  auto zoom = calculate_zoom(charges, probe, screen_size);
+  raylib::Camera2D camera(half_screen_size, {0, 0}, 0.f, zoom);
 
   FieldLines field_lines{LINES_PER_CHARGE};
 
@@ -148,10 +156,7 @@ int main(int argc, char const *argv[]) {
       screen_size = w.GetSize();
       half_screen_size = screen_size / 2.f;
 
-      auto bounding_square = world_bounding_square(charges, probe);
-      auto bounding_size = world_to_screen(bounding_square.size) * 2.f;
-      zoom = std::min(screen_size.x / bounding_size.x,
-                      screen_size.y / bounding_size.y);
+      zoom = calculate_zoom(charges, probe, screen_size);
 
       half_world_size = screen_to_world(half_screen_size, zoom);
 
