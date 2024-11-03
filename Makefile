@@ -58,6 +58,7 @@ endif
 buildDir := build
 buildTargetDir := $(buildDir)/$(platform)/$(buildName)
 buildLibDir := $(buildTargetDir)/lib
+libraylib := $(buildTargetDir)/lib/libraylib.a
 executable := elektroviz
 target := $(buildTargetDir)/$(executable)
 docBuildDir := doc/build
@@ -76,7 +77,7 @@ linkFlags = -L $(buildLibDir) -l raylib
 all: $(target) execute clean
 
 # Sets up the project for compiling, generates includes and libs
-setup: include lib
+setup: submodules include lib
 
 # Pull and update the the build submodules
 submodules:
@@ -94,7 +95,7 @@ include: submodules
 lib: $(buildLibDir)/libraylib.a
 
 # Build the raylib static library file and copy it into lib
-$(buildLibDir)/libraylib.a: submodules
+$(libraylib):
 	cd vendor/raylib/src $(THEN) "$(MAKE)" clean
 	cd vendor/raylib/src $(THEN) "$(MAKE)" raylib \
 		PLATFORM=PLATFORM_DESKTOP \
@@ -108,7 +109,7 @@ $(buildLibDir)/libraylib.a: submodules
 build: $(target)
 
 # Link the program and create the executable
-$(target): $(objects)
+$(target): $(objects) $(libraylib)
 	$(CXX) $(objects) -o $(target) $(linkFlags)
 
 # Add all rules from dependency files
