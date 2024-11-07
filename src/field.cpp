@@ -9,18 +9,21 @@ namespace field {
 
 namespace ranges = std::ranges;
 namespace views = std::views;
+namespace placeholders = std::placeholders;
 
 raylib::Vector2 E(const raylib::Vector2 point,
                   const std::span<const Charge> &charges) {
-  auto fields = views::transform(charges, [&](auto &c) { return c.E(point); });
-  return ranges::fold_left(fields, raylib::Vector2{0.f}, std::plus<>());
+  return ranges::fold_left(
+      views::transform(charges, std::bind(&Charge::E, placeholders::_1, point)),
+      raylib::Vector2{}, std::plus<>());
 }
 
 float potential(const raylib::Vector2 point,
                 const std::span<const Charge> &charges) {
-  auto potentials =
-      views::transform(charges, [&](auto &c) { return c.potential(point); });
-  return ranges::fold_left(potentials, 0.f, std::plus<>());
+  return ranges::fold_left(
+      views::transform(charges,
+                       std::bind(&Charge::potential, placeholders::_1, point)),
+      0.f, std::plus<>());
 }
 
 } // namespace field
