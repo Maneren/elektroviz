@@ -193,7 +193,7 @@ int main(int argc, char const *argv[]) {
     // SAFETY: each thread will access independent portion of the image
     parallel::for_each<raylib::Color>(
         background_pixels, [&background_image, &charges, zoom,
-                            half_world_size](auto i, auto &pixel) {
+                            half_world_size](const auto i, auto &pixel) {
           auto x = i % background_image.width;
           auto y = i / background_image.width;
 

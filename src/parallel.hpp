@@ -1,13 +1,14 @@
-// adapted from https://stackoverflow.com/a/49188371
-
+#include <ThreadPool.h>
 #include <functional>
 #include <ranges>
 #include <span>
-#include <stddef.h>
 #include <thread>
 #include <vector>
 
 namespace parallel {
+
+namespace views = std::views;
+namespace ranges = std::ranges;
 
 /// @param nb_elements : size of your for loop
 /// @param functor(start, end) :
@@ -27,6 +28,8 @@ void for_each(size_t nb_elements,
               std::function<void(size_t start, size_t end)> functor,
               bool use_threads = true);
 
+static auto pool = ThreadPool(std::thread::hardware_concurrency());
+
 /// @param span : a span containing target elements
 /// @param functor(index, item) :
 /// your function processing a single item from the span.
@@ -41,8 +44,8 @@ void for_each(size_t nb_elements,
 /// range, or to not invalidate any references or pointers, etc.
 template <typename T>
 void for_each(const std::span<T> span,
-              std::function<void(size_t index, T &value)> functor,
-              bool use_threads = true) {
+              std::function<void(const size_t index, T &value)> functor,
+              const bool use_threads = true) {
   size_t thread_count_hint = std::thread::hardware_concurrency();
   size_t thread_count = thread_count_hint == 0 ? 8 : thread_count_hint;
 
@@ -50,30 +53,29 @@ void for_each(const std::span<T> span,
 
   if (!use_threads) {
     // Single thread execution (for easy debugging)
-    for (auto i = 0uz; i < span.size(); ++i)
-      functor(i, span[i]);
+    for (auto [i, item] : span | views::enumerate)
+      functor(i, item);
 
     return;
   }
 
-  // Multithread execution
-  auto threads = std::views::iota(0uz, thread_count) |
-                 std::views::transform([&](auto i) {
-                   return std::jthread(
-                       [&span, &functor, start = i * batch_size, batch_size]() {
-                         for (auto i = start; i < start + batch_size; ++i) {
-                           functor(i, span[i]);
-                         }
-                       });
-                 }) |
-                 std::ranges::to<std::vector>();
+  auto handles =
+      views::iota(0uz, span.size()) | views::stride(batch_size) |
+      views::transform([&span, &functor, batch_size](const size_t start) {
+        auto indices = views::iota(start, start + batch_size);
+        return pool.enqueue([&span, &functor, indices]() {
+          for (const size_t index : indices)
+            functor(index, span[index]);
+        });
+      }) |
+      ranges::to<std::vector>();
 
-  // Handle the remaining elements
   size_t start = thread_count * batch_size;
   for (T &item : span.subspan(start))
     functor(start++, item);
 
-  // jthreads are automatically avaited at the end of the scope
+  for (auto &handle : handles)
+    handle.get();
 }
 
 } // namespace parallel

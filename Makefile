@@ -91,6 +91,7 @@ include: submodules
 	$(call COPY,vendor/raylib/src,./include,rlgl.h)
 	$(call COPY,vendor/raylib-cpp/include,./include,*.hpp)
 	$(call COPY,vendor/json/include,./include,nlohmann)
+	$(call COPY,vendor/threadpool,./include,ThreadPool.h)
 
 lib: $(buildLibDir)/libraylib.a
 
