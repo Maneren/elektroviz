@@ -86,10 +86,10 @@ void FieldLines::update(const std::span<const Charge> &charges,
   };
 
   // count number of positive vs negative charges
-  auto positive = ranges::count_if(
+  size_t positive_charges = ranges::count_if(
       charges, [](auto &charge) { return charge.strength() > 0.f; });
 
-  auto direction = (positive >= 0.f) ? 1.f : -1.f;
+  auto direction = (2 * positive_charges >= charges.size()) ? 1.f : -1.f;
 
   auto world_target = screen_to_world(target, zoom);
 
