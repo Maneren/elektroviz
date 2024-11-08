@@ -23,8 +23,8 @@ void Charge::draw() const {
   // outline
   world_to_screen(_position).DrawCircle(radius, raylib::Color::RayWhite());
 
-  auto color = lerpColor3(NEGATIVE, raylib::Color::DarkGray(), POSITIVE,
-                          sigmoid(_strength));
+  auto color = lerpColor3(NEGATIVE, raylib::Color::LightGray(), POSITIVE,
+                          sigmoid(_strength * 2.f));
 
   world_to_screen(_position).DrawCircle(radius - 1, color);
 }
