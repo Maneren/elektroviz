@@ -61,14 +61,14 @@ buildLibDir := $(buildTargetDir)/lib
 libraylib := $(buildTargetDir)/lib/libraylib.a
 executable := elektroviz
 target := $(buildTargetDir)/$(executable)
-docBuildDir := doc/build
-docSource := doc/$(executable).tex
-docTarget := $(docBuildDir)/$(executable).pdf
+docDir := doc
+docSource := $(docDir)/$(executable).tex
+docTarget := $(docDir)/$(executable).pdf
 sources := $(call rwildcard,src/,*.cpp)
 objects := $(patsubst src/%, $(buildTargetDir)/%, $(patsubst %.cpp, %.o, $(sources)))
 depends := $(patsubst %.o, %.d, $(objects))
 compileFlags += -std=c++23 -I include
-linkFlags = -L $(buildLibDir) -l raylib
+linkFlags += -L $(buildLibDir) -l raylib 
 
 # Lists phony targets for Makefile
 .PHONY: all setup submodules lib build execute clean package
@@ -135,8 +135,7 @@ clean:
 	$(RM) $(call platformpth, ./dist/*)
 
 $(docTarget): $(docSource)
-	$(MKDIR) $(docBuildDir)
-	tectonic $(docSource) -o $(docBuildDir)
+	tectonic $(docSource) -o $(docDir) --keep-logs
 
 package: $(target) $(docTarget)
 	git clone file://$(shell pwd)/.git ./dist/src
@@ -144,4 +143,4 @@ package: $(target) $(docTarget)
 	$(MKDIR) ./dist/bin
 	$(call COPY,./$(buildTargetDir),./dist/bin,$(executable))
 	$(call COPY,./scripts,./dist,*)
-	$(call COPY,./$(docBuildDir),./dist/doc,*.pdf)
+	$(call COPY,./$(docDir),./dist/doc,*.pdf)
