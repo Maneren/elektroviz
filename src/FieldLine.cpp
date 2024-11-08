@@ -10,6 +10,7 @@
 #include <span>
 
 namespace views = std::views;
+namespace ranges = std::ranges;
 
 void FieldLines::update(const std::span<const Charge> &charges) {
   field_lines.clear();
@@ -28,6 +29,12 @@ void FieldLines::update(const std::span<const Charge> &charges) {
                                    : std::nullopt;
   };
 
+  // count number of positive vs negative charges
+  auto positive = ranges::count_if(
+      charges, [](auto &charge) { return charge.strength() > 0.f; });
+
+  auto direction = (positive >= 0.f) ? 1.f : -1.f;
+
   for (const auto &[i, charge] : charges | views::enumerate | views::as_const) {
     // Start with slight offset to align less with axis and other charges
     float initial_angle_offset = 0.1f;
@@ -38,7 +45,7 @@ void FieldLines::update(const std::span<const Charge> &charges) {
       offset = offset.Rotate(2 * std::numbers::pi_v<float> / lines_per_charge);
 
       auto line = calculate_line(charge.position(), offset, field_function,
-                                 end_point_function, 1.f);
+                                 end_point_function, direction);
 
       field_lines.push_back(line);
     }

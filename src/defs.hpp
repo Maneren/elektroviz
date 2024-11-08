@@ -16,7 +16,7 @@ constexpr float K_E = 1 / (4 * std::numbers::pi_v<float> * EPSILON_0);
 constexpr int FONT_SIZE = 24;
 constexpr float GLOBAL_SCALE = 100.0f;
 
-constexpr int LINES_PER_CHARGE = 16;
+constexpr int LINES_PER_CHARGE = 12;
 
 constexpr int BACKGROUND_SUBSAMPLING = 4;
 
