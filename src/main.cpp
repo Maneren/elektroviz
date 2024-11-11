@@ -1,3 +1,5 @@
+#include <algorithm>
+#define SUPPORT_QUADS_DRAW_MODE 0
 #include "BoundingRectangle.hpp"
 #include "Charge.hpp"
 #include "FieldLine.hpp"
@@ -137,8 +139,9 @@ int main(int argc, char const *argv[]) {
 
   // w.SetTargetFPS(60);
 
-  auto zoom = calculate_zoom(charges, probe, screen_size);
-  raylib::Camera2D camera(half_screen_size, {0, 0}, 0.f, zoom);
+  auto zoom_modifier = 1.f;
+  raylib::Camera2D camera(half_screen_size, {0, 0}, 0.f,
+                          calculate_zoom(charges, probe, screen_size));
 
   FieldLines field_lines{LINES_PER_CHARGE};
 
@@ -152,19 +155,32 @@ int main(int argc, char const *argv[]) {
   {
     auto frameTime = w.GetFrameTime();
 
+    auto scroll = GetMouseWheelMove();
+
+    if (std::abs(scroll) > 0) {
+      zoom_modifier = std::clamp(zoom_modifier + scroll * 0.05f, 0.5f, 3.f);
+      camera.SetZoom(calculate_zoom(charges, probe, screen_size) *
+                     zoom_modifier);
+      half_world_size = screen_to_world(half_screen_size, camera.GetZoom());
+      grid.resize(screen_size / camera.GetZoom(),
+                  grid_spacing / camera.GetZoom());
+    }
+
     if (w.IsResized()) {
       screen_size = w.GetSize();
       half_screen_size = screen_size / 2.f;
 
-      zoom = calculate_zoom(charges, probe, screen_size);
+      camera.SetZoom(calculate_zoom(charges, probe, screen_size) *
+                     zoom_modifier);
 
-      half_world_size = screen_to_world(half_screen_size, zoom);
+      half_world_size = screen_to_world(half_screen_size, camera.GetZoom());
 
       // Make 0,0 the center of the screen
       camera.SetOffset(half_screen_size);
-      camera.SetZoom(zoom);
+      camera.SetZoom(camera.GetZoom());
 
-      grid.resize(screen_size / zoom, grid_spacing / zoom);
+      grid.resize(screen_size / camera.GetZoom(),
+                  grid_spacing / camera.GetZoom());
 
       background_texture.Unload();
 
@@ -192,8 +208,9 @@ int main(int argc, char const *argv[]) {
 
     // SAFETY: each thread will access independent portion of the image
     parallel::for_each<raylib::Color>(
-        background_pixels, [&background_image, &charges, zoom,
-                            half_world_size](const auto i, auto &pixel) {
+        background_pixels,
+        [&background_image, &charges, zoom = camera.GetZoom(),
+         half_world_size](const auto i, auto &pixel) {
           auto x = i % background_image.width;
           auto y = i / background_image.width;
 

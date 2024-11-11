@@ -74,7 +74,7 @@ FieldLines::Line FieldLines::calculate_line(
     auto next_position = position + sample.Scale(0.01f / sample.Length());
 
     // Stop if next_position is too far from origin
-    if ((next_position - start_point).LengthSqr() > 50.f) {
+    if ((next_position - start_point).LengthSqr() > 100.f) {
       break;
     }
 
