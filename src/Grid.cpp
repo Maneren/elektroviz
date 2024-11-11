@@ -16,19 +16,24 @@ void GridLine::draw() const { start.DrawLine(end, color); }
 
 std::vector<GridLine> generateLines(const raylib::Vector2 size,
                                     const raylib::Vector2 spacing,
-                                    const raylib::Color color) {
+                                    const raylib::Color color,
+                                    const raylib::Vector2 offset) {
   const auto size_half = size / 2.0f;
 
   std::vector<GridLine> lines;
 
   for (float y = 0; y <= size_half.y; y += spacing.y) {
-    lines.push_back(GridLine({-size_half.x, y}, {size_half.x, y}, color));
-    lines.push_back(GridLine({-size_half.x, -y}, {size_half.x, -y}, color));
+    lines.push_back(GridLine(offset + raylib::Vector2{-size_half.x, y},
+                             offset + raylib::Vector2{size_half.x, y}, color));
+    lines.push_back(GridLine(offset + raylib::Vector2{-size_half.x, -y},
+                             offset + raylib::Vector2{size_half.x, -y}, color));
   }
 
   for (float x = 0; x <= size_half.x; x += spacing.x) {
-    lines.push_back(GridLine({x, -size_half.y}, {x, size_half.y}));
-    lines.push_back(GridLine({-x, -size_half.y}, {-x, size_half.y}));
+    lines.push_back(GridLine(offset + raylib::Vector2{x, -size_half.y},
+                             offset + raylib::Vector2{x, size_half.y}));
+    lines.push_back(GridLine(offset + raylib::Vector2{-x, -size_half.y},
+                             offset + raylib::Vector2{-x, size_half.y}));
   }
 
   return lines;
@@ -36,7 +41,8 @@ std::vector<GridLine> generateLines(const raylib::Vector2 size,
 
 std::vector<Probe> generateProbes(const raylib::Vector2 size,
                                   const raylib::Vector2 spacing,
-                                  const raylib::Color color) {
+                                  const raylib::Color color,
+                                  const raylib::Vector2 offset) {
   const auto world_size_half = screen_to_world(size);
   const auto world_spacing = screen_to_world(spacing);
 
@@ -48,7 +54,7 @@ std::vector<Probe> generateProbes(const raylib::Vector2 size,
          x += world_spacing.x) {
       for (raylib::Vector2 pos :
            std::vector<raylib::Vector2>{{x, y}, {x, -y}, {-x, y}, {-x, -y}}) {
-        Probe probe{std::make_unique<position::Static>(pos), color, 0};
+        Probe probe{std::make_unique<position::Static>(offset + pos), color, 0};
         probe.scale = std::min(spacing.x, spacing.y);
         probes.push_back(std::move(probe));
       }
@@ -58,9 +64,10 @@ std::vector<Probe> generateProbes(const raylib::Vector2 size,
   return probes;
 }
 
-void Grid::resize(const raylib::Vector2 size, const raylib::Vector2 spacing) {
-  lines = generateLines(size, spacing, line_color);
-  probes = generateProbes(size, spacing, probe_color);
+void Grid::resize(const raylib::Vector2 size, const raylib::Vector2 spacing,
+                  const raylib::Vector2 offset) {
+  lines = generateLines(size, spacing, line_color, offset);
+  probes = generateProbes(size, spacing, probe_color, screen_to_world(offset));
 }
 
 void Grid::draw() const {

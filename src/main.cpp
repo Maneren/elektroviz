@@ -1,5 +1,3 @@
-#include <algorithm>
-#define SUPPORT_QUADS_DRAW_MODE 0
 #include "BoundingRectangle.hpp"
 #include "Charge.hpp"
 #include "FieldLine.hpp"
@@ -9,11 +7,13 @@
 #include "defs.hpp"
 #include "field.hpp"
 #include "parallel.hpp"
+#include "raymath.h"
 #include "utils.hpp"
 #include <Camera2D.hpp>
 #include <Color.hpp>
 #include <Functions.hpp>
 #include <Image.hpp>
+#include <Mouse.hpp>
 #include <Texture.hpp>
 #include <Vector2.hpp>
 #include <Window.hpp>
@@ -163,7 +163,15 @@ int main(int argc, char const *argv[]) {
                      zoom_modifier);
       half_world_size = screen_to_world(half_screen_size, camera.GetZoom());
       grid.resize(screen_size / camera.GetZoom(),
-                  grid_spacing / camera.GetZoom());
+                  grid_spacing / camera.GetZoom(), camera.GetTarget());
+    }
+
+    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+      auto delta = raylib::Mouse::GetDelta().Scale(-1.0f / camera.zoom);
+      camera.SetTarget(
+          Vector2ClampValue(Vector2Add(camera.GetTarget(), delta), 0.f, 800.f));
+      grid.resize(screen_size / camera.GetZoom(),
+                  grid_spacing / camera.GetZoom(), camera.GetTarget());
     }
 
     if (w.IsResized()) {
@@ -180,7 +188,7 @@ int main(int argc, char const *argv[]) {
       camera.SetZoom(camera.GetZoom());
 
       grid.resize(screen_size / camera.GetZoom(),
-                  grid_spacing / camera.GetZoom());
+                  grid_spacing / camera.GetZoom(), camera.GetTarget());
 
       background_texture.Unload();
 
@@ -210,6 +218,7 @@ int main(int argc, char const *argv[]) {
     parallel::for_each<raylib::Color>(
         background_pixels,
         [&background_image, &charges, zoom = camera.GetZoom(),
+         target = screen_to_world(camera.GetTarget()),
          half_world_size](const auto i, auto &pixel) {
           auto x = i % background_image.width;
           auto y = i / background_image.width;
@@ -218,7 +227,7 @@ int main(int argc, char const *argv[]) {
           auto y_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * y);
           auto position =
               screen_to_world(raylib::Vector2{x_screen, y_screen}, zoom) -
-              half_world_size;
+              half_world_size + target;
 
           auto potencial = field::potential(position, charges) / 2.f;
 

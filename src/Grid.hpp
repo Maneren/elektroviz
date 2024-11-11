@@ -34,11 +34,13 @@ template <> struct std::formatter<GridLine> {
 
 std::vector<GridLine> generateLines(const raylib::Vector2 size,
                                     const raylib::Vector2 spacing,
-                                    const raylib::Color color);
+                                    const raylib::Color color,
+                                    const raylib::Vector2 offset = {});
 
 std::vector<Probe> generateProbes(const raylib::Vector2 size,
                                   const raylib::Vector2 spacing,
-                                  const raylib::Color color);
+                                  const raylib::Color color,
+                                  const raylib::Vector2 offset = {});
 
 class Grid {
 public:
@@ -52,7 +54,8 @@ public:
   void draw() const;
   void update(const float timeDelta, const double elapsedTime,
               const std::span<Charge> &charges);
-  void resize(const raylib::Vector2 size, const raylib::Vector2 spacing);
+  void resize(const raylib::Vector2 size, const raylib::Vector2 spacing,
+              const raylib::Vector2 offset = {});
 
 private:
   const raylib::Color line_color;
