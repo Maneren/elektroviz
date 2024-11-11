@@ -1,4 +1,5 @@
 #include <ThreadPool.h>
+#include <algorithm>
 #include <functional>
 #include <ranges>
 #include <span>
@@ -59,23 +60,15 @@ void for_each(const std::span<T> span,
     return;
   }
 
-  auto handles =
-      views::iota(0uz, span.size()) | views::stride(batch_size) |
-      views::transform([&span, &functor, batch_size](const size_t start) {
-        auto indices = views::iota(start, start + batch_size);
-        return pool.enqueue([&span, &functor, indices]() {
-          for (const size_t index : indices)
-            functor(index, span[index]);
-        });
-      }) |
-      ranges::to<std::vector>();
-
-  size_t start = thread_count * batch_size;
-  for (T &item : span.subspan(start))
-    functor(start++, item);
-
-  for (auto &handle : handles)
-    handle.get();
+  ranges::for_each(span | views::enumerate | views::chunk(batch_size) |
+                       views::transform([&functor](auto chunk) {
+                         return pool.enqueue([&functor, chunk]() {
+                           for (auto [i, item] : chunk)
+                             functor(i, item);
+                         });
+                       }) |
+                       ranges::to<std::vector>(),
+                   [](auto &handle) { handle.get(); });
 }
 
 } // namespace parallel
