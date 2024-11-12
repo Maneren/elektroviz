@@ -24,6 +24,7 @@ inline raylib::Vector2 world_to_screen(const raylib::Vector2 &point) {
   return point * GLOBAL_SCALE;
 }
 
+// TODO: investigate GetScreenToWorld2D from raylib
 inline raylib::Vector2 screen_to_world(const raylib::Vector2 &point,
                                        float zoom = 1.f) {
   return point / (GLOBAL_SCALE * zoom);
