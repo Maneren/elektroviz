@@ -206,7 +206,7 @@ int main(int argc, char const *argv[]) {
     }
     grid.update(frameTime, time, charges);
     probe.update(frameTime, time, charges);
-    field_lines.update(charges);
+    field_lines.update(charges, camera.GetZoom(), camera.GetTarget());
 
     // SAFETY: the image is internally an array of raylib::Colors, so it's
     // safe to treat it as such
