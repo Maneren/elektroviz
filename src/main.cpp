@@ -44,17 +44,19 @@ void load_charges_from_json(std::vector<Charge> &charges, nlohmann::json data) {
     auto strength = charge["strength"];
     if (strength.is_number()) {
       charges.emplace_back(
-          pos, std::make_unique<charge::ConstantStrength>(strength));
+          pos, std::make_unique<charge::ConstantStrength>(strength)
+      );
     } else if (strength.is_string()) {
       const std::string func = strength.get<std::string>();
-      charges.emplace_back(pos,
-                           std::make_unique<charge::VariableStrength>(func));
+      charges.emplace_back(
+          pos, std::make_unique<charge::VariableStrength>(func)
+      );
     }
   }
 }
 
-BoundingRectangle world_bounding_square(const std::span<Charge> &charges,
-                                        const Probe &probe) {
+BoundingRectangle
+world_bounding_square(const std::span<Charge> &charges, const Probe &probe) {
   BoundingRectangle bounding_square = {{0.f, 0.f}, {0.f, 0.f}};
 
   for (const auto &charge : charges) {
@@ -66,12 +68,16 @@ BoundingRectangle world_bounding_square(const std::span<Charge> &charges,
   return bounding_square;
 }
 
-float calculate_zoom(std::span<Charge> charges, const Probe &probe,
-                     const raylib::Vector2 screen_size) {
+float calculate_zoom(
+    std::span<Charge> charges,
+    const Probe &probe,
+    const raylib::Vector2 screen_size
+) {
   auto bounding_square = world_bounding_square(charges, probe);
   auto bounding_size = world_to_screen(bounding_square.size) * 2.f;
-  return std::min(screen_size.x / bounding_size.x,
-                  screen_size.y / bounding_size.y);
+  return std::min(
+      screen_size.x / bounding_size.x, screen_size.y / bounding_size.y
+  );
 }
 
 int main(int argc, char const *argv[]) {
@@ -84,15 +90,17 @@ int main(int argc, char const *argv[]) {
   if (argc > 2) {
     auto size_spec = std::string{argv[2]};
     if (size_spec.contains("x")) {
-      grid_spacing =
-          raylib::Vector2{std::stof(size_spec.substr(0, size_spec.find("x"))),
-                          std::stof(size_spec.substr(size_spec.find("x") + 1))};
+      grid_spacing = raylib::Vector2{
+          std::stof(size_spec.substr(0, size_spec.find("x"))),
+          std::stof(size_spec.substr(size_spec.find("x") + 1))
+      };
     } else {
-      std::cerr
-          << std::format(
-                 "Invalid size spec: '{}'. Expected format is 'WIDTHxHEIGHT'",
-                 size_spec)
-          << std::endl;
+      std::cerr << std::format(
+                       "Invalid size spec: '{}'. Expected format "
+                       "is 'WIDTHxHEIGHT'",
+                       size_spec
+                   )
+                << std::endl;
     }
   }
 
@@ -119,35 +127,45 @@ int main(int argc, char const *argv[]) {
   }
   std::cout << "]" << std::endl;
 
-  Probe probe(std::make_unique<position::Rotating>(raylib::Vector2{0, 0}, 1.f,
-                                                   PI / 6.f),
-              raylib::Color::Green());
+  Probe probe(
+      std::make_unique<position::Rotating>(
+          raylib::Vector2{0, 0}, 1.f, PI / 6.f
+      ),
+      raylib::Color::Green()
+  );
   probe.scale = 50.f;
 
   auto screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
   auto half_screen_size = screen_size / 2.f;
   auto half_world_size = screen_to_world(half_screen_size);
 
-  Grid grid(screen_size, grid_spacing, raylib::Color::RayWhite(),
-            {150, 150, 150, 255});
+  Grid grid(
+      screen_size, grid_spacing, raylib::Color::RayWhite(), {150, 150, 150, 255}
+  );
   grid.resize(screen_size, grid_spacing);
 
   raylib::Color textColor(raylib::Color::LightGray());
-  raylib::Window w(SCREEN_WIDTH, SCREEN_HEIGHT,
-                   "ELEKTROVIZ - A simple simulation of electric fields",
-                   FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE);
+  raylib::Window w(
+      SCREEN_WIDTH,
+      SCREEN_HEIGHT,
+      "ELEKTROVIZ - A simple simulation of electric fields",
+      FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE
+  );
 
   // w.SetTargetFPS(60);
 
   auto zoom_modifier = 1.f;
-  raylib::Camera2D camera(half_screen_size, {0, 0}, 0.f,
-                          calculate_zoom(charges, probe, screen_size));
+  raylib::Camera2D camera(
+      half_screen_size, {0, 0}, 0.f, calculate_zoom(charges, probe, screen_size)
+  );
 
   FieldLines field_lines{LINES_PER_CHARGE};
 
   raylib::Image background_image = raylib::Image::Color(
       SCREEN_WIDTH / BACKGROUND_SUBSAMPLING,
-      SCREEN_HEIGHT / BACKGROUND_SUBSAMPLING, raylib::Color::Blank());
+      SCREEN_HEIGHT / BACKGROUND_SUBSAMPLING,
+      raylib::Color::Blank()
+  );
   auto background_texture = raylib::Texture2D(background_image);
 
   // Main game loop
@@ -159,27 +177,36 @@ int main(int argc, char const *argv[]) {
 
     if (std::abs(scroll) > 0) {
       zoom_modifier = std::clamp(zoom_modifier + scroll * 0.05f, 0.5f, 3.f);
-      camera.SetZoom(calculate_zoom(charges, probe, screen_size) *
-                     zoom_modifier);
+      camera.SetZoom(
+          calculate_zoom(charges, probe, screen_size) * zoom_modifier
+      );
       half_world_size = screen_to_world(half_screen_size, camera.GetZoom());
-      grid.resize(screen_size / camera.GetZoom(),
-                  grid_spacing / camera.GetZoom(), camera.GetTarget());
+      grid.resize(
+          screen_size / camera.GetZoom(),
+          grid_spacing / camera.GetZoom(),
+          camera.GetTarget()
+      );
     }
 
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
       auto delta = raylib::Mouse::GetDelta().Scale(-1.0f / camera.zoom);
       camera.SetTarget(
-          Vector2ClampValue(Vector2Add(camera.GetTarget(), delta), 0.f, 800.f));
-      grid.resize(screen_size / camera.GetZoom(),
-                  grid_spacing / camera.GetZoom(), camera.GetTarget());
+          Vector2ClampValue(Vector2Add(camera.GetTarget(), delta), 0.f, 800.f)
+      );
+      grid.resize(
+          screen_size / camera.GetZoom(),
+          grid_spacing / camera.GetZoom(),
+          camera.GetTarget()
+      );
     }
 
     if (w.IsResized()) {
       screen_size = w.GetSize();
       half_screen_size = screen_size / 2.f;
 
-      camera.SetZoom(calculate_zoom(charges, probe, screen_size) *
-                     zoom_modifier);
+      camera.SetZoom(
+          calculate_zoom(charges, probe, screen_size) * zoom_modifier
+      );
 
       half_world_size = screen_to_world(half_screen_size, camera.GetZoom());
 
@@ -187,8 +214,11 @@ int main(int argc, char const *argv[]) {
       camera.SetOffset(half_screen_size);
       camera.SetZoom(camera.GetZoom());
 
-      grid.resize(screen_size / camera.GetZoom(),
-                  grid_spacing / camera.GetZoom(), camera.GetTarget());
+      grid.resize(
+          screen_size / camera.GetZoom(),
+          grid_spacing / camera.GetZoom(),
+          camera.GetTarget()
+      );
 
       background_texture.Unload();
 
@@ -210,14 +240,17 @@ int main(int argc, char const *argv[]) {
 
     // SAFETY: the image is internally an array of raylib::Colors, so it's
     // safe to treat it as such
-    auto background_pixels =
-        std::span(static_cast<raylib::Color *>(background_image.data),
-                  background_image.width * background_image.height);
+    auto background_pixels = std::span(
+        static_cast<raylib::Color *>(background_image.data),
+        background_image.width * background_image.height
+    );
 
     // SAFETY: each thread will access independent portion of the image
     parallel::for_each<raylib::Color>(
         background_pixels,
-        [&background_image, &charges, zoom = camera.GetZoom(),
+        [&background_image,
+         &charges,
+         zoom = camera.GetZoom(),
          target = screen_to_world(camera.GetTarget()),
          half_world_size](const auto i, auto &pixel) {
           auto x = i % background_image.width;
@@ -233,17 +266,23 @@ int main(int argc, char const *argv[]) {
 
           auto normalized = sigmoid(potencial);
 
-          pixel = lerpColor3(Charge::NEGATIVE, raylib::Color::Black(),
-                             Charge::POSITIVE, normalized);
-        });
+          pixel = lerpColor3(
+              Charge::NEGATIVE,
+              raylib::Color::Black(),
+              Charge::POSITIVE,
+              normalized
+          );
+        }
+    );
 
     background_texture.Update(background_image.data);
 
     // Draw
     w.BeginDrawing();
 
-    background_texture.Draw({0, 0}, 0.f,
-                            static_cast<float>(BACKGROUND_SUBSAMPLING));
+    background_texture.Draw(
+        {0, 0}, 0.f, static_cast<float>(BACKGROUND_SUBSAMPLING)
+    );
 
     camera.BeginMode();
 
@@ -264,12 +303,18 @@ int main(int argc, char const *argv[]) {
 
     auto window_text =
         std::format("Window size: {}x{}", w.GetWidth(), w.GetHeight());
-    raylib::DrawText(window_text, text_pos_x, text_pos_y + FONT_SIZE, FONT_SIZE,
-                     textColor);
+    raylib::DrawText(
+        window_text, text_pos_x, text_pos_y + FONT_SIZE, FONT_SIZE, textColor
+    );
 
     auto scenario_text = std::format("Scenario: {}", scenario);
-    raylib::DrawText(scenario_text, text_pos_x, text_pos_y + 2 * FONT_SIZE,
-                     FONT_SIZE, textColor);
+    raylib::DrawText(
+        scenario_text,
+        text_pos_x,
+        text_pos_y + 2 * FONT_SIZE,
+        FONT_SIZE,
+        textColor
+    );
 
     w.EndDrawing();
   }

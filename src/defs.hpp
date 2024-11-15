@@ -25,8 +25,8 @@ inline raylib::Vector2 world_to_screen(const raylib::Vector2 &point) {
 }
 
 // TODO: investigate GetScreenToWorld2D from raylib
-inline raylib::Vector2 screen_to_world(const raylib::Vector2 &point,
-                                       float zoom = 1.f) {
+inline raylib::Vector2
+screen_to_world(const raylib::Vector2 &point, float zoom = 1.f) {
   return point / (GLOBAL_SCALE * zoom);
 }
 
@@ -53,4 +53,5 @@ template <> struct std::formatter<raylib::Color> {
 static const std::unordered_map<std::string, float> variables = {
     {"t", 0.0f},
     {"pi", std::numbers::pi_v<float>},
-    {"e", std::numbers::e_v<float>}};
+    {"e", std::numbers::e_v<float>}
+};

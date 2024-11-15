@@ -9,12 +9,17 @@ public:
   using Line = std::vector<Vector2>;
 
   FieldLines() = default;
-  FieldLines(const size_t lines_per_charge,
-             const raylib::Color &color = raylib::Color::White())
+  FieldLines(
+      const size_t lines_per_charge,
+      const raylib::Color &color = raylib::Color::White()
+  )
       : lines_per_charge(lines_per_charge), color(color) {}
 
-  void update(const std::span<const Charge> &charges, const float zoom,
-              const raylib::Vector2 target);
+  void update(
+      const std::span<const Charge> &charges,
+      const float zoom,
+      const raylib::Vector2 target
+  );
   void draw() const;
 
 private:

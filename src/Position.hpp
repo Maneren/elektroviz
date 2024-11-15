@@ -18,8 +18,10 @@ class Static : public Position {
 public:
   explicit Static(const raylib::Vector2 &position) : _position(position) {}
   raylib::Vector2 operator()() const override { return _position; }
-  void update([[maybe_unused]] const float timeDelta,
-              [[maybe_unused]] const float elapsedTime) override {
+  void update(
+      [[maybe_unused]] const float timeDelta,
+      [[maybe_unused]] const float elapsedTime
+  ) override {
     // static position doesn't need update, provided just for interface sake
   }
   BoundingRectangle bounding_rectangle() const override {
@@ -33,13 +35,14 @@ private:
 
 class Rotating : public Position {
 public:
-  explicit Rotating(const raylib::Vector2 &position, const float radius,
-                    const float velocity)
+  explicit Rotating(
+      const raylib::Vector2 &position, const float radius, const float velocity
+  )
       : _position(position), _radius(radius),
         _offset(raylib::Vector2{radius, 0}), _velocity(velocity) {}
   raylib::Vector2 operator()() const override { return _position + _offset; }
-  void update([[maybe_unused]] const float timeDelta,
-              const float elapsedTime) override {
+  void update([[maybe_unused]] const float timeDelta, const float elapsedTime)
+      override {
     _offset = raylib::Vector2{_radius, 0}.Rotate(_velocity * elapsedTime);
   }
   BoundingRectangle bounding_rectangle() const override {
@@ -67,11 +70,13 @@ template <> struct std::formatter<Position> {
   template <typename FormatContext>
   auto format(const Position &p, FormatContext &ctx) const {
     if (dynamic_cast<const position::Static *>(&p)) {
-      return std::format_to(ctx.out(), "{}",
-                            dynamic_cast<const position::Static &>(p));
+      return std::format_to(
+          ctx.out(), "{}", dynamic_cast<const position::Static &>(p)
+      );
     } else if (dynamic_cast<const position::Rotating *>(&p)) {
-      return std::format_to(ctx.out(), "{}",
-                            dynamic_cast<const position::Rotating &>(p));
+      return std::format_to(
+          ctx.out(), "{}", dynamic_cast<const position::Rotating &>(p)
+      );
     } else {
       return std::format_to(ctx.out(), "{}", p());
     }
@@ -84,8 +89,9 @@ template <> struct std::formatter<position::Static> {
   }
   template <typename FormatContext>
   auto format(const position::Static &p, FormatContext &ctx) const {
-    return std::format_to(ctx.out(), "StaticPosition(position: {})",
-                          p._position);
+    return std::format_to(
+        ctx.out(), "StaticPosition(position: {})", p._position
+    );
   }
 };
 
@@ -95,8 +101,12 @@ template <> struct std::formatter<position::Rotating> {
   }
   template <typename FormatContext>
   auto format(const position::Rotating &p, FormatContext &ctx) const {
-    return std::format_to(ctx.out(),
-                          "RotatingPosition(center: {}, offset: {}, omega: {})",
-                          p._position, p._offset, p._velocity);
+    return std::format_to(
+        ctx.out(),
+        "RotatingPosition(center: {}, offset: {}, omega: {})",
+        p._position,
+        p._offset,
+        p._velocity
+    );
   }
 };

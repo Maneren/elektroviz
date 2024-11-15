@@ -13,8 +13,9 @@ float charge::VariableStrength::operator()(const double elapsed) const {
   return evaluate(func, vars);
 }
 
-void Charge::update([[maybe_unused]] const float timeDelta,
-                    const double elapsedTime) {
+void Charge::update(
+    [[maybe_unused]] const float timeDelta, const double elapsedTime
+) {
   _strength = (*strengthFn)(elapsedTime);
 }
 
@@ -23,8 +24,9 @@ void Charge::draw() const {
   // outline
   world_to_screen(_position).DrawCircle(radius, raylib::Color::RayWhite());
 
-  auto color = lerpColor3(NEGATIVE, raylib::Color::LightGray(), POSITIVE,
-                          sigmoid(_strength * 2.f));
+  auto color = lerpColor3(
+      NEGATIVE, raylib::Color::LightGray(), POSITIVE, sigmoid(_strength * 2.f)
+  );
 
   world_to_screen(_position).DrawCircle(radius - 1, color);
 }

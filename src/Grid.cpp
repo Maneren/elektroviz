@@ -6,7 +6,6 @@
 #include <Color.hpp>
 #include <Vector2.hpp>
 #include <algorithm>
-#include <functional>
 #include <memory>
 #include <span>
 #include <utility>
@@ -14,35 +13,49 @@
 
 void GridLine::draw() const { start.DrawLine(end, color); }
 
-std::vector<GridLine> generateLines(const raylib::Vector2 size,
-                                    const raylib::Vector2 spacing,
-                                    const raylib::Color color,
-                                    const raylib::Vector2 offset) {
+std::vector<GridLine> generateLines(
+    const raylib::Vector2 size,
+    const raylib::Vector2 spacing,
+    const raylib::Color color,
+    const raylib::Vector2 offset
+) {
   const auto size_half = size / 2.0f;
 
   std::vector<GridLine> lines;
 
   for (float y = 0; y <= size_half.y; y += spacing.y) {
-    lines.push_back(GridLine(offset + raylib::Vector2{-size_half.x, y},
-                             offset + raylib::Vector2{size_half.x, y}, color));
-    lines.push_back(GridLine(offset + raylib::Vector2{-size_half.x, -y},
-                             offset + raylib::Vector2{size_half.x, -y}, color));
+    lines.push_back(GridLine(
+        offset + raylib::Vector2{-size_half.x, y},
+        offset + raylib::Vector2{size_half.x, y},
+        color
+    ));
+    lines.push_back(GridLine(
+        offset + raylib::Vector2{-size_half.x, -y},
+        offset + raylib::Vector2{size_half.x, -y},
+        color
+    ));
   }
 
   for (float x = 0; x <= size_half.x; x += spacing.x) {
-    lines.push_back(GridLine(offset + raylib::Vector2{x, -size_half.y},
-                             offset + raylib::Vector2{x, size_half.y}));
-    lines.push_back(GridLine(offset + raylib::Vector2{-x, -size_half.y},
-                             offset + raylib::Vector2{-x, size_half.y}));
+    lines.push_back(GridLine(
+        offset + raylib::Vector2{x, -size_half.y},
+        offset + raylib::Vector2{x, size_half.y}
+    ));
+    lines.push_back(GridLine(
+        offset + raylib::Vector2{-x, -size_half.y},
+        offset + raylib::Vector2{-x, size_half.y}
+    ));
   }
 
   return lines;
 }
 
-std::vector<Probe> generateProbes(const raylib::Vector2 size,
-                                  const raylib::Vector2 spacing,
-                                  const raylib::Color color,
-                                  const raylib::Vector2 offset) {
+std::vector<Probe> generateProbes(
+    const raylib::Vector2 size,
+    const raylib::Vector2 spacing,
+    const raylib::Color color,
+    const raylib::Vector2 offset
+) {
   const auto world_size_half = screen_to_world(size);
   const auto world_spacing = screen_to_world(spacing);
 
@@ -64,8 +77,11 @@ std::vector<Probe> generateProbes(const raylib::Vector2 size,
   return probes;
 }
 
-void Grid::resize(const raylib::Vector2 size, const raylib::Vector2 spacing,
-                  const raylib::Vector2 offset) {
+void Grid::resize(
+    const raylib::Vector2 size,
+    const raylib::Vector2 spacing,
+    const raylib::Vector2 offset
+) {
   lines = generateLines(size, spacing, line_color, offset);
   probes = generateProbes(size, spacing, probe_color, screen_to_world(offset));
 }
@@ -80,8 +96,11 @@ void Grid::draw() const {
   }
 }
 
-void Grid::update(const float timeDelta, const double elapsedTime,
-                  const std::span<Charge> &charges) {
+void Grid::update(
+    const float timeDelta,
+    const double elapsedTime,
+    const std::span<Charge> &charges
+) {
   for (auto &probe : probes) {
     probe.update(timeDelta, elapsedTime, charges);
   }

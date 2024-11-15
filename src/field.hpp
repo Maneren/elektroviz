@@ -5,10 +5,11 @@
 
 namespace field {
 
-raylib::Vector2 E(const raylib::Vector2 point,
-                  const std::span<const Charge> &charges);
+raylib::Vector2
+E(const raylib::Vector2 point, const std::span<const Charge> &charges);
 
-float potential(const raylib::Vector2 point,
-                const std::span<const Charge> &charges);
+float potential(
+    const raylib::Vector2 point, const std::span<const Charge> &charges
+);
 
 } // namespace field

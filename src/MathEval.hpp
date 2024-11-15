@@ -11,10 +11,15 @@ public:
   explicit parser_exception(const std::string &message)
       : std::runtime_error("Parser Error: " + message) {}
 
-  parser_exception(const std::string &message, const std::string &input,
-                   size_t index)
-      : std::runtime_error(std::format("Parser Error: {}\n{}\n{}\n^", message,
-                                       std::string(index, ' '), input)) {}
+  parser_exception(
+      const std::string &message, const std::string &input, size_t index
+  )
+      : std::runtime_error(std::format(
+            "Parser Error: {}\n{}\n{}\n^",
+            message,
+            std::string(index, ' '),
+            input
+        )) {}
 };
 
 namespace math {
@@ -59,11 +64,13 @@ template <> struct std::formatter<math::Operator> {
   auto format(math::Operator const &op, FormatContext const &ctx) const {
     switch (op.type) {
     case math::OperatorType::Binary:
-      return std::format_to(ctx.out(), "BinaryOperator({})",
-                            std::get<char>(op.value));
+      return std::format_to(
+          ctx.out(), "BinaryOperator({})", std::get<char>(op.value)
+      );
     case math::OperatorType::Function:
-      return std::format_to(ctx.out(), "Function({})",
-                            std::get<std::string>(op.value));
+      return std::format_to(
+          ctx.out(), "Function({})", std::get<std::string>(op.value)
+      );
     }
   }
 };
@@ -89,10 +96,12 @@ template <> struct std::formatter<math::Token> {
   }
   template <typename FormatContext>
   auto format(const math::Token &p, FormatContext &ctx) const {
-    return std::format_to(ctx.out(), "Token(value: {})",
-                          std::visit([](auto &&x) { return x; }, p));
+    return std::format_to(
+        ctx.out(), "Token(value: {})", std::visit([](auto &&x) { return x; }, p)
+    );
   }
 };
 
-float evaluate(const std::string &expr,
-               const std::unordered_map<std::string, float> &vars);
+float evaluate(
+    const std::string &expr, const std::unordered_map<std::string, float> &vars
+);

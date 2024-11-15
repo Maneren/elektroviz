@@ -25,9 +25,11 @@ namespace ranges = std::ranges;
 /// @safety Each thread only recieves it's own range of input values, but it's
 /// up to the user provided function to not access elements outside of that
 /// range, or to not invalidate any references or pointers, etc.
-void for_each(size_t nb_elements,
-              std::function<void(size_t start, size_t end)> functor,
-              bool use_threads = true);
+void for_each(
+    size_t nb_elements,
+    std::function<void(size_t start, size_t end)> functor,
+    bool use_threads = true
+);
 
 static auto pool = ThreadPool(std::thread::hardware_concurrency());
 
@@ -44,9 +46,11 @@ static auto pool = ThreadPool(std::thread::hardware_concurrency());
 /// up to the user provided function to not access elements outside of that
 /// range, or to not invalidate any references or pointers, etc.
 template <typename T>
-void for_each(const std::span<T> span,
-              std::function<void(const size_t index, T &value)> functor,
-              const bool use_threads = true) {
+void for_each(
+    const std::span<T> span,
+    std::function<void(const size_t index, T &value)> functor,
+    const bool use_threads = true
+) {
   size_t thread_count_hint = std::thread::hardware_concurrency();
   size_t thread_count = thread_count_hint == 0 ? 8 : thread_count_hint;
 
@@ -60,15 +64,17 @@ void for_each(const std::span<T> span,
     return;
   }
 
-  ranges::for_each(span | views::enumerate | views::chunk(batch_size) |
-                       views::transform([&functor](auto chunk) {
-                         return pool.enqueue([&functor, chunk]() {
-                           for (auto [i, item] : chunk)
-                             functor(i, item);
-                         });
-                       }) |
-                       ranges::to<std::vector>(),
-                   [](auto &handle) { handle.get(); });
+  ranges::for_each(
+      span | views::enumerate | views::chunk(batch_size) |
+          views::transform([&functor](auto chunk) {
+            return pool.enqueue([&functor, chunk]() {
+              for (auto [i, item] : chunk)
+                functor(i, item);
+            });
+          }) |
+          ranges::to<std::vector>(),
+      [](auto &handle) { handle.get(); }
+  );
 }
 
 } // namespace parallel

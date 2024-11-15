@@ -16,15 +16,21 @@
 
 class Probe {
 public:
-  Probe(std::unique_ptr<Position> position, const raylib::Color &color,
-        float radius = 8.f)
+  Probe(
+      std::unique_ptr<Position> position,
+      const raylib::Color &color,
+      float radius = 8.f
+  )
       : radius(radius), _position(std::move(position)), _color(color) {}
 
   Probe(Probe &&) = default;
   Probe &operator=(Probe &&) = default;
 
-  void update(const float timeDelta, const double elapsedTime,
-              const std::span<Charge> &charges);
+  void update(
+      const float timeDelta,
+      const double elapsedTime,
+      const std::span<Charge> &charges
+  );
 
   BoundingRectangle bounding_square() const;
 
@@ -33,16 +39,24 @@ public:
 
     auto sample = this->sample();
 
-    auto color = lerpColor(raylib::Color::Gray(), _color,
-                           1.f / (1.f + std::exp(-sample.Length() / 1e10f)));
+    auto color = lerpColor(
+        raylib::Color::Gray(),
+        _color,
+        1.f / (1.f + std::exp(-sample.Length() / 1e10f))
+    );
 
     if constexpr (!ONLY_ARROW) {
       draw_position.DrawCircle(radius, color);
 
       auto msg = std::format("E = {:.1E} N/C", K_E * sample.Length());
       int width = raylib::MeasureText(msg, FONT_SIZE);
-      raylib::DrawText(msg.c_str(), draw_position.x - width / 2.f,
-                       draw_position.y - 2 * FONT_SIZE, FONT_SIZE, color);
+      raylib::DrawText(
+          msg.c_str(),
+          draw_position.x - width / 2.f,
+          draw_position.y - 2 * FONT_SIZE,
+          FONT_SIZE,
+          color
+      );
     }
 
     auto direction = sample.Normalize();
@@ -89,7 +103,8 @@ template <> struct std::formatter<Probe> {
   }
   template <typename FormatContext>
   auto format(const Probe &p, FormatContext &ctx) const {
-    return std::format_to(ctx.out(), "Probe(position: {}, sample: {})",
-                          *p._position, p._sample);
+    return std::format_to(
+        ctx.out(), "Probe(position: {}, sample: {})", *p._position, p._sample
+    );
   }
 };

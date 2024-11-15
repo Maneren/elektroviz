@@ -40,11 +40,13 @@ template <> struct std::formatter<charge::Strength> {
   template <typename FormatContext>
   auto format(const charge::Strength &c, FormatContext &ctx) const {
     if (dynamic_cast<const charge::ConstantStrength *>(&c)) {
-      return std::format_to(ctx.out(), "{}",
-                            dynamic_cast<const charge::ConstantStrength &>(c));
+      return std::format_to(
+          ctx.out(), "{}", dynamic_cast<const charge::ConstantStrength &>(c)
+      );
     } else if (dynamic_cast<const charge::VariableStrength *>(&c)) {
-      return std::format_to(ctx.out(), "{}",
-                            dynamic_cast<const charge::VariableStrength &>(c));
+      return std::format_to(
+          ctx.out(), "{}", dynamic_cast<const charge::VariableStrength &>(c)
+      );
     } else {
       return std::format_to(ctx.out(), "Unknown");
     }
@@ -74,8 +76,10 @@ template <> struct std::formatter<charge::ConstantStrength> {
 class Charge {
 public:
   Charge(const Charge &) = delete;
-  Charge(const raylib::Vector2 &position,
-         std::unique_ptr<charge::Strength> strength)
+  Charge(
+      const raylib::Vector2 &position,
+      std::unique_ptr<charge::Strength> strength
+  )
       : _position(position), strengthFn(std::move(strength)) {}
 
   Charge(Charge &&) = default;
@@ -110,7 +114,12 @@ template <> struct std::formatter<Charge> {
   }
   template <typename FormatContext>
   auto format(Charge const &c, FormatContext &ctx) const {
-    return std::format_to(ctx.out(), "Charge({}, {} ({}))", c._position,
-                          *c.strengthFn, c._strength);
+    return std::format_to(
+        ctx.out(),
+        "Charge({}, {} ({}))",
+        c._position,
+        *c.strengthFn,
+        c._strength
+    );
   }
 };

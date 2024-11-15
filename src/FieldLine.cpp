@@ -28,14 +28,18 @@ namespace ranges = std::ranges;
  * @return the line
  */
 FieldLines::Line calculate_line(
-    const raylib::Vector2 &start_point, const raylib::Vector2 &start_direction,
+    const raylib::Vector2 &start_point,
+    const raylib::Vector2 &start_direction,
     const std::function<raylib::Vector2(raylib::Vector2)> &field_function,
     const std::function<std::optional<raylib::Vector2>(raylib::Vector2)>
         &end_point_function,
-    const float direction, const float zoom, const raylib::Vector2 target) {
+    const float direction,
+    const float zoom,
+    const raylib::Vector2 target
+) {
   constexpr size_t STEPS = 10000;
-  //  PERF: this is slow as hell, because if unzoomed it has to render more than
-  //  hundred thousand points
+  //  PERF: this is slow as hell, because if unzoomed it has to render more
+  //  than hundred thousand points
 
   std::vector<Vector2> points;
   points.reserve(STEPS);
@@ -67,8 +71,11 @@ FieldLines::Line calculate_line(
   return points;
 }
 
-void FieldLines::update(const std::span<const Charge> &charges,
-                        const float zoom, const raylib::Vector2 target) {
+void FieldLines::update(
+    const std::span<const Charge> &charges,
+    const float zoom,
+    const raylib::Vector2 target
+) {
   field_lines.clear();
   equipotencial_lines.clear();
 
@@ -76,8 +83,8 @@ void FieldLines::update(const std::span<const Charge> &charges,
     return field::E(point, charges);
   };
 
-  auto end_point_function =
-      [charges](raylib::Vector2 point) -> std::optional<raylib::Vector2> {
+  auto end_point_function = [charges](raylib::Vector2 point
+                            ) -> std::optional<raylib::Vector2> {
     auto charge = std::ranges::find_if(charges, [point](auto &charge) {
       return point.CheckCollision(charge.position(), 0.01f);
     });
@@ -86,8 +93,9 @@ void FieldLines::update(const std::span<const Charge> &charges,
   };
 
   // count number of positive vs negative charges
-  size_t positive_charges = ranges::count_if(
-      charges, [](auto &charge) { return charge.strength() > 0.f; });
+  size_t positive_charges = ranges::count_if(charges, [](auto &charge) {
+    return charge.strength() > 0.f;
+  });
 
   auto direction = (2 * positive_charges >= charges.size()) ? 1.f : -1.f;
 
@@ -102,9 +110,15 @@ void FieldLines::update(const std::span<const Charge> &charges,
     for (size_t j = 0; j < lines_per_charge; ++j) {
       offset = offset.Rotate(2 * std::numbers::pi_v<float> / lines_per_charge);
 
-      auto line =
-          calculate_line(charge.position(), offset, field_function,
-                         end_point_function, direction, zoom, world_target);
+      auto line = calculate_line(
+          charge.position(),
+          offset,
+          field_function,
+          end_point_function,
+          direction,
+          zoom,
+          world_target
+      );
 
       field_lines.push_back(line);
     }

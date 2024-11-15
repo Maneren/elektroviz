@@ -8,8 +8,11 @@
 
 class GridLine {
 public:
-  GridLine(const raylib::Vector2 start, const raylib::Vector2 end,
-           raylib::Color color = raylib::Color::Gray())
+  GridLine(
+      const raylib::Vector2 start,
+      const raylib::Vector2 end,
+      raylib::Color color = raylib::Color::Gray()
+  )
       : start(start), end(end), color(color) {}
   void draw() const;
 
@@ -27,35 +30,53 @@ template <> struct std::formatter<GridLine> {
   }
   template <typename FormatContext>
   auto format(const GridLine &p, FormatContext &ctx) const {
-    return std::format_to(ctx.out(), "GridLine(start: {}, end: {}, color: {})",
-                          p.start, p.end, p.color);
+    return std::format_to(
+        ctx.out(),
+        "GridLine(start: {}, end: {}, color: {})",
+        p.start,
+        p.end,
+        p.color
+    );
   }
 };
 
-std::vector<GridLine> generateLines(const raylib::Vector2 size,
-                                    const raylib::Vector2 spacing,
-                                    const raylib::Color color,
-                                    const raylib::Vector2 offset = {});
+std::vector<GridLine> generateLines(
+    const raylib::Vector2 size,
+    const raylib::Vector2 spacing,
+    const raylib::Color color,
+    const raylib::Vector2 offset = {}
+);
 
-std::vector<Probe> generateProbes(const raylib::Vector2 size,
-                                  const raylib::Vector2 spacing,
-                                  const raylib::Color color,
-                                  const raylib::Vector2 offset = {});
+std::vector<Probe> generateProbes(
+    const raylib::Vector2 size,
+    const raylib::Vector2 spacing,
+    const raylib::Color color,
+    const raylib::Vector2 offset = {}
+);
 
 class Grid {
 public:
-  Grid(const raylib::Vector2 size, const raylib::Vector2 spacing,
-       const raylib::Color line_color = raylib::Color::LightGray(),
-       const raylib::Color probe_color = raylib::Color::Gray())
+  Grid(
+      const raylib::Vector2 size,
+      const raylib::Vector2 spacing,
+      const raylib::Color line_color = raylib::Color::LightGray(),
+      const raylib::Color probe_color = raylib::Color::Gray()
+  )
       : line_color(line_color), probe_color(probe_color),
         origin(raylib::Vector2{0, 0}),
         lines(generateLines(size, spacing, line_color)),
         probes(generateProbes(size, spacing, probe_color)) {}
   void draw() const;
-  void update(const float timeDelta, const double elapsedTime,
-              const std::span<Charge> &charges);
-  void resize(const raylib::Vector2 size, const raylib::Vector2 spacing,
-              const raylib::Vector2 offset = {});
+  void update(
+      const float timeDelta,
+      const double elapsedTime,
+      const std::span<Charge> &charges
+  );
+  void resize(
+      const raylib::Vector2 size,
+      const raylib::Vector2 spacing,
+      const raylib::Vector2 offset = {}
+  );
 
 private:
   const raylib::Color line_color;

@@ -49,9 +49,12 @@ int op_precedence(Operator &op, uint nesting_level) {
   }
 }
 
-static void push_with_precedence(std::stack<Operator> &stack, Operator &&token,
-                                 std::deque<Token> &postfix,
-                                 const size_t nesting_level) {
+static void push_with_precedence(
+    std::stack<Operator> &stack,
+    Operator &&token,
+    std::deque<Token> &postfix,
+    const size_t nesting_level
+) {
   token.precedence = op_precedence(token, nesting_level);
   while (!stack.empty() && stack.top().precedence >= token.precedence) {
     postfix.emplace_back(std::move(stack.top()));
@@ -60,8 +63,8 @@ static void push_with_precedence(std::stack<Operator> &stack, Operator &&token,
   stack.push(token);
 }
 
-std::string load_brackets(const std::string &input,
-                          std::string::const_iterator &it) {
+std::string
+load_brackets(const std::string &input, std::string::const_iterator &it) {
   std::string brackets;
   int bracketLevel = 1;
   auto startIndex = it;
@@ -80,16 +83,19 @@ std::string load_brackets(const std::string &input,
   }
 
   if (bracketLevel != 0)
-    throw parser_exception("Missmatched bracket found", input,
-                           std::distance(input.begin(), startIndex));
+    throw parser_exception(
+        "Missmatched bracket found",
+        input,
+        std::distance(input.begin(), startIndex)
+    );
 
   ++it;
   return brackets;
 }
 
-std::deque<Token>
-parse_to_RPN(const std::string &input,
-             const std::unordered_map<std::string, float> &vars) {
+std::deque<Token> parse_to_RPN(
+    const std::string &input, const std::unordered_map<std::string, float> &vars
+) {
   std::deque<Token> rpn_queue{};
   std::stack<Operator> op_stack{};
 
@@ -108,8 +114,9 @@ parse_to_RPN(const std::string &input,
 
     if (std::isdigit(character)) {
       if (wasNumber)
-        throw parser_exception("Unexpected digit", input,
-                               std::distance(input.begin(), it));
+        throw parser_exception(
+            "Unexpected digit", input, std::distance(input.begin(), it)
+        );
       wasNumber = true;
 
       bool isDecimal = false;
@@ -128,13 +135,19 @@ parse_to_RPN(const std::string &input,
           }
         } else if (*it == '.') {
           if (isDecimal) {
-            throw parser_exception("Unexpected character '.'", input,
-                                   std::distance(input.begin(), it));
+            throw parser_exception(
+                "Unexpected character '.'",
+                input,
+                std::distance(input.begin(), it)
+            );
           }
 
           if (it + 1 == input.end() || !std::isdigit(*(it + 1))) {
-            throw parser_exception("Expected digit after decimal dot", input,
-                                   std::distance(input.begin(), it + 1));
+            throw parser_exception(
+                "Expected digit after decimal dot",
+                input,
+                std::distance(input.begin(), it + 1)
+            );
           }
 
           isDecimal = true;
@@ -146,8 +159,12 @@ parse_to_RPN(const std::string &input,
       wasNumber = true;
     } else if (is_letter(character)) {
       if (wasNumber) {
-        push_with_precedence(op_stack, Operator{OperatorType::Binary, {'*'}},
-                             rpn_queue, bracketLevel);
+        push_with_precedence(
+            op_stack,
+            Operator{OperatorType::Binary, {'*'}},
+            rpn_queue,
+            bracketLevel
+        );
       }
 
       auto start = it;
@@ -159,8 +176,12 @@ parse_to_RPN(const std::string &input,
         rpn_queue.emplace_back(var->second);
         wasNumber = true;
       } else {
-        push_with_precedence(op_stack, Operator{OperatorType::Function, token},
-                             rpn_queue, bracketLevel);
+        push_with_precedence(
+            op_stack,
+            Operator{OperatorType::Function, token},
+            rpn_queue,
+            bracketLevel
+        );
         wasNumber = false;
       }
     } else {
@@ -179,19 +200,28 @@ parse_to_RPN(const std::string &input,
         if (!wasNumber) {
           throw parser_exception(
               std::format("Unexpected symbol '{}'. Number expected", character),
-              input, std::distance(input.begin(), it));
+              input,
+              std::distance(input.begin(), it)
+          );
         }
 
         wasNumber = false;
-        push_with_precedence(op_stack,
-                             Operator{OperatorType::Binary, character},
-                             rpn_queue, bracketLevel);
+        push_with_precedence(
+            op_stack,
+            Operator{OperatorType::Binary, character},
+            rpn_queue,
+            bracketLevel
+        );
         ++it;
         break;
       case '(': {
         if (wasNumber) {
-          push_with_precedence(op_stack, Operator{OperatorType::Binary, '*'},
-                               rpn_queue, bracketLevel);
+          push_with_precedence(
+              op_stack,
+              Operator{OperatorType::Binary, '*'},
+              rpn_queue,
+              bracketLevel
+          );
         }
 
         bracketLevel++;
@@ -201,16 +231,22 @@ parse_to_RPN(const std::string &input,
       }
       case ')':
         if (bracketLevel == 0)
-          throw parser_exception("Missmatched bracket found", input,
-                                 std::distance(input.begin(), it));
+          throw parser_exception(
+              "Missmatched bracket found",
+              input,
+              std::distance(input.begin(), it)
+          );
 
         bracketLevel--;
         it++;
         wasNumber = true;
         break;
       default:
-        throw parser_exception(std::format("Unexpected symbol '{}'", character),
-                               input, std::distance(input.begin(), it));
+        throw parser_exception(
+            std::format("Unexpected symbol '{}'", character),
+            input,
+            std::distance(input.begin(), it)
+        );
       }
     }
   }
@@ -260,7 +296,8 @@ auto evaluate_RPN(const std::deque<Token> &postfix) {
 
               if (function == functions.end())
                 throw parser_exception(
-                    std::format("Unknown function '{}'", function_name));
+                    std::format("Unknown function '{}'", function_name)
+                );
 
               auto n = stack.top();
               stack.pop();
@@ -271,7 +308,8 @@ auto evaluate_RPN(const std::deque<Token> &postfix) {
             static_assert(false, "non-exhaustive visitor!");
           }
         },
-        token);
+        token
+    );
   }
 
   if (stack.size() != 1)
@@ -282,8 +320,9 @@ auto evaluate_RPN(const std::deque<Token> &postfix) {
 
 } // namespace math
 
-float evaluate(const std::string &expr,
-               const std::unordered_map<std::string, float> &vars) {
+float evaluate(
+    const std::string &expr, const std::unordered_map<std::string, float> &vars
+) {
   std::string trimmedInput = trim(expr);
 
   if (trimmedInput.empty())
