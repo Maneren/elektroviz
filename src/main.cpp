@@ -2,6 +2,7 @@
 #include "Charge.hpp"
 #include "FieldLine.hpp"
 #include "Grid.hpp"
+#include "Plot.hpp"
 #include "Position.hpp"
 #include "Probe.hpp"
 #include "defs.hpp"
@@ -152,7 +153,7 @@ int main(int argc, char const *argv[]) {
       FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE
   );
 
-  // w.SetTargetFPS(60);
+  w.SetTargetFPS(60);
 
   auto zoom_modifier = 1.f;
   raylib::Camera2D camera(
@@ -167,6 +168,12 @@ int main(int argc, char const *argv[]) {
       raylib::Color::Blank()
   );
   auto background_texture = raylib::Texture2D(background_image);
+
+  Plot plot(
+      {half_screen_size.x, 0.0},
+      raylib::Vector2{half_screen_size.x, half_screen_size.y / 2.f},
+      raylib::Color::LightGray()
+  );
 
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
@@ -220,6 +227,11 @@ int main(int argc, char const *argv[]) {
           camera.GetTarget()
       );
 
+      plot.resize(
+          {half_screen_size.x, 0.0},
+          {half_screen_size.x, half_screen_size.y / 4.f}
+      );
+
       background_texture.Unload();
 
       auto background_size = screen_size / BACKGROUND_SUBSAMPLING;
@@ -236,7 +248,8 @@ int main(int argc, char const *argv[]) {
     }
     grid.update(frameTime, time, charges);
     probe.update(frameTime, time, charges);
-    field_lines.update(charges, camera.GetZoom(), camera.GetTarget());
+    // field_lines.update(charges, camera.GetZoom(), camera.GetTarget());
+    plot.update(frameTime, time, probe);
 
     // SAFETY: the image is internally an array of raylib::Colors, so it's
     // safe to treat it as such
@@ -287,13 +300,15 @@ int main(int argc, char const *argv[]) {
     camera.BeginMode();
 
     grid.draw();
-    field_lines.draw();
+    // field_lines.draw();
     for (auto &charge : charges) {
       charge.draw();
     }
     probe.draw();
 
     camera.EndMode();
+
+    plot.draw();
 
     auto text_pos_x = 10;
     auto text_pos_y = 10;

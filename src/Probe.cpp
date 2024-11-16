@@ -12,6 +12,7 @@ void Probe::update(
 ) {
   _position->update(timeDelta, elapsedTime);
   _sample = field::E((*_position)(), charges);
+  _sample_potencial = field::potential((*_position)(), charges);
 }
 
 BoundingRectangle Probe::bounding_square() const {

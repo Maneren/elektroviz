@@ -11,6 +11,7 @@
 #include <cmath>
 #include <format>
 #include <memory>
+#include <print>
 #include <span>
 #include <utility>
 
@@ -85,6 +86,7 @@ public:
   }
 
   raylib::Vector2 sample() const { return _sample; }
+  float sample_potencial() const { return _sample_potencial; }
 
   float radius;
   float scale = 50.f;
@@ -93,6 +95,7 @@ private:
   std::unique_ptr<Position> _position;
   raylib::Color _color;
   raylib::Vector2 _sample;
+  float _sample_potencial;
 
   friend struct std::formatter<Probe>;
 };
