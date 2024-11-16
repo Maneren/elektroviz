@@ -71,13 +71,13 @@ compileFlags += -std=c++23 -I include
 linkFlags += -L $(buildLibDir) -l raylib 
 
 # Lists phony targets for Makefile
-.PHONY: all setup submodules lib build execute clean package
+.PHONY: all setup submodules build execute clean package
 
 # Default target, compiles, executes and cleans
 all: $(target) execute clean
 
 # Sets up the project for compiling, generates includes and libs
-setup: submodules include lib
+setup: submodules include
 
 # Pull and update the the build submodules
 submodules:
@@ -93,8 +93,6 @@ include: submodules
 	$(call COPY,vendor/raygui/src,./include,raygui.h)
 	$(call COPY,vendor/json/include,./include,nlohmann)
 	$(call COPY,vendor/threadpool,./include,ThreadPool.h)
-
-lib: $(buildLibDir)/libraylib.a
 
 # Build the raylib static library file and copy it into lib
 $(libraylib):
