@@ -10,3 +10,6 @@
 [submodule "vendor/threadpool"]
 	path = vendor/threadpool
 	url = https://github.com/progschj/ThreadPool.git
+[submodule "vendor/raygui"]
+	path = vendor/raygui
+	url = https://github.com/raysan5/raygui
