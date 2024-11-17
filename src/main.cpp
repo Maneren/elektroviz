@@ -33,6 +33,7 @@
 #include <vector>
 
 namespace ranges = std::ranges;
+namespace placeholders = std::placeholders;
 
 std::optional<nlohmann::json> load_scenario_json(std::string scenario) {
   auto scenarioFile = std::ifstream{"scenarios/" + scenario};
@@ -208,10 +209,10 @@ int main(int argc, char const *argv[]) {
           );
 
       if (!selected_charge) {
-        selected_charge =
-            &*ranges::find_if(charges, [mouse_in_world](const Charge &charge) {
-              return charge.contains(mouse_in_world);
-            });
+        selected_charge = &*ranges::find_if(
+            charges,
+            std::bind(&Charge::contains, placeholders::_1, mouse_in_world)
+        );
       }
 
       if (selected_charge != &*charges.end()) {
