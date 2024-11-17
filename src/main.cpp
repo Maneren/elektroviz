@@ -18,6 +18,7 @@
 #include <Texture.hpp>
 #include <Vector2.hpp>
 #include <Window.hpp>
+#include <algorithm>
 #include <format>
 #include <fstream>
 #include <functional>
@@ -25,10 +26,13 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
+#include <ranges>
 #include <raylib.h>
 #include <span>
 #include <string>
 #include <vector>
+
+namespace ranges = std::ranges;
 
 std::optional<nlohmann::json> load_scenario_json(std::string scenario) {
   auto scenarioFile = std::ifstream{"scenarios/" + scenario};
@@ -176,6 +180,8 @@ int main(int argc, char const *argv[]) {
       raylib::Color::LightGray()
   );
 
+  Charge *selected_charge;
+
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
   {
@@ -194,6 +200,27 @@ int main(int argc, char const *argv[]) {
           grid_spacing / camera.GetZoom(),
           camera.GetTarget()
       );
+    }
+
+    if (raylib::Mouse::IsButtonDown(MOUSE_BUTTON_MIDDLE)) {
+      auto mouse_in_world =
+          screen_to_world(camera.GetScreenToWorld(raylib::Mouse::GetPosition())
+          );
+
+      if (!selected_charge) {
+        selected_charge =
+            &*ranges::find_if(charges, [mouse_in_world](const Charge &charge) {
+              return charge.contains(mouse_in_world);
+            });
+      }
+
+      if (selected_charge != &*charges.end()) {
+        selected_charge->position(mouse_in_world);
+      } else {
+        selected_charge = nullptr;
+      }
+    } else {
+      selected_charge = nullptr;
     }
 
     if (raylib::Mouse::IsButtonDown(MOUSE_BUTTON_LEFT)) {

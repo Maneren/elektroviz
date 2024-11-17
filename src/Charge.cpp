@@ -48,5 +48,10 @@ float Charge::potential(const raylib::Vector2 &point) const {
   return _strength / distanceSqr;
 }
 
+bool Charge::contains(const raylib::Vector2 &point) const {
+  auto radius = collision_radius();
+  return (point - _position).LengthSqr() < radius * radius;
+}
+
 const raylib::Color Charge::POSITIVE = raylib::Color(255, 0, 0, 255);
 const raylib::Color Charge::NEGATIVE = raylib::Color(40, 40, 255, 255);
