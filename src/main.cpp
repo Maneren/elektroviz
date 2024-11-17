@@ -236,7 +236,7 @@ int main(int argc, char const *argv[]) {
       );
     }
 
-    if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_RIGHT)) {
+    if (raylib::Mouse::IsButtonDown(MOUSE_BUTTON_RIGHT)) {
       auto first_place = !user_probe;
       user_probe = Probe{
           std::make_unique<position::Static>(screen_to_world(
