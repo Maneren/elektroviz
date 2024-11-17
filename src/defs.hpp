@@ -18,7 +18,7 @@ constexpr float GLOBAL_SCALE = 100.0f;
 
 constexpr int LINES_PER_CHARGE = 12;
 
-constexpr int BACKGROUND_SUBSAMPLING = 4;
+constexpr int BACKGROUND_SUBSAMPLING = 2;
 
 inline raylib::Vector2 world_to_screen(const raylib::Vector2 &point) {
   return point * GLOBAL_SCALE;
