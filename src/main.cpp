@@ -150,7 +150,7 @@ int main(int argc, char const *argv[]) {
   raylib::Window w(
       SCREEN_WIDTH,
       SCREEN_HEIGHT,
-      "ELEKTROVIZ - A simple simulation of electric fields",
+      "ELEKTROVIZ - A simple visualizer of an electric field",
       FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE
   );
 
