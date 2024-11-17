@@ -4,15 +4,16 @@
 #include <algorithm>
 #include <format>
 #include <ranges>
-#include <raylib.h>
 
 namespace views = std::views;
 namespace ranges = std::ranges;
 
 void Plot::draw() const {
   background_color.DrawRectangle(position, size);
+
   auto vertical_midpoint = position.y + size.y / 2.f;
   auto right_edge = position.x + size.x;
+
   raylib::Color::Black().DrawLine(
       {position.x, vertical_midpoint}, {right_edge, vertical_midpoint}
   );
@@ -25,23 +26,33 @@ void Plot::draw() const {
 
   auto display_max = max * K_E;
 
-  auto text_x_pos = [right_edge](auto text) {
-    return right_edge - raylib::MeasureText(text, FONT_SIZE);
-  };
-
-  auto top_text = std::format(" {:.2g}", display_max);
+  auto top_text = std::format(" {:.2g} N/C", display_max);
   raylib::DrawText(
-      top_text,
-      text_x_pos(top_text),
-      position.y,
+      top_text, position.x + 5.f, position.y, FONT_SIZE, raylib::Color::Black()
+  );
+
+  auto middle_text = std::string{" 0"};
+  raylib::DrawText(
+      middle_text,
+      position.x + 5.f,
+      vertical_midpoint,
       FONT_SIZE,
       raylib::Color::Black()
   );
 
-  auto bottom_text = std::format("-{:.2g}", display_max);
+  auto bottom_text = std::format("-{:.2g} N/C", display_max);
   raylib::DrawText(
       bottom_text,
-      text_x_pos(bottom_text),
+      position.x + 5.f,
+      position.y + size.y - FONT_SIZE,
+      FONT_SIZE,
+      raylib::Color::Black()
+  );
+
+  auto right_text = std::string{"30 s"};
+  raylib::DrawText(
+      right_text,
+      right_edge - 5.f - raylib::MeasureText(right_text, FONT_SIZE),
       position.y + size.y - FONT_SIZE,
       FONT_SIZE,
       raylib::Color::Black()

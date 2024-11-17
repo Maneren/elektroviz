@@ -22,7 +22,8 @@ public:
       const raylib::Color &color,
       float radius = 8.f
   )
-      : radius(radius), _position(std::move(position)), _color(color) {}
+      : radius(radius), _position(std::move(position)), _color(color),
+        _id(ID++) {}
 
   Probe(Probe &&) = default;
   Probe &operator=(Probe &&) = default;
@@ -87,6 +88,7 @@ public:
 
   raylib::Vector2 sample() const { return _sample; }
   float sample_potencial() const { return _sample_potencial; }
+  int id() const { return ID; }
 
   float radius;
   float scale = 50.f;
@@ -96,6 +98,9 @@ private:
   raylib::Color _color;
   raylib::Vector2 _sample;
   float _sample_potencial;
+  int _id;
+
+  static int ID;
 
   friend struct std::formatter<Probe>;
 };

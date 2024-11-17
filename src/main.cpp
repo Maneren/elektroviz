@@ -134,7 +134,8 @@ int main(int argc, char const *argv[]) {
       ),
       raylib::Color::Green()
   );
-  probe.scale = 50.f;
+
+  std::optional<Probe> user_probe = std::nullopt;
 
   auto screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
   auto half_screen_size = screen_size / 2.f;
@@ -157,7 +158,7 @@ int main(int argc, char const *argv[]) {
 
   auto zoom_modifier = 1.f;
   raylib::Camera2D camera(
-      half_screen_size, {0, 0}, 0.f, calculate_zoom(charges, probe, screen_size)
+      half_screen_size, {}, 0.f, calculate_zoom(charges, probe, screen_size)
   );
 
   FieldLines field_lines{LINES_PER_CHARGE};
@@ -170,8 +171,8 @@ int main(int argc, char const *argv[]) {
   auto background_texture = raylib::Texture2D(background_image);
 
   Plot plot(
-      {half_screen_size.x, 0.0},
-      raylib::Vector2{half_screen_size.x, half_screen_size.y / 2.f},
+      {screen_size.x * 0.3f, 0.0},
+      {screen_size.x * 0.7f, screen_size.y / 4.f},
       raylib::Color::LightGray()
   );
 
@@ -180,7 +181,7 @@ int main(int argc, char const *argv[]) {
   {
     auto frameTime = w.GetFrameTime();
 
-    auto scroll = GetMouseWheelMove();
+    auto scroll = raylib::Mouse::GetWheelMove();
 
     if (std::abs(scroll) > 0) {
       zoom_modifier = std::clamp(zoom_modifier + scroll * 0.05f, 0.5f, 3.f);
@@ -195,7 +196,7 @@ int main(int argc, char const *argv[]) {
       );
     }
 
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+    if (raylib::Mouse::IsButtonDown(MOUSE_BUTTON_LEFT)) {
       auto delta = raylib::Mouse::GetDelta().Scale(-1.0f / camera.zoom);
       camera.SetTarget(
           Vector2ClampValue(Vector2Add(camera.GetTarget(), delta), 0.f, 800.f)
@@ -205,6 +206,30 @@ int main(int argc, char const *argv[]) {
           grid_spacing / camera.GetZoom(),
           camera.GetTarget()
       );
+    }
+
+    if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_RIGHT)) {
+      auto first_place = !user_probe;
+      user_probe = Probe{
+          std::make_unique<position::Static>(screen_to_world(
+              camera.GetScreenToWorld(raylib::Mouse::GetPosition())
+          )),
+          raylib::Color::Yellow()
+      };
+      if (first_place) {
+        camera.SetTarget(Vector2Add(
+            camera.GetTarget(), raylib::Vector2{0.f, -half_screen_size.y / 4.f}
+        ));
+        grid.resize(
+            screen_size / camera.GetZoom(),
+            grid_spacing / camera.GetZoom(),
+            camera.GetTarget()
+        );
+        plot.resize(
+            {screen_size.x * 0.3f, 0.0},
+            {screen_size.x * 0.7f, screen_size.y / 4.f}
+        );
+      }
     }
 
     if (w.IsResized()) {
@@ -228,8 +253,8 @@ int main(int argc, char const *argv[]) {
       );
 
       plot.resize(
-          {half_screen_size.x, 0.0},
-          {half_screen_size.x, half_screen_size.y / 4.f}
+          {screen_size.x * 0.3f, 0.0},
+          {screen_size.x * 0.7f, screen_size.y / 4.f}
       );
 
       background_texture.Unload();
@@ -248,8 +273,12 @@ int main(int argc, char const *argv[]) {
     }
     grid.update(frameTime, time, charges);
     probe.update(frameTime, time, charges);
+    if (user_probe) {
+      user_probe->update(frameTime, time, charges);
+      plot.update(frameTime, time, user_probe.value());
+    }
+
     // field_lines.update(charges, camera.GetZoom(), camera.GetTarget());
-    plot.update(frameTime, time, probe);
 
     // SAFETY: the image is internally an array of raylib::Colors, so it's
     // safe to treat it as such
@@ -294,7 +323,7 @@ int main(int argc, char const *argv[]) {
     w.BeginDrawing();
 
     background_texture.Draw(
-        {0, 0}, 0.f, static_cast<float>(BACKGROUND_SUBSAMPLING)
+        {}, 0.f, static_cast<float>(BACKGROUND_SUBSAMPLING)
     );
 
     camera.BeginMode();
@@ -305,10 +334,13 @@ int main(int argc, char const *argv[]) {
       charge.draw();
     }
     probe.draw();
+    if (user_probe)
+      user_probe->draw();
 
     camera.EndMode();
 
-    plot.draw();
+    if (user_probe)
+      plot.draw();
 
     auto text_pos_x = 10;
     auto text_pos_y = 10;
