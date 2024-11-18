@@ -270,7 +270,8 @@ int main(int argc, char const *argv[]) {
     if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
       auto mouse_in_world = get_mouse_in_world(camera);
 
-      if (raylib::Keyboard::IsKeyDown(KEY_LEFT_SHIFT)) {
+      if (raylib::Keyboard::IsKeyDown(KEY_LEFT_SHIFT) ||
+          raylib::Keyboard::IsKeyDown(KEY_RIGHT_SHIFT)) {
         for (auto &probe : user_probes) {
           if (!probe.has_value())
             continue;
