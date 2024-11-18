@@ -90,6 +90,10 @@ public:
   float sample_potencial() const { return _sample_potencial; }
   int id() const { return ID; }
 
+  bool contains(const raylib::Vector2 &point) const {
+    return (point - (*_position)()).Length() < radius / GLOBAL_SCALE;
+  }
+
   float radius;
   float scale = 50.f;
 

@@ -14,6 +14,7 @@
 #include <Color.hpp>
 #include <Functions.hpp>
 #include <Image.hpp>
+#include <Keyboard.hpp>
 #include <Mouse.hpp>
 #include <Rectangle.hpp>
 #include <Texture.hpp>
@@ -267,29 +268,44 @@ int main(int argc, char const *argv[]) {
     }
 
     if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
-      auto first_place = user_probes.empty();
+      auto mouse_in_world = get_mouse_in_world(camera);
 
-      while (user_probe_colors.size() <= user_probes.size())
-        user_probe_colors.push_back(generate_random_color());
+      if (raylib::Keyboard::IsKeyDown(KEY_LEFT_SHIFT)) {
+        for (auto &probe : user_probes) {
+          if (!probe.has_value())
+            continue;
 
-      user_probes.push_back(Probe{
-          std::make_unique<position::Static>(get_mouse_in_world(camera)),
-          user_probe_colors[user_probes.size()]
-      });
+          if (probe->contains(mouse_in_world)) {
+            probe = std::nullopt;
+            break;
+          }
+        }
+      } else {
+        auto first_place = user_probes.empty();
 
-      if (first_place) {
-        camera.SetTarget(Vector2Add(
-            camera.GetTarget(), raylib::Vector2{0.f, -half_screen_size.y / 4.f}
-        ));
-        grid.resize(
-            screen_size / camera.GetZoom(),
-            grid_spacing / camera.GetZoom(),
-            camera.GetTarget()
-        );
-        plot.resize(
-            {screen_size.x * 0.3f, 0.0},
-            {screen_size.x * 0.7f, screen_size.y / 4.f}
-        );
+        while (user_probe_colors.size() <= user_probes.size())
+          user_probe_colors.push_back(generate_random_color());
+
+        user_probes.push_back(Probe{
+            std::make_unique<position::Static>(mouse_in_world),
+            user_probe_colors[user_probes.size()]
+        });
+
+        if (first_place) {
+          camera.SetTarget(Vector2Add(
+              camera.GetTarget(),
+              raylib::Vector2{0.f, -half_screen_size.y / 4.f}
+          ));
+          grid.resize(
+              screen_size / camera.GetZoom(),
+              grid_spacing / camera.GetZoom(),
+              camera.GetTarget()
+          );
+          plot.resize(
+              {screen_size.x * 0.3f, 0.0},
+              {screen_size.x * 0.7f, screen_size.y / 4.f}
+          );
+        }
       }
     }
 
