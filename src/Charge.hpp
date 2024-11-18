@@ -81,7 +81,7 @@ public:
       const raylib::Vector2 &position,
       std::unique_ptr<charge::Strength> strength
   )
-      : _position(position), strengthFn(std::move(strength)) {}
+      : _position(position), strengthFn(std::move(strength)), _strength(0.f) {}
 
   Charge(Charge &&) = default;
   Charge &operator=(Charge &&) = default;
