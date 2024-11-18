@@ -1,4 +1,5 @@
 #include "Probe.hpp"
+#include <Color.hpp>
 #include <Vector2.hpp>
 #include <deque>
 #include <vector>
@@ -13,10 +14,12 @@ public:
       : position(position), size(size), background_color(background_color),
         data({}) {};
 
-  void draw() const;
-  void
-  update(const float timeDelta, const double elapsedTime, const Probe &probe);
-  // void add_probe(std::shared_ptr<Probe> probe) { probes.push_back(probe); }
+  void draw(const std::vector<raylib::Color> &probe_colors) const;
+  void update(
+      const float timeDelta,
+      const double elapsedTime,
+      const std::vector<std::optional<Probe>> &probe
+  );
   void resize(const raylib::Vector2 position, const raylib::Vector2 size) {
     this->position = position;
     this->size = size;

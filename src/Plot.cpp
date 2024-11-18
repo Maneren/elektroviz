@@ -4,11 +4,12 @@
 #include <algorithm>
 #include <format>
 #include <ranges>
+#include <vector>
 
 namespace views = std::views;
 namespace ranges = std::ranges;
 
-void Plot::draw() const {
+void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
   background_color.DrawRectangle(position, size);
 
   auto vertical_midpoint = position.y + size.y / 2.f;
@@ -60,7 +61,7 @@ void Plot::draw() const {
 
   std::vector<raylib::Vector2> draw_buffer;
   // for each row in data
-  for (auto &row : data) {
+  for (auto [row, color] : ranges::zip_view(data, probe_colors)) {
     // start at right edge and add points to the buffer
     for (auto [i, value] :
          row | views::as_const | views::reverse | views::enumerate) {
@@ -71,28 +72,32 @@ void Plot::draw() const {
       );
     }
 
-    raylib::Color::Green().DrawLineStrip(
-        draw_buffer.data(), draw_buffer.size()
-    );
+    color.DrawLineStrip(draw_buffer.data(), draw_buffer.size());
     draw_buffer.clear();
   }
 }
 
-void Plot::update(const float, const double elapsedTime, const Probe &probe) {
-  if (data.empty())
-    data.emplace_back(std::deque<float>{});
+void Plot::update(
+    const float,
+    const double elapsedTime,
+    const std::vector<std::optional<Probe>> &probes
+) {
+  while (data.size() < probes.size())
+    data.emplace_back();
 
   // sample at most 60 times per second
-  if (elapsedTime - last_update <= 1.0 / 60) {
+  if (elapsedTime - last_update <= 1.0 / 60.0)
     return;
-  }
 
-  auto &row = data[0];
-
-  if (row.size() >= resolution) {
-    row.pop_front();
-  }
-
-  row.push_back(probe.sample_potencial());
   last_update = elapsedTime;
+
+  for (auto [row, probe] : ranges::zip_view(data, probes)) {
+    if (probe == std::nullopt)
+      continue;
+
+    if (row.size() >= resolution) {
+      row.pop_front();
+    }
+    row.push_back(probe->sample_potencial());
+  }
 }

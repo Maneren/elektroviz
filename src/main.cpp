@@ -27,6 +27,7 @@
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
+#include <random>
 #include <ranges>
 extern "C" {
 #define RAYGUI_IMPLEMENTATION
@@ -38,6 +39,17 @@ extern "C" {
 
 namespace ranges = std::ranges;
 namespace placeholders = std::placeholders;
+
+static std::random_device dev;
+static std::mt19937 rng(dev());
+static std::uniform_int_distribution<unsigned char> dist256(0, 255);
+
+raylib::Color generate_random_color() {
+  unsigned char red = dist256(rng);
+  unsigned char green = dist256(rng);
+  unsigned char blue = dist256(rng);
+  return raylib::Color{red, green, blue};
+}
 
 std::optional<nlohmann::json> load_scenario_json(std::string scenario) {
   auto scenarioFile = std::ifstream{"scenarios/" + scenario};
@@ -88,6 +100,10 @@ float calculate_zoom(
   return std::min(
       screen_size.x / bounding_size.x, screen_size.y / bounding_size.y
   );
+}
+
+raylib::Vector2 get_mouse_in_world(raylib::Camera2D camera) {
+  return screen_to_world(camera.GetScreenToWorld(raylib::Mouse::GetPosition()));
 }
 
 int main(int argc, char const *argv[]) {
@@ -144,7 +160,15 @@ int main(int argc, char const *argv[]) {
       raylib::Color::Green()
   );
 
-  std::optional<Probe> user_probe = std::nullopt;
+  std::vector<raylib::Color> user_probe_colors{
+      raylib::Color::Yellow(),
+      raylib::Color::Purple(),
+      raylib::Color::Magenta(),
+      raylib::Color::SkyBlue(),
+      raylib::Color::Brown(),
+      raylib::Color::Red(),
+  };
+  std::vector<std::optional<Probe>> user_probes{};
 
   auto screen_size = raylib::Vector2(SCREEN_WIDTH, SCREEN_HEIGHT);
   auto half_screen_size = screen_size / 2.f;
@@ -212,9 +236,7 @@ int main(int argc, char const *argv[]) {
     }
 
     if (raylib::Mouse::IsButtonDown(MOUSE_BUTTON_MIDDLE)) {
-      auto mouse_in_world =
-          screen_to_world(camera.GetScreenToWorld(raylib::Mouse::GetPosition())
-          );
+      auto mouse_in_world = get_mouse_in_world(camera);
 
       if (!selected_charge) {
         selected_charge = &*ranges::find_if(
@@ -232,7 +254,7 @@ int main(int argc, char const *argv[]) {
       selected_charge = nullptr;
     }
 
-    if (raylib::Mouse::IsButtonDown(MOUSE_BUTTON_LEFT)) {
+    if (raylib::Mouse::IsButtonDown(MOUSE_BUTTON_RIGHT)) {
       auto delta = raylib::Mouse::GetDelta().Scale(-1.0f / camera.zoom);
       camera.SetTarget(
           Vector2ClampValue(Vector2Add(camera.GetTarget(), delta), 0.f, 800.f)
@@ -244,14 +266,17 @@ int main(int argc, char const *argv[]) {
       );
     }
 
-    if (raylib::Mouse::IsButtonDown(MOUSE_BUTTON_RIGHT)) {
-      auto first_place = !user_probe;
-      user_probe = Probe{
-          std::make_unique<position::Static>(screen_to_world(
-              camera.GetScreenToWorld(raylib::Mouse::GetPosition())
-          )),
-          raylib::Color::Yellow()
-      };
+    if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
+      auto first_place = user_probes.empty();
+
+      while (user_probe_colors.size() <= user_probes.size())
+        user_probe_colors.push_back(generate_random_color());
+
+      user_probes.push_back(Probe{
+          std::make_unique<position::Static>(get_mouse_in_world(camera)),
+          user_probe_colors[user_probes.size()]
+      });
+
       if (first_place) {
         camera.SetTarget(Vector2Add(
             camera.GetTarget(), raylib::Vector2{0.f, -half_screen_size.y / 4.f}
@@ -307,9 +332,14 @@ int main(int argc, char const *argv[]) {
     }
     grid.update(frameTime, time, charges);
     probe.update(frameTime, time, charges);
-    if (user_probe) {
-      user_probe->update(frameTime, time, charges);
-      plot.update(frameTime, time, user_probe.value());
+    if (!user_probes.empty()) {
+      for (auto &user_probe : user_probes) {
+        if (user_probe.has_value()) {
+          user_probe->update(frameTime, time, charges);
+        }
+      }
+
+      plot.update(frameTime, time, user_probes);
     }
 
     // field_lines.update(charges, camera.GetZoom(), camera.GetTarget());
@@ -368,13 +398,16 @@ int main(int argc, char const *argv[]) {
       charge.draw();
     }
     probe.draw();
-    if (user_probe)
-      user_probe->draw();
+    for (auto &user_probe : user_probes) {
+      if (user_probe.has_value()) {
+        user_probe->draw();
+      }
+    }
 
     camera.EndMode();
 
-    if (user_probe)
-      plot.draw();
+    if (!user_probes.empty())
+      plot.draw(user_probe_colors);
 
     auto text_pos_x = 10;
     auto text_pos_y = 10;
