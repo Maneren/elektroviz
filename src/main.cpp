@@ -15,6 +15,7 @@
 #include <Functions.hpp>
 #include <Image.hpp>
 #include <Mouse.hpp>
+#include <Rectangle.hpp>
 #include <Texture.hpp>
 #include <Vector2.hpp>
 #include <Window.hpp>
@@ -27,7 +28,10 @@
 #include <nlohmann/json.hpp>
 #include <optional>
 #include <ranges>
-#include <raylib.h>
+extern "C" {
+#define RAYGUI_IMPLEMENTATION
+#include <raygui.h>
+}
 #include <span>
 #include <string>
 #include <vector>
@@ -175,6 +179,9 @@ int main(int argc, char const *argv[]) {
   );
   auto background_texture = raylib::Texture2D(background_image);
 
+  auto simulation_speed = 1.f;
+  auto time = 0.0;
+
   Plot plot(
       {screen_size.x * 0.3f, 0.0},
       {screen_size.x * 0.7f, screen_size.y / 4.f},
@@ -187,6 +194,7 @@ int main(int argc, char const *argv[]) {
   while (!w.ShouldClose()) // Detect window close button or ESC key
   {
     auto frameTime = w.GetFrameTime();
+    time += frameTime * simulation_speed;
 
     auto scroll = raylib::Mouse::GetWheelMove();
 
@@ -293,8 +301,6 @@ int main(int argc, char const *argv[]) {
       background_texture = raylib::Texture2D(background_image);
     }
 
-    auto time = w.GetTime();
-
     // Update
     for (auto &charge : charges) {
       charge.update(frameTime, time);
@@ -387,6 +393,35 @@ int main(int argc, char const *argv[]) {
         scenario_text,
         text_pos_x,
         text_pos_y + 2 * FONT_SIZE,
+        FONT_SIZE,
+        textColor
+    );
+
+    float bottom_edge = static_cast<float>(w.GetHeight() - 45);
+    int slow_button_active = GuiButton(
+        raylib::Rectangle{5, bottom_edge, 80, 40},
+        GuiIconText(ICON_PLAYER_PREVIOUS, "Slow")
+    );
+    int fast_button_active = GuiButton(
+        raylib::Rectangle{95, bottom_edge, 80, 40},
+        GuiIconText(ICON_PLAYER_NEXT, "Fast")
+    );
+    int normal_speed_button_active = GuiButton(
+        raylib::Rectangle{185, bottom_edge, 80, 40},
+        GuiIconText(ICON_PLAYER_PLAY, "Normal")
+    );
+
+    if (slow_button_active && simulation_speed > .25f)
+      simulation_speed /= 2;
+    if (fast_button_active && simulation_speed < 4.f)
+      simulation_speed *= 2;
+    if (normal_speed_button_active)
+      simulation_speed = 1.f;
+
+    raylib::DrawText(
+        std::format("Speed: {:.4g}", simulation_speed),
+        text_pos_x,
+        bottom_edge - FONT_SIZE - 5,
         FONT_SIZE,
         textColor
     );
