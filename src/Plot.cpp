@@ -20,7 +20,9 @@ void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
   );
 
   auto row_maxes = data | views::transform([](auto &row) {
-                     auto [min_it, max_row] = ranges::minmax(row);
+                     if (std::get<1>(row).empty())
+                       return 0.f;
+                     auto [min_it, max_row] = ranges::minmax(std::get<1>(row));
                      return std::max(std::abs(min_it), max_row);
                    });
   float max = ranges::max(row_maxes) * 3.f;
@@ -60,13 +62,17 @@ void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
   );
 
   std::vector<raylib::Vector2> draw_buffer;
+  draw_buffer.reserve(resolution);
+
+  float resolution = static_cast<float>(this->resolution);
   // for each row in data
   for (auto [row, color] : ranges::zip_view(data, probe_colors)) {
+    auto &[offset, row_data] = row;
     // start at right edge and add points to the buffer
     for (auto [i, value] :
-         row | views::as_const | views::reverse | views::enumerate) {
+         row_data | views::as_const | views::reverse | views::enumerate) {
       auto draw_value = size.y * value / max;
-      auto x_offset = size.x * i / resolution;
+      auto x_offset = size.x * (i + offset) / resolution;
       draw_buffer.emplace_back(
           right_edge - x_offset, vertical_midpoint - draw_value
       );
@@ -83,7 +89,7 @@ void Plot::update(
     const std::vector<std::optional<Probe>> &probes
 ) {
   while (data.size() < probes.size())
-    data.emplace_back();
+    data.emplace_back(0, std::deque<float>());
 
   // sample at most 60 times per second
   if (elapsedTime - last_update <= 1.0 / 60.0)
@@ -92,12 +98,15 @@ void Plot::update(
   last_update = elapsedTime;
 
   for (auto [row, probe] : ranges::zip_view(data, probes)) {
-    if (probe == std::nullopt)
-      continue;
-
-    if (row.size() >= resolution) {
-      row.pop_front();
+    auto &[offset, row_data] = row;
+    if (probe == std::nullopt && offset < resolution) {
+      offset++;
+    } else {
+      row_data.push_back(probe->sample_potencial());
     }
-    row.push_back(probe->sample_potencial());
+
+    if (row_data.size() + offset >= resolution && !row_data.empty()) {
+      row_data.pop_front();
+    }
   }
 }

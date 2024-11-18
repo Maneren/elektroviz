@@ -26,12 +26,12 @@ public:
   }
 
 private:
-  const float resolution = 30.f * 60.f; // 30 seconds at 60 samples per second
+  const size_t resolution = 30 * 60; // 30 seconds at 60 samples per second
   raylib::Vector2 position;
   raylib::Vector2 size;
   raylib::Color background_color;
   double last_update = 0.0;
 
-  std::vector<std::deque<float>> data;
+  std::vector<std::tuple<int, std::deque<float>>> data;
   std::vector<std::shared_ptr<Probe>> probes;
 };
