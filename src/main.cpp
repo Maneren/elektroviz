@@ -218,6 +218,30 @@ int main(int argc, char const *argv[]) {
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
   {
+    float bottom_edge = static_cast<float>(w.GetHeight() - 45);
+    int slow_button_active = GuiButton(
+        raylib::Rectangle{5, bottom_edge, 80, 40},
+        GuiIconText(ICON_PLAYER_PREVIOUS, "Slow")
+    );
+    int fast_button_active = GuiButton(
+        raylib::Rectangle{95, bottom_edge, 80, 40},
+        GuiIconText(ICON_PLAYER_NEXT, "Fast")
+    );
+    int normal_speed_button_active = GuiButton(
+        raylib::Rectangle{185, bottom_edge, 80, 40},
+        GuiIconText(ICON_PLAYER_PLAY, "Normal")
+    );
+
+    if (slow_button_active && simulation_speed > .25f)
+      simulation_speed /= 2;
+    if (fast_button_active && simulation_speed < 4.f)
+      simulation_speed *= 2;
+    if (normal_speed_button_active)
+      simulation_speed = 1.f;
+
+    auto button_active =
+        fast_button_active || slow_button_active || normal_speed_button_active;
+
     auto frameTime = w.GetFrameTime();
     time += frameTime * simulation_speed;
 
@@ -267,7 +291,7 @@ int main(int argc, char const *argv[]) {
       );
     }
 
-    if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT)) {
+    if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT) && !button_active) {
       auto mouse_in_world = get_mouse_in_world(camera);
 
       if (raylib::Keyboard::IsKeyDown(KEY_LEFT_SHIFT) ||
@@ -446,27 +470,6 @@ int main(int argc, char const *argv[]) {
         FONT_SIZE,
         textColor
     );
-
-    float bottom_edge = static_cast<float>(w.GetHeight() - 45);
-    int slow_button_active = GuiButton(
-        raylib::Rectangle{5, bottom_edge, 80, 40},
-        GuiIconText(ICON_PLAYER_PREVIOUS, "Slow")
-    );
-    int fast_button_active = GuiButton(
-        raylib::Rectangle{95, bottom_edge, 80, 40},
-        GuiIconText(ICON_PLAYER_NEXT, "Fast")
-    );
-    int normal_speed_button_active = GuiButton(
-        raylib::Rectangle{185, bottom_edge, 80, 40},
-        GuiIconText(ICON_PLAYER_PLAY, "Normal")
-    );
-
-    if (slow_button_active && simulation_speed > .25f)
-      simulation_speed /= 2;
-    if (fast_button_active && simulation_speed < 4.f)
-      simulation_speed *= 2;
-    if (normal_speed_button_active)
-      simulation_speed = 1.f;
 
     raylib::DrawText(
         std::format("Speed: {:.4g}", simulation_speed),
