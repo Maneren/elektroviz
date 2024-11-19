@@ -1,4 +1,5 @@
 #include "field.hpp"
+#include "defs.hpp"
 #include <Vector2.hpp>
 #include <algorithm>
 #include <functional>
@@ -11,25 +12,31 @@ namespace ranges = std::ranges;
 namespace views = std::views;
 namespace placeholders = std::placeholders;
 
+constexpr float FIELD_SCALE = GLOBAL_SCALE * GLOBAL_SCALE;
+
 raylib::Vector2
 E(const raylib::Vector2 point, const std::span<const Charge> &charges) {
   return ranges::fold_left(
-      views::transform(charges, std::bind(&Charge::E, placeholders::_1, point)),
-      raylib::Vector2{},
-      std::plus<>()
-  );
+             views::transform(
+                 charges, std::bind(&Charge::E, placeholders::_1, point)
+             ),
+             raylib::Vector2{},
+             std::plus<>()
+         ) *
+         FIELD_SCALE;
 }
 
 float potential(
     const raylib::Vector2 point, const std::span<const Charge> &charges
 ) {
   return ranges::fold_left(
-      views::transform(
-          charges, std::bind(&Charge::potential, placeholders::_1, point)
-      ),
-      0.f,
-      std::plus<>()
-  );
+             views::transform(
+                 charges, std::bind(&Charge::potential, placeholders::_1, point)
+             ),
+             0.f,
+             std::plus<>()
+         ) *
+         FIELD_SCALE;
 }
 
 } // namespace field

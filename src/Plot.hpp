@@ -9,10 +9,11 @@ public:
   Plot(
       const raylib::Vector2 position,
       const raylib::Vector2 size,
-      const raylib::Color background_color = raylib::Color::LightGray()
+      const raylib::Color background_color,
+      const raylib::Color accent_color
   )
       : position(position), size(size), background_color(background_color),
-        data({}) {};
+        accent_color(accent_color), data({}) {};
 
   void draw(const std::vector<raylib::Color> &probe_colors) const;
   void update(
@@ -24,12 +25,14 @@ public:
     this->position = position;
     this->size = size;
   }
+  void clear() { data.clear(); }
 
 private:
   const size_t resolution = 30 * 60; // 30 seconds at 60 samples per second
   raylib::Vector2 position;
   raylib::Vector2 size;
   raylib::Color background_color;
+  raylib::Color accent_color;
   double last_update = 0.0;
 
   std::vector<std::tuple<int, std::deque<float>>> data;

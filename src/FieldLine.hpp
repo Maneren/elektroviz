@@ -16,9 +16,7 @@ public:
       : lines_per_charge(lines_per_charge), color(color) {}
 
   void update(
-      const std::span<const Charge> &charges,
-      const float zoom,
-      const raylib::Vector2 target
+      const std::span<const Charge> &charges, const raylib::Vector2 world_target
   );
   void draw() const;
 

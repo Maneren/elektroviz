@@ -21,7 +21,7 @@ void Charge::update(
 
 void Charge::draw() const {
   auto radius = draw_radius();
-  auto screen_position = world_to_screen(_position);
+  auto screen_position = _position;
 
   // outline
   screen_position.DrawCircle(radius, raylib::Color::RayWhite());
@@ -35,8 +35,7 @@ void Charge::draw() const {
 }
 
 BoundingRectangle Charge::bounding_square() const {
-  auto radius = draw_radius() / GLOBAL_SCALE;
-  raylib::Vector2 half_size{radius, radius};
+  raylib::Vector2 half_size{50, 50};
   return {_position - half_size, half_size * 2.f};
 }
 
@@ -52,7 +51,7 @@ float Charge::potential(const raylib::Vector2 &point) const {
 }
 
 bool Charge::contains(const raylib::Vector2 &point) const {
-  auto radius = collision_radius();
+  auto radius = draw_radius();
   return (point - _position).LengthSqr() < radius * radius;
 }
 

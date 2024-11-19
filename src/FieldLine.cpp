@@ -34,34 +34,33 @@ FieldLines::Line calculate_line(
     const std::function<std::optional<raylib::Vector2>(raylib::Vector2)>
         &end_point_function,
     const float direction,
-    const float zoom,
     const raylib::Vector2 target
 ) {
-  constexpr size_t STEPS = 10000;
-  //  PERF: this is slow as hell, because if unzoomed it has to render more
-  //  than hundred thousand points
+  //  PERF: this is slow as hell, because if unzoomed it has to render more than
+  //  hundred thousand points
+  constexpr size_t STEPS = 1000;
 
   std::vector<Vector2> points;
   points.reserve(STEPS);
 
-  points.push_back(world_to_screen(start_point));
+  points.push_back(start_point);
 
   raylib::Vector2 position = start_point + start_direction;
 
   for (const auto _ : views::iota(0uz, STEPS)) {
-    points.push_back(world_to_screen(position));
+    points.push_back(position);
 
     auto sample = field_function(position) * direction;
-    auto next_position = position + sample.Scale(0.1f / sample.Length() / zoom);
+    auto next_position = position + sample.Scale(5.f / sample.Length());
 
     // Stop if next_position is too far from camera
-    if ((next_position - target).LengthSqr() > 80.f / zoom) {
+    if ((next_position - target).LengthSqr() > 1000.f) {
       break;
     }
 
     if (auto end_point = end_point_function(next_position);
         end_point.has_value()) {
-      points.push_back(world_to_screen(end_point.value()));
+      points.push_back(end_point.value());
       break;
     }
 
@@ -72,9 +71,7 @@ FieldLines::Line calculate_line(
 }
 
 void FieldLines::update(
-    const std::span<const Charge> &charges,
-    const float zoom,
-    const raylib::Vector2 target
+    const std::span<const Charge> &charges, const raylib::Vector2 world_target
 ) {
   field_lines.clear();
   equipotencial_lines.clear();
@@ -99,8 +96,6 @@ void FieldLines::update(
 
   auto direction = (2 * positive_charges >= charges.size()) ? 1.f : -1.f;
 
-  auto world_target = screen_to_world(target, zoom);
-
   for (const auto &[i, charge] : charges | views::enumerate | views::as_const) {
     // Start with slight offset to align less with axis and other charges
     float initial_angle_offset = 0.1f;
@@ -116,7 +111,6 @@ void FieldLines::update(
           field_function,
           end_point_function,
           direction,
-          zoom,
           world_target
       );
 

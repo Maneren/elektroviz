@@ -1,4 +1,5 @@
 #include "Grid.hpp"
+#include "Camera2D.hpp"
 #include "Position.hpp"
 #include "Probe.hpp"
 #include "defs.hpp"
@@ -8,7 +9,6 @@
 #include <algorithm>
 #include <memory>
 #include <span>
-#include <utility>
 #include <vector>
 
 void GridLine::draw() const { start.DrawLine(end, color); }
@@ -17,34 +17,35 @@ std::vector<GridLine> generateLines(
     const raylib::Vector2 size,
     const raylib::Vector2 spacing,
     const raylib::Color color,
-    const raylib::Vector2 offset
+    const raylib::Camera2D &camera
 ) {
   const auto size_half = size / 2.0f;
+  const auto screen_to_world = [&](const float x, const float y) {
+    return camera.GetScreenToWorld({x, y});
+  };
 
   std::vector<GridLine> lines;
 
-  for (float y = 0; y <= size_half.y; y += spacing.y) {
-    lines.push_back(GridLine(
-        offset + raylib::Vector2{-size_half.x, y},
-        offset + raylib::Vector2{size_half.x, y},
+  for (float y = size_half.y; y <= size.y; y += spacing.y) {
+    lines.emplace_back(
+        screen_to_world(0.f, y), screen_to_world(size.x, y), color
+    );
+    lines.emplace_back(
+        screen_to_world(0.f, size.y - y),
+        screen_to_world(size.x, size.y - y),
         color
-    ));
-    lines.push_back(GridLine(
-        offset + raylib::Vector2{-size_half.x, -y},
-        offset + raylib::Vector2{size_half.x, -y},
-        color
-    ));
+    );
   }
 
-  for (float x = 0; x <= size_half.x; x += spacing.x) {
-    lines.push_back(GridLine(
-        offset + raylib::Vector2{x, -size_half.y},
-        offset + raylib::Vector2{x, size_half.y}
-    ));
-    lines.push_back(GridLine(
-        offset + raylib::Vector2{-x, -size_half.y},
-        offset + raylib::Vector2{-x, size_half.y}
-    ));
+  for (float x = size_half.x; x <= size.x; x += spacing.x) {
+    lines.emplace_back(
+        screen_to_world(x, 0.f), screen_to_world(x, size.y), color
+    );
+    lines.emplace_back(
+        screen_to_world(size.x - x, 0.f),
+        screen_to_world(size.x - x, size.y),
+        color
+    );
   }
 
   return lines;
@@ -54,22 +55,26 @@ std::vector<Probe> generateProbes(
     const raylib::Vector2 size,
     const raylib::Vector2 spacing,
     const raylib::Color color,
-    const raylib::Vector2 offset
+    const raylib::Camera2D &camera
 ) {
-  const auto world_size_half = screen_to_world(size);
-  const auto world_spacing = screen_to_world(spacing);
+  const auto size_half = size / 2.0f;
+  const auto screen_to_world = [&](const Vector2 position) {
+    return camera.GetScreenToWorld(position);
+  };
 
   std::vector<Probe> probes;
 
-  for (float y = 0; y <= world_size_half.y + world_spacing.y;
-       y += world_spacing.y) {
-    for (float x = 0; x <= world_size_half.x + world_spacing.x;
-         x += world_spacing.x) {
-      for (raylib::Vector2 pos :
-           std::vector<raylib::Vector2>{{x, y}, {x, -y}, {-x, y}, {-x, -y}}) {
-        Probe probe{std::make_unique<position::Static>(offset + pos), color, 0};
-        probe.scale = std::min(spacing.x, spacing.y);
-        probes.push_back(std::move(probe));
+  for (float y = 0.f; y <= size_half.y + spacing.y; y += spacing.y) {
+    for (float x = 0.f; x <= size_half.x + spacing.x; x += spacing.x) {
+      for (const auto pos :
+           std::vector<Vector2>{{x, y}, {x, -y}, {-x, y}, {-x, -y}}) {
+        auto position = size_half + pos;
+        probes.emplace_back(
+            std::make_unique<position::Static>(screen_to_world(position)),
+            color,
+            0,
+            std::min(spacing.x, spacing.y) / camera.GetZoom()
+        );
       }
     }
   }
@@ -80,10 +85,10 @@ std::vector<Probe> generateProbes(
 void Grid::resize(
     const raylib::Vector2 size,
     const raylib::Vector2 spacing,
-    const raylib::Vector2 offset
+    const raylib::Camera2D &camera
 ) {
-  lines = generateLines(size, spacing, line_color, offset);
-  probes = generateProbes(size, spacing, probe_color, screen_to_world(offset));
+  lines = generateLines(size, spacing, line_color, camera);
+  probes = generateProbes(size, spacing, probe_color, camera);
 }
 
 void Grid::draw() const {

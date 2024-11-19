@@ -1,6 +1,7 @@
 #pragma once
 #include "Charge.hpp"
 #include "Probe.hpp"
+#include <Camera2D.hpp>
 #include <Color.hpp>
 #include <Vector2.hpp>
 #include <format>
@@ -40,32 +41,20 @@ template <> struct std::formatter<GridLine> {
   }
 };
 
-std::vector<GridLine> generateLines(
-    const raylib::Vector2 size,
-    const raylib::Vector2 spacing,
-    const raylib::Color color,
-    const raylib::Vector2 offset = {}
-);
-
-std::vector<Probe> generateProbes(
-    const raylib::Vector2 size,
-    const raylib::Vector2 spacing,
-    const raylib::Color color,
-    const raylib::Vector2 offset = {}
-);
-
 class Grid {
 public:
   Grid(
       const raylib::Vector2 size,
       const raylib::Vector2 spacing,
+      const raylib::Camera2D &camera,
       const raylib::Color line_color = raylib::Color::LightGray(),
       const raylib::Color probe_color = raylib::Color::Gray()
   )
       : line_color(line_color), probe_color(probe_color),
-        origin(raylib::Vector2{0, 0}),
-        lines(generateLines(size, spacing, line_color)),
-        probes(generateProbes(size, spacing, probe_color)) {}
+        origin(raylib::Vector2{0, 0}) {
+    resize(size, spacing, camera);
+  }
+
   void draw() const;
   void update(
       const float timeDelta,
@@ -75,7 +64,7 @@ public:
   void resize(
       const raylib::Vector2 size,
       const raylib::Vector2 spacing,
-      const raylib::Vector2 offset = {}
+      const raylib::Camera2D &camera
   );
 
 private:

@@ -104,9 +104,6 @@ public:
   static const raylib::Color NEGATIVE;
 
 private:
-  float collision_radius() const {
-    return (12.f * std::sqrt(std::abs(_strength))) / GLOBAL_SCALE;
-  };
   float draw_radius() const { return 12.f * std::sqrt(std::abs(_strength)); };
 
   raylib::Vector2 _position;

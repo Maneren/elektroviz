@@ -17,5 +17,3 @@ void Probe::update(
 BoundingRectangle Probe::bounding_square() const {
   return _position->bounding_rectangle();
 }
-
-int Probe::ID = 0;

@@ -20,10 +20,11 @@ public:
   Probe(
       std::unique_ptr<Position> position,
       const raylib::Color &color,
-      float radius = 8.f
+      float radius = 8.f,
+      float length = 60.f
   )
-      : radius(radius), _position(std::move(position)), _color(color),
-        _id(ID++) {}
+      : radius(radius), length(length), _position(std::move(position)),
+        _color(color) {}
 
   Probe(Probe &&) = default;
   Probe &operator=(Probe &&) = default;
@@ -37,7 +38,7 @@ public:
   BoundingRectangle bounding_square() const;
 
   template <const bool ONLY_ARROW = false> void draw() const {
-    auto draw_position = world_to_screen((*_position)());
+    auto position = (*_position)();
 
     auto sample = this->sample();
 
@@ -48,14 +49,14 @@ public:
     );
 
     if constexpr (!ONLY_ARROW) {
-      draw_position.DrawCircle(radius, color);
+      position.DrawCircle(radius, color);
 
       auto msg = std::format("E = {:.1E} N/C", K_E * sample.Length());
       int width = raylib::MeasureText(msg, FONT_SIZE);
       raylib::DrawText(
           msg.c_str(),
-          draw_position.x - width / 2.f,
-          draw_position.y - 2 * FONT_SIZE,
+          position.x - width / 2.f,
+          position.y - 2 * FONT_SIZE,
           FONT_SIZE,
           color
       );
@@ -63,21 +64,21 @@ public:
 
     auto direction = sample.Normalize();
 
-    auto draw_sample = direction.Scale(scale);
+    auto draw_sample = direction.Scale(length);
 
-    auto tip = draw_position + draw_sample;
+    auto tip = position + draw_sample;
 
     // Calculate arrowhead size
     constexpr float head_scale = 1.f / 5.f;
     constexpr float line_scale = 1.f - head_scale;
 
-    auto head_base = draw_position + direction.Scale(line_scale * scale);
+    auto head_base = position + direction.Scale(line_scale * length);
 
     // Draw the line
-    draw_position.DrawLine(head_base, color);
+    position.DrawLine(head_base, color);
 
     // Calculate points for the arrowhead
-    float head_width = scale * head_scale / 2.f;
+    float head_width = length * head_scale / 2.f;
     raylib::Vector2 perpendicular(-direction.y, direction.x);
     auto head_left = head_base + perpendicular.Scale(head_width);
     auto head_right = head_base - perpendicular.Scale(head_width);
@@ -88,14 +89,13 @@ public:
 
   raylib::Vector2 sample() const { return _sample; }
   float sample_potencial() const { return _sample_potencial; }
-  int id() const { return ID; }
 
   bool contains(const raylib::Vector2 &point) const {
-    return (point - (*_position)()).Length() < radius / GLOBAL_SCALE;
+    return (point - (*_position)()).Length() < radius;
   }
 
   float radius;
-  float scale = 50.f;
+  float length = 50.f;
 
 private:
   std::unique_ptr<Position> _position;
@@ -103,8 +103,6 @@ private:
   raylib::Vector2 _sample;
   float _sample_potencial;
   int _id;
-
-  static int ID;
 
   friend struct std::formatter<Probe>;
 };

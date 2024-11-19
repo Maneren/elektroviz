@@ -10,37 +10,37 @@ namespace views = std::views;
 namespace ranges = std::ranges;
 
 void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
+  accent_color.DrawRectangle(
+      position - raylib::Vector2{1.f, 1.f}, size + raylib::Vector2{2.f, 2.f}
+  );
   background_color.DrawRectangle(position, size);
 
   auto vertical_midpoint = position.y + size.y / 2.f;
   auto right_edge = position.x + size.x;
 
-  raylib::Color::Black().DrawLine(
+  accent_color.DrawLine(
       {position.x, vertical_midpoint}, {right_edge, vertical_midpoint}
   );
 
   auto row_maxes = data | views::transform([](auto &row) {
-                     if (std::get<1>(row).empty())
+                     auto row_data = std::get<1>(row);
+                     if (row_data.empty())
                        return 0.f;
-                     auto [min_it, max_row] = ranges::minmax(std::get<1>(row));
+                     auto [min_it, max_row] = ranges::minmax(row_data);
                      return std::max(std::abs(min_it), max_row);
                    });
-  float max = ranges::max(row_maxes) * 3.f;
+  float max = ranges::max(row_maxes) * 2.8f;
 
   auto display_max = max * K_E;
 
   auto top_text = std::format(" {:.2g} N/C", display_max);
   raylib::DrawText(
-      top_text, position.x + 5.f, position.y, FONT_SIZE, raylib::Color::Black()
+      top_text, position.x + 5.f, position.y, FONT_SIZE, accent_color
   );
 
   auto middle_text = std::string{" 0"};
   raylib::DrawText(
-      middle_text,
-      position.x + 5.f,
-      vertical_midpoint,
-      FONT_SIZE,
-      raylib::Color::Black()
+      middle_text, position.x + 5.f, vertical_midpoint, FONT_SIZE, accent_color
   );
 
   auto bottom_text = std::format("-{:.2g} N/C", display_max);
@@ -49,7 +49,7 @@ void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
       position.x + 5.f,
       position.y + size.y - FONT_SIZE,
       FONT_SIZE,
-      raylib::Color::Black()
+      accent_color
   );
 
   auto right_text = std::string{"30 s"};
@@ -58,7 +58,7 @@ void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
       right_edge - 5.f - raylib::MeasureText(right_text, FONT_SIZE),
       position.y + size.y - FONT_SIZE,
       FONT_SIZE,
-      raylib::Color::Black()
+      accent_color
   );
 
   std::vector<raylib::Vector2> draw_buffer;
