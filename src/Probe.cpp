@@ -1,7 +1,6 @@
 #include "Probe.hpp"
 #include "Charge.hpp"
 #include "Vector2.hpp"
-#include "defs.hpp"
 #include "field.hpp"
 #include <span>
 

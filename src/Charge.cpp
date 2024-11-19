@@ -21,14 +21,17 @@ void Charge::update(
 
 void Charge::draw() const {
   auto radius = draw_radius();
+  auto screen_position = world_to_screen(_position);
+
   // outline
-  world_to_screen(_position).DrawCircle(radius, raylib::Color::RayWhite());
+  screen_position.DrawCircle(radius, raylib::Color::RayWhite());
 
   auto color = lerpColor3(
       NEGATIVE, raylib::Color::LightGray(), POSITIVE, sigmoid(_strength * 2.f)
   );
 
-  world_to_screen(_position).DrawCircle(radius - 1, color);
+  // fill
+  screen_position.DrawCircle(radius - 1, color);
 }
 
 BoundingRectangle Charge::bounding_square() const {

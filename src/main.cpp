@@ -107,6 +107,51 @@ raylib::Vector2 get_mouse_in_world(raylib::Camera2D camera) {
   return screen_to_world(camera.GetScreenToWorld(raylib::Mouse::GetPosition()));
 }
 
+void update_background(
+    raylib::Image &background_image,
+    raylib::Texture &background_texture,
+    const float zoom,
+    const raylib::Vector2 world_center,
+    const std::span<Charge> charges
+) {
+  // SAFETY: the image is internally an array of raylib::Colors, so it's
+  // safe to treat it as such
+  auto background_pixels = std::span(
+      static_cast<raylib::Color *>(background_image.data),
+      background_image.width * background_image.height
+  );
+
+  // SAFETY: each thread will access independent portion of the image
+  parallel::for_each<raylib::Color>(
+      background_pixels,
+      [&background_image, &charges, zoom, world_center](
+          const auto i, auto &pixel
+      ) {
+        auto x = i % background_image.width;
+        auto y = i / background_image.width;
+
+        auto x_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * x);
+        auto y_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * y);
+        auto position =
+            screen_to_world(raylib::Vector2{x_screen, y_screen}, zoom) +
+            world_center;
+
+        auto potencial = field::potential(position, charges) / 2.f;
+
+        auto normalized = sigmoid(potencial);
+
+        pixel = lerpColor3(
+            Charge::NEGATIVE,
+            raylib::Color::Black(),
+            Charge::POSITIVE,
+            normalized
+        );
+      }
+  );
+
+  background_texture.Update(background_image.data);
+}
+
 int main(int argc, char const *argv[]) {
   std::string scenario = "0.json";
   if (argc > 1) {
@@ -215,6 +260,24 @@ int main(int argc, char const *argv[]) {
 
   Charge *selected_charge;
 
+  auto resize_grid = [&] {
+    grid.resize(
+        screen_size / camera.GetZoom(),
+        grid_spacing / camera.GetZoom(),
+        camera.GetTarget()
+    );
+  };
+
+  auto resize_plot = [&] {
+    plot.resize(
+        {screen_size.x * 0.3f, 0.0}, {screen_size.x * 0.7f, screen_size.y / 4.f}
+    );
+  };
+
+  auto recalculate_zoom = [&] {
+    camera.SetZoom(calculate_zoom(charges, probe, screen_size) * zoom_modifier);
+  };
+
   // Main game loop
   while (!w.ShouldClose()) // Detect window close button or ESC key
   {
@@ -242,22 +305,16 @@ int main(int argc, char const *argv[]) {
     auto button_active =
         fast_button_active || slow_button_active || normal_speed_button_active;
 
-    auto frameTime = w.GetFrameTime();
-    time += frameTime * simulation_speed;
+    auto frameTime = w.GetFrameTime() * simulation_speed;
+    time += frameTime;
 
     auto scroll = raylib::Mouse::GetWheelMove();
 
     if (std::abs(scroll) > 0) {
       zoom_modifier = std::clamp(zoom_modifier + scroll * 0.05f, 0.5f, 3.f);
-      camera.SetZoom(
-          calculate_zoom(charges, probe, screen_size) * zoom_modifier
-      );
+      recalculate_zoom();
       half_world_size = screen_to_world(half_screen_size, camera.GetZoom());
-      grid.resize(
-          screen_size / camera.GetZoom(),
-          grid_spacing / camera.GetZoom(),
-          camera.GetTarget()
-      );
+      resize_grid();
     }
 
     if (raylib::Mouse::IsButtonDown(MOUSE_BUTTON_MIDDLE)) {
@@ -284,11 +341,7 @@ int main(int argc, char const *argv[]) {
       camera.SetTarget(
           Vector2ClampValue(Vector2Add(camera.GetTarget(), delta), 0.f, 800.f)
       );
-      grid.resize(
-          screen_size / camera.GetZoom(),
-          grid_spacing / camera.GetZoom(),
-          camera.GetTarget()
-      );
+      resize_grid();
     }
 
     if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT) && !button_active) {
@@ -321,15 +374,8 @@ int main(int argc, char const *argv[]) {
               camera.GetTarget(),
               raylib::Vector2{0.f, -half_screen_size.y / 4.f}
           ));
-          grid.resize(
-              screen_size / camera.GetZoom(),
-              grid_spacing / camera.GetZoom(),
-              camera.GetTarget()
-          );
-          plot.resize(
-              {screen_size.x * 0.3f, 0.0},
-              {screen_size.x * 0.7f, screen_size.y / 4.f}
-          );
+          resize_grid();
+          resize_plot();
         }
       }
     }
@@ -338,9 +384,7 @@ int main(int argc, char const *argv[]) {
       screen_size = w.GetSize();
       half_screen_size = screen_size / 2.f;
 
-      camera.SetZoom(
-          calculate_zoom(charges, probe, screen_size) * zoom_modifier
-      );
+      recalculate_zoom();
 
       half_world_size = screen_to_world(half_screen_size, camera.GetZoom());
 
@@ -348,16 +392,8 @@ int main(int argc, char const *argv[]) {
       camera.SetOffset(half_screen_size);
       camera.SetZoom(camera.GetZoom());
 
-      grid.resize(
-          screen_size / camera.GetZoom(),
-          grid_spacing / camera.GetZoom(),
-          camera.GetTarget()
-      );
-
-      plot.resize(
-          {screen_size.x * 0.3f, 0.0},
-          {screen_size.x * 0.7f, screen_size.y / 4.f}
-      );
+      resize_grid();
+      resize_plot();
 
       background_texture.Unload();
 
@@ -385,44 +421,13 @@ int main(int argc, char const *argv[]) {
 
     // field_lines.update(charges, camera.GetZoom(), camera.GetTarget());
 
-    // SAFETY: the image is internally an array of raylib::Colors, so it's
-    // safe to treat it as such
-    auto background_pixels = std::span(
-        static_cast<raylib::Color *>(background_image.data),
-        background_image.width * background_image.height
+    update_background(
+        background_image,
+        background_texture,
+        camera.GetZoom(),
+        -half_world_size + screen_to_world(camera.GetTarget()),
+        std::span(charges)
     );
-
-    // SAFETY: each thread will access independent portion of the image
-    parallel::for_each<raylib::Color>(
-        background_pixels,
-        [&background_image,
-         &charges,
-         zoom = camera.GetZoom(),
-         target = screen_to_world(camera.GetTarget()),
-         half_world_size](const auto i, auto &pixel) {
-          auto x = i % background_image.width;
-          auto y = i / background_image.width;
-
-          auto x_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * x);
-          auto y_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * y);
-          auto position =
-              screen_to_world(raylib::Vector2{x_screen, y_screen}, zoom) -
-              half_world_size + target;
-
-          auto potencial = field::potential(position, charges) / 2.f;
-
-          auto normalized = sigmoid(potencial);
-
-          pixel = lerpColor3(
-              Charge::NEGATIVE,
-              raylib::Color::Black(),
-              Charge::POSITIVE,
-              normalized
-          );
-        }
-    );
-
-    background_texture.Update(background_image.data);
 
     // Draw
     w.BeginDrawing();
