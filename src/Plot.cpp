@@ -1,5 +1,6 @@
 #include "Plot.hpp"
 #include "Color.hpp"
+#include "Vector2.hpp"
 #include "defs.hpp"
 #include <algorithm>
 #include <format>
@@ -9,57 +10,135 @@
 namespace views = std::views;
 namespace ranges = std::ranges;
 
-void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
-  accent_color.DrawRectangle(
-      position - raylib::Vector2{1.f, 1.f}, size + raylib::Vector2{2.f, 2.f}
-  );
-  background_color.DrawRectangle(position, size);
+float row_maxes(auto &data) {
+  return ranges::max(data | views::transform([](auto &row) {
+                       auto row_data = std::get<1>(row);
+                       if (row_data.empty())
+                         return 0.f;
+                       auto [min_it, max_row] = ranges::minmax(row_data);
+                       return std::max(std::abs(min_it), max_row);
+                     }));
+}
 
-  auto vertical_midpoint = position.y + size.y / 2.f;
-  auto right_edge = position.x + size.x;
+void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
+  auto border = raylib::Vector2{2.f, 2.f};
+  accent_color.DrawRectangle(position, size);
+  background_color.DrawRectangle(position + border, size - border * 2.f);
+
+  auto font_size = FONT_SIZE * 2 / 3;
+  auto inner_size = size - raylib::Vector2{3.f * border.x, border.y};
+  auto graph_size = inner_size - raylib::Vector2{
+                                     static_cast<float>(font_size) + border.x,
+                                     static_cast<float>(2 * font_size)
+                                 };
+
+  auto top_edge = position.y + border.y;
+  auto left_edge = position.x + border.x;
+  auto inner_left_edge = left_edge + border.x + font_size;
+  auto right_edge = position.x + size.x - border.x;
+  auto bottom_edge = top_edge + inner_size.y;
+  auto vertical_midpoint = (top_edge + bottom_edge) / 2.f;
+  auto horizontal_midpoint = (inner_left_edge + right_edge) / 2.f;
 
   accent_color.DrawLine(
-      {position.x, vertical_midpoint}, {right_edge, vertical_midpoint}
+      {inner_left_edge, vertical_midpoint}, {right_edge, vertical_midpoint}, 2
+  );
+  DrawTriangle(
+      {right_edge + border.x, vertical_midpoint},
+      {right_edge - 10.f, vertical_midpoint - 5.f},
+      {right_edge - 10.f, vertical_midpoint + 5.f},
+      accent_color
+  );
+  accent_color.DrawLine(
+      {inner_left_edge, vertical_midpoint / 2.f},
+      {right_edge, vertical_midpoint / 2.f}
+  );
+  accent_color.DrawLine(
+      {inner_left_edge, vertical_midpoint * 1.5f},
+      {right_edge, vertical_midpoint * 1.5f}
   );
 
-  auto row_maxes = data | views::transform([](auto &row) {
-                     auto row_data = std::get<1>(row);
-                     if (row_data.empty())
-                       return 0.f;
-                     auto [min_it, max_row] = ranges::minmax(row_data);
-                     return std::max(std::abs(min_it), max_row);
-                   });
-  float max = ranges::max(row_maxes) * 2.8f;
+  accent_color.DrawLine(
+      {inner_left_edge, top_edge}, {inner_left_edge, bottom_edge}, 2
+  );
+  DrawTriangle(
+      {inner_left_edge, top_edge - border.y},
+      {inner_left_edge - 5.f, top_edge + 10.f},
+      {inner_left_edge + 5.f, top_edge + 10.f},
+      accent_color
+  );
+
+  // auto row_data = std::get<1>(row),
+  //      [ min_it, max_row ] = ranges::minmax(row_data);
+
+  float max = row_maxes(data) * 2.f;
 
   auto display_max = max * K_E;
 
-  auto top_text = std::format(" {:.2g} N/C", display_max);
+  auto y_max_value_text = std::format(" {:.2g} N/C", display_max);
   raylib::DrawText(
-      top_text, position.x + 5.f, position.y, FONT_SIZE, accent_color
-  );
-
-  auto middle_text = std::string{" 0"};
-  raylib::DrawText(
-      middle_text, position.x + 5.f, vertical_midpoint, FONT_SIZE, accent_color
-  );
-
-  auto bottom_text = std::format("-{:.2g} N/C", display_max);
-  raylib::DrawText(
-      bottom_text,
-      position.x + 5.f,
-      position.y + size.y - FONT_SIZE,
-      FONT_SIZE,
+      y_max_value_text,
+      inner_left_edge + 5.f,
+      top_edge + 5.f,
+      font_size,
       accent_color
   );
 
-  auto right_text = std::string{"30 s"};
+  auto y_zero_text = std::string{"0"};
   raylib::DrawText(
-      right_text,
-      right_edge - 5.f - raylib::MeasureText(right_text, FONT_SIZE),
-      position.y + size.y - FONT_SIZE,
-      FONT_SIZE,
+      y_zero_text,
+      inner_left_edge + 5.f,
+      vertical_midpoint + 2.f,
+      font_size,
       accent_color
   );
+
+  auto y_min_value_text = std::format("-{:.2g} N/C", display_max);
+  raylib::DrawText(
+      y_min_value_text,
+      inner_left_edge + 5.f,
+      bottom_edge - font_size,
+      font_size,
+      accent_color
+  );
+
+  auto x_axis_label = std::string{"time [s]"};
+  raylib::DrawText(
+      x_axis_label,
+      horizontal_midpoint - raylib::MeasureText(x_axis_label, font_size),
+      bottom_edge - font_size,
+      font_size,
+      accent_color
+  );
+
+  auto y_axis_label = std::string{"E [N/C]"};
+  raylib::DrawTextPro(
+      Font(),
+      y_axis_label,
+      {left_edge + 1.f, vertical_midpoint},
+      {raylib::MeasureText(y_axis_label, font_size) / 2.f, 0.f},
+      -90.f,
+
+      font_size,
+      1.f,
+      accent_color
+  );
+
+  // draw small vertical lines seperating thirds with te4xt denoting that
+  // they represent 1/3 of the total time
+  for (int i = 0; i < 3; i++) {
+    auto x = inner_left_edge + graph_size.x / 3.f * (i + 1);
+    accent_color.DrawLine(x, top_edge, x, bottom_edge);
+    auto text = std::format("{}", (i + 1) * 10);
+    auto text_width = raylib::MeasureText(text, font_size);
+    raylib::DrawText(
+        text,
+        x - text_width - 5.f,
+        bottom_edge - font_size,
+        font_size,
+        accent_color
+    );
+  }
 
   std::vector<raylib::Vector2> draw_buffer;
   draw_buffer.reserve(resolution);
@@ -71,8 +150,8 @@ void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
     // start at right edge and add points to the buffer
     for (auto [i, value] :
          row_data | views::as_const | views::reverse | views::enumerate) {
-      auto draw_value = size.y * value / max;
-      auto x_offset = size.x * (i + offset) / resolution;
+      auto draw_value = graph_size.y * value / max;
+      auto x_offset = graph_size.x * (i + offset) / resolution;
       draw_buffer.emplace_back(
           right_edge - x_offset, vertical_midpoint - draw_value
       );

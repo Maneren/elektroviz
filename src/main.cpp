@@ -190,11 +190,10 @@ int main(int argc, char const *argv[]) {
 
   std::vector<raylib::Color> user_probe_colors{
       raylib::Color::Yellow(),
-      raylib::Color::Purple(),
       raylib::Color::Magenta(),
       raylib::Color::SkyBlue(),
-      raylib::Color::Brown(),
       raylib::Color::Red(),
+      raylib::Color::Purple(),
   };
   std::vector<std::optional<Probe>> user_probes{};
 
@@ -248,7 +247,7 @@ int main(int argc, char const *argv[]) {
 
   auto resize_plot = [&] {
     plot.resize(
-        {screen_size.x * 0.3f, 0.0}, {screen_size.x * 0.7f, screen_size.y / 4.f}
+        {screen_size.x * 0.4f, 0.0}, {screen_size.x * 0.6f, screen_size.y / 4.f}
     );
   };
 
