@@ -92,12 +92,12 @@ void Grid::resize(
 }
 
 void Grid::draw() const {
-  for (auto &line : lines) {
-    line.draw();
-  }
-
   for (auto &probe : probes) {
     probe.draw<true>();
+  }
+
+  for (auto &line : lines) {
+    line.draw();
   }
 }
 
