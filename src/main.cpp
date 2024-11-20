@@ -205,7 +205,7 @@ int main(int argc, char const *argv[]) {
       SCREEN_WIDTH,
       SCREEN_HEIGHT,
       "ELEKTROVIZ - A simple visualizer of an electric field",
-      FLAG_MSAA_4X_HINT | FLAG_WINDOW_RESIZABLE
+      FLAG_WINDOW_RESIZABLE
   );
 
   w.SetTargetFPS(60);
