@@ -15,6 +15,7 @@
 #include <Functions.hpp>
 #include <Image.hpp>
 #include <Keyboard.hpp>
+#include <Matrix.hpp>
 #include <Mouse.hpp>
 #include <Rectangle.hpp>
 #include <Texture.hpp>
@@ -105,26 +106,27 @@ void update_background(
       background_image.width * background_image.height
   );
 
+  auto camera_matrix = raylib::Matrix{camera.GetMatrix()}.Invert();
+
   // SAFETY: each thread will access independent portion of the image
   parallel::for_each<raylib::Color>(
       background_pixels,
-      [&background_image, &charges, &camera](const auto i, auto &pixel) {
+      [&background_image, &charges, &camera_matrix](const auto i, auto &pixel) {
         auto x = i % background_image.width;
         auto y = i / background_image.width;
 
         auto x_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * x);
         auto y_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * y);
-        auto position = camera.GetScreenToWorld({x_screen, y_screen});
+        auto position =
+            raylib::Vector2{x_screen, y_screen}.Transform(camera_matrix);
 
         auto potencial = field::potential(position, charges) / 2.f;
-
-        auto normalized = sigmoid(potencial);
 
         pixel = lerpColor3(
             Charge::NEGATIVE,
             raylib::Color::Black(),
             Charge::POSITIVE,
-            normalized
+            sigmoid(potencial)
         );
       }
   );
