@@ -302,7 +302,7 @@ int main(int argc, char const *argv[]) {
       plot.update(frameTime, time, user_probes);
     }
 
-    field_lines.update(charges, camera.target);
+    field_lines.update(charges, camera.GetScreenToWorld(wanted_target));
 
     update_background(
         background_image, background_texture, camera, std::span(charges)

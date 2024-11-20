@@ -36,8 +36,6 @@ FieldLines::Line calculate_line(
     const float direction,
     const raylib::Vector2 target
 ) {
-  //  PERF: this is slow as hell, because if unzoomed it has to render more than
-  //  hundred thousand points
   constexpr size_t STEPS = 1000;
 
   std::vector<Vector2> points;
@@ -51,10 +49,10 @@ FieldLines::Line calculate_line(
     points.push_back(position);
 
     auto sample = field_function(position) * direction;
-    auto next_position = position + sample.Scale(5.f / sample.Length());
+    auto next_position = position + sample.Scale(2.f / sample.Length());
 
     // Stop if next_position is too far from camera
-    if ((next_position - target).LengthSqr() > 1000.f) {
+    if ((next_position - target).LengthSqr() > 20e6f) {
       break;
     }
 
@@ -83,7 +81,7 @@ void FieldLines::update(
   auto end_point_function = [charges](raylib::Vector2 point
                             ) -> std::optional<raylib::Vector2> {
     auto charge = std::ranges::find_if(charges, [point](auto &charge) {
-      return point.CheckCollision(charge.position(), 0.01f);
+      return point.CheckCollision(charge.position(), 1.f);
     });
     return charge != charges.end() ? std::optional(charge->position())
                                    : std::nullopt;
@@ -100,7 +98,7 @@ void FieldLines::update(
     // Start with slight offset to align less with axis and other charges
     float initial_angle_offset = 0.1f;
 
-    auto offset = raylib::Vector2{0.f, 0.01f}.Rotate(initial_angle_offset);
+    auto offset = raylib::Vector2{0.f, 5.f}.Rotate(initial_angle_offset);
 
     for (size_t j = 0; j < lines_per_charge; ++j) {
       offset = offset.Rotate(2 * std::numbers::pi_v<float> / lines_per_charge);
