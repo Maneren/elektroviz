@@ -1,3 +1,4 @@
+#pragma once
 #include <ThreadPool.h>
 #include <algorithm>
 #include <functional>
@@ -31,7 +32,7 @@ void for_each(
     bool use_threads = true
 );
 
-static auto pool = ThreadPool(std::thread::hardware_concurrency());
+static ThreadPool pool{std::thread::hardware_concurrency()};
 
 /// @param span : a span containing target elements
 /// @param functor(index, item) :
