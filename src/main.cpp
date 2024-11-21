@@ -2,12 +2,12 @@
 #include "Charge.hpp"
 #include "FieldLine.hpp"
 #include "Grid.hpp"
+#include "HeatMap.hpp"
 #include "Plot.hpp"
 #include "Position.hpp"
 #include "Probe.hpp"
 #include "defs.hpp"
 #include "field.hpp"
-#include "parallel.hpp"
 #include "raymath.h"
 #include "utils.hpp"
 #include <Camera2D.hpp>
@@ -91,47 +91,6 @@ void load_charges_from_json(std::vector<Charge> &charges, nlohmann::json data) {
 
 raylib::Vector2 get_mouse_in_world(raylib::Camera2D camera) {
   return camera.GetScreenToWorld(raylib::Mouse::GetPosition());
-}
-
-void update_background(
-    raylib::Image &background_image,
-    raylib::Texture &background_texture,
-    const raylib::Camera2D &camera,
-    const std::span<Charge> charges
-) {
-  // SAFETY: the image is internally an array of raylib::Colors, so it's
-  // safe to treat it as such
-  auto background_pixels = std::span(
-      static_cast<raylib::Color *>(background_image.data),
-      background_image.width * background_image.height
-  );
-
-  auto camera_matrix = raylib::Matrix{camera.GetMatrix()}.Invert();
-
-  // SAFETY: each thread will access independent portion of the image
-  parallel::for_each<raylib::Color>(
-      background_pixels,
-      [&background_image, &charges, &camera_matrix](const auto i, auto &pixel) {
-        auto x = i % background_image.width;
-        auto y = i / background_image.width;
-
-        auto x_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * x);
-        auto y_screen = static_cast<float>(BACKGROUND_SUBSAMPLING * y);
-        auto position =
-            raylib::Vector2{x_screen, y_screen}.Transform(camera_matrix);
-
-        auto potencial = field::potential(position, charges) / 2.f;
-
-        pixel = lerpColor3(
-            Charge::NEGATIVE,
-            raylib::Color::Black(),
-            Charge::POSITIVE,
-            sigmoid(potencial)
-        );
-      }
-  );
-
-  background_texture.Update(background_image.data);
 }
 
 int main(int argc, char const *argv[]) {
@@ -224,12 +183,14 @@ int main(int argc, char const *argv[]) {
 
   FieldLines field_lines{LINES_PER_CHARGE};
 
-  raylib::Image background_image = raylib::Image::Color(
-      SCREEN_WIDTH / BACKGROUND_SUBSAMPLING,
-      SCREEN_HEIGHT / BACKGROUND_SUBSAMPLING,
-      raylib::Color::Black()
-  );
-  auto background_texture = raylib::Texture2D(background_image);
+  HeatMap background{
+      raylib::Vector2{0, 0},
+      screen_size / BACKGROUND_SUBSAMPLING,
+      Charge::POSITIVE,
+      raylib::Color::Black(),
+      Charge::NEGATIVE,
+      static_cast<float>(BACKGROUND_SUBSAMPLING)
+  };
 
   auto simulation_speed = 1.f;
   auto time = 0.0;
@@ -278,12 +239,7 @@ int main(int argc, char const *argv[]) {
       resize_grid();
       resize_plot();
 
-      background_texture.Unload();
-
-      auto background_size = screen_size / BACKGROUND_SUBSAMPLING;
-      background_image.Resize(background_size.x, background_size.y);
-
-      background_texture = raylib::Texture2D(background_image);
+      background.resize(screen_size / BACKGROUND_SUBSAMPLING);
     }
 
     // Update
@@ -304,18 +260,25 @@ int main(int argc, char const *argv[]) {
 
     field_lines.update(charges, camera.GetScreenToWorld(wanted_target));
 
-    update_background(
-        background_image, background_texture, camera, std::span(charges)
-    );
+    auto reverse_camera_matrix = raylib::Matrix(camera.GetMatrix()).Invert();
+
+    background.update([&](int x, int y) {
+      auto x_pos = static_cast<float>(x * BACKGROUND_SUBSAMPLING);
+      auto y_pos = static_cast<float>(y * BACKGROUND_SUBSAMPLING);
+
+      auto position =
+          raylib::Vector2{x_pos, y_pos}.Transform(reverse_camera_matrix);
+
+      return sigmoid(field::potential(position, charges));
+    });
 
     // Draw
     w.BeginDrawing();
 
-    background_texture.Draw(
-        {0.f, 0.f}, 0.f, static_cast<float>(BACKGROUND_SUBSAMPLING)
-    );
+    background.draw();
 
     camera.BeginMode();
+
     grid.draw();
     field_lines.draw();
     for (auto &charge : charges) {
