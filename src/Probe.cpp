@@ -13,7 +13,3 @@ void Probe::update(
   _sample = field::E((*_position)(), charges);
   _sample_potencial = field::potential((*_position)(), charges);
 }
-
-BoundingRectangle Probe::bounding_square() const {
-  return _position->bounding_rectangle();
-}

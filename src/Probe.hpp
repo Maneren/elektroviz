@@ -1,5 +1,4 @@
 #pragma once
-#include "BoundingRectangle.hpp"
 #include "Charge.hpp"
 #include "Position.hpp"
 #include "defs.hpp"
@@ -34,8 +33,6 @@ public:
       const double elapsedTime,
       const std::span<Charge> &charges
   );
-
-  BoundingRectangle bounding_square() const;
 
   template <const bool ONLY_ARROW = false> void draw() const {
     auto position = (*_position)();

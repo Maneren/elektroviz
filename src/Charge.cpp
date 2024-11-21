@@ -34,11 +34,6 @@ void Charge::draw() const {
   screen_position.DrawCircle(radius - 1, color);
 }
 
-BoundingRectangle Charge::bounding_square() const {
-  raylib::Vector2 half_size{50, 50};
-  return {_position - half_size, half_size * 2.f};
-}
-
 raylib::Vector2 Charge::E(const raylib::Vector2 &point) const {
   auto direction = (point - _position);
   auto distance = direction.Length();

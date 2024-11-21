@@ -1,4 +1,3 @@
-#include "BoundingRectangle.hpp"
 #include "Charge.hpp"
 #include "FieldLine.hpp"
 #include "Grid.hpp"
