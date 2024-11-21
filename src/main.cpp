@@ -25,6 +25,7 @@
 #include <fstream>
 #include <functional>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <nlohmann/json.hpp>
 #include <optional>
@@ -201,7 +202,7 @@ int main(int argc, char const *argv[]) {
       raylib::Color::RayWhite()
   );
 
-  Charge *selected_charge;
+  std::optional<int> selected_charge_idx = std::nullopt;
 
   auto resize_grid = [&] { grid.resize(screen_size, grid_spacing, camera); };
 
@@ -360,20 +361,22 @@ int main(int argc, char const *argv[]) {
     if (raylib::Mouse::IsButtonDown(MOUSE_BUTTON_MIDDLE) && !button_active) {
       auto mouse_in_world = get_mouse_in_world(camera);
 
-      if (!selected_charge) {
-        selected_charge = &*ranges::find_if(
-            charges | views::reverse,
+      if (!selected_charge_idx) {
+        auto reversed_charges = charges | views::reverse;
+        auto selected_charge = ranges::find_if(
+            reversed_charges,
             std::bind(&Charge::contains, placeholders::_1, mouse_in_world)
         );
-      }
 
-      if (selected_charge != &*charges.begin() - 1) {
-        selected_charge->position(mouse_in_world);
+        if (selected_charge != reversed_charges.end()) {
+          selected_charge_idx =
+              std::distance(charges.begin(), selected_charge.base() - 1);
+        }
       } else {
-        selected_charge = nullptr;
+        charges[*selected_charge_idx].position(mouse_in_world);
       }
     } else {
-      selected_charge = nullptr;
+      selected_charge_idx = std::nullopt;
     }
 
     if (raylib::Mouse::IsButtonDown(MOUSE_BUTTON_RIGHT) && !button_active) {
