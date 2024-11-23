@@ -51,7 +51,7 @@
 \noindent
 Západočeská univerzita v Plzni \hfill Pavel Altmann - A23B0264P\\
 Katedra informatiky a výpočetní techniky \hfill 1. odevzdání\\
-Stráveno hodin: 80 \hfill \today
+Stráveno hodin: 95 \hfill \today
 \thispagestyle{empty}
 
 \newpage
@@ -112,11 +112,12 @@ knihovny \href{https://www.raylib.com/}{Raylib} verze 5.5.
 
 \subsection{Architektura}
 
-Program využívá OOP architekturu, kde každý grafický prvek je uzavřený do své
-třídy a zodpovědný za veškeré výpočty a kreslení, které se ho týkají. Funkce
-main má na starost pouze počáteční nastavení a následné předávání událostí
-(nový snímek, změna velikosti okna, apod.) objektům. Některé objekty jako
-součást obsahují další podobjekty a potom mají na starost předávání událostí.
+Program využívá OOP architekturu, kde každý grafický a logický prvek je uzavřený
+do své třídy a zodpovědný za veškeré výpočty a kreslení, které se ho týkají.
+Funkce \code{main} má na starost pouze počáteční nastavení a následné předávání
+událostí (nový snímek, změna velikosti okna, apod.) objektům. Některé objekty
+jako součást obsahují další objekty a potom mají na starost jim události
+předávat.
 
 \subsection{Objekty}
 
@@ -125,7 +126,7 @@ zodpovědná za přepočítání vlastností objektu v závislosti na čase, pop
 vlastností jiných objektů (např. sonda mění polohu podle času a naměřenou
 hodnotu podle síly a polohy nábojů).
 
-Každý zde popsaný objekt se nachází ve svém vlastním souboru
+Každý zde popsaný objekt se nachází ve svém vlastním souboru.
 
 \subsubsection{\code{Charge}}
 
@@ -134,23 +135,25 @@ Reprezentuje v simulaci jeden náboj.
 Velikost náboje může být buď konstantní nebo proměnlivá v čase - reprezentováno
 třídami \code{StaticStrength} a \code{VariableStrength}. 
 
-Vykresluje se jako kruh, jehož plocha je přímo úměrná velikosti náboje. Dále má
-bílé ohraničení a barvu výplně reprezentující velikost náboje - červená 5 C a více,
-modrou 5 C a méně a lineární interpolaci přes tmavě šedou pro hodnoty mezi tím.
+Vykresluje se jako kruh, jehož plocha (nikoliv průměr) je přímo úměrná velikosti
+náboje. Dále má bílé ohraničení a barvu výplně reprezentující velikost náboje -
+červená 5 C a více, modrou 5 C a méně a lineární interpolaci přes tmavě šedou
+pro hodnoty mezi tím.
 
 \subsubsection{\code{Probe}}
 
 Reprezentuje v simulaci elektrickou sondu.
 
-Může být buď otáčivě pohyblivá nebo statická (využití v třídě \code{Grid}) -
-reprezentováno třídami \code{Static}, \code{Rotating} ze jmenného prostředí
-\code{position}.
+Může být buď statická nebo otáčivě pohyblivá - reprezentováno třídami
+\code{Static}, resp. \code{Rotating} ze jmenného prostředí \code{position}.
 
-Vykresluje se jako šipka reprezentující směr a sílu el. pole v daném bodě.
-Délka šipky odpovídá binárnímu logaritmu normy vektoru el. pole namísto přímé
-úměry, neboť ta se pohybuje v rozmezí několika řádů a tedy je buď velmi malá
-nebo větší než celá obrazovka. Zárověň je volitelně může zobrazovat text s
-numerickou velikostí intenzity ve vědecké notaci.
+Vykresluje se jako šipka reprezentující směr. Délka šipky je pro přehlednost
+pevně daná, protože pokusy s proměnnou délkou v závislosti na intenzitě pole se
+neosvědčili. Intenzita se pohybuje v rozmezí několika řádů a velikost se tedy
+pohybovala od sotva viditelné po více než 3 obrazovky dlouhé.
+
+Zároveň může sonda volitelně zobrazovat text s numerickou velikostí intenzity ve
+vědecké notaci.
 
 \subsubsection{\code{Grid}}
 
@@ -158,29 +161,41 @@ Představuje mřížku na pozadí, včetně sond v jejích průsečících.
 
 Má nezávisle nastavitelné rozestupy mezi čárami v obou směrech v pixelech - ve
 výchozím nastavení to je 50x50. Je dobré nenastavovat příliš malé rozestupy,
-protože pak je jednak obraz nepřehledný a zároveň se velmi zvyšují nároky na
-výpočetní výkon.
+protože pak je jednak obraz nepřehledný a druhak se velmi zvyšují nároky na
+výpočetní výkon grafické karty.
 
-Pro zrychlení kreslení se čáry i sondy generují pouze při inicializaci a při
-změně rozměrů a jinak jsou uložené předpočítané v soukromých atributech třídy.
+Pro zrychlení kreslení se potřebné souřadnice čar i sond počítají pouze při
+inicializaci a změně rozměrů okna a jinak jsou uložené v soukromých atributech
+třídy.
 
 \subsection{Ostatní soubory}
 
 \subsubsection{\code{field}}
 
-Jmenné prostředí obsahuje funkce \code{E} a \code{potential}, počítající vektor,
-resp. potenciál elektrického pole v zadaném bodě.
+Jmenné prostředí obsahuje funkce \code{E} a \code{potential}, počítající vektor
+intezity, resp. skalární potenciál elektrického pole v zadaném bodě.
 
 \subsubsection{\code{utils}}
 
-Obsahuje pomocné funkce pro míchání barev \code{lerpColor} a \code{lerpColor3},
-funkci \code{sigmoid} pro počítání stejnjmenné matematické funkce a funkci
-\code{trim} pro odstranění bílých znaků z řetězce.
+Obsahuje pomocné funkce pro interpolaci barev \code{lerpColor} a \code{lerpColor3},
+funkci \code{sigmoid} pro počítání stejnojmenné matematické funkce a funkci
+\code{trim} pro odstranění počátečních a koncových bílých znaků z řetězce.
+
+\subsubsection{\code{BoundingRectangle}}
+
+Pomocná třída pro škálování.
+
+Umožnuje snadné spočítání nejmenšího obdélníku, který obsahuje všechny grafické
+objekty. Na základě jeho rozměrů se obraz škáluje, aby strany tohoto obdélníku 
+byly zhruba polovina okna.
 
 \subsubsection{\code{MathEval}}
 
 Sada funkcí pro vyhodnocovaní libovolných matematických výrazů, využívaná pro
 dynamicky nastavitelné vlastnosti. Další info patří do pozdějšího odevzdaní.
+
+\subsection{Algoritmy}
+
 
 \section{Ovládání programu}
 
@@ -192,24 +207,23 @@ Sestavení se provádí pomocí přiloženého \code{Makefile} příkazem \code{
 setup build}.
 
 Protože ale mnoho systémů nemá nainstalované hlavičkové soubory pro knihovnu X11
-(potřebné pro vývoj většiny grafických aplikací), má zastaralé verze překladačů
-(obzvlástě ty založené na Debianu), apod. zvolil jsem použití systému Docker.
-Sestavovací skript \code{./build.sh} vytvoří kontejner z přiloženého souboru
-\code{Dockerfile} a spustí ho. Ten spustí přiložený \code{Makefile}, který do
-složky \code{vendor} stáhne knihovny a vše sestaví do složky \code{build}.
-Skript pak ještě přesune výsledný spustitelný soubor do souboru
-\code{bin/elektroviz.new}.
+(potřebné pro vývoj většiny grafických aplikací), má zastaralé verze překladačů,
+apod. zvolil jsem použití systému Docker. Sestavovací skript \code{./build.sh}
+vytvoří kontejner z přiloženého souboru \code{Dockerfile} a spustí ho. Ten 
+spustí přiložený \code{Makefile}, který do složky \code{vendor} stáhne knihovny
+a vše sestaví do složky \code{build}. Skript pak ještě přesune výsledný
+spustitelný soubor do souboru \code{bin/elektroviz.new}.
 
 \subsection{Spuštění}
 
-Program přebírá z příkazové řádky parametr \code{scenario}. a volitelně
+Program přebírá z příkazové řádky parametr \code{scenario} a volitelně
 \code{spacing}. \code{scenario} Určuje který scénář má být spuštěn po zapnutí
-aplikace, při absenci parametru se použije scénář 0. a \code{spacing} určuje
-rozestupy mřízky na pozadí.
+aplikace, při absenci parametru se použije scénář 0. \code{spacing} určuje
+rozestupy mřízky na pozadí ve formátu \code{<width>x<height>}.
 
 \textbf{Důležité}: Program je nutné spustit ve stejné složce, v jaké se nechází
 složka \code{scenarios}, jinak nebude schopný načíst žadný z výchozích scénářů.
-Originálně je v \code{src} ale \code{./build.sh} jí pro snadnější manipulaci 
+Originálně je v \code{src} ale \code{./build.sh} jí pro snadnější manipulaci
 nakopíruje i do kořenové složky.
 
 \section{Limitace}
