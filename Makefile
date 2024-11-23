@@ -44,7 +44,7 @@ else
 endif
 
 buildName := release
-CXXFLAGS := -g0 -Ofast 
+CXXFLAGS := -g3 -Ofast 
 RAYLIB_BUILD_MODE := RELEASE
 
 DEBUG ?= 0
