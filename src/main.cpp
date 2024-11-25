@@ -387,7 +387,7 @@ int main(int argc, char const *argv[]) {
       resize_grid();
     }
 
-    if (raylib::Mouse::IsButtonPressed(MOUSE_BUTTON_LEFT) && !button_active) {
+    if (raylib::Mouse::IsButtonReleased(MOUSE_BUTTON_LEFT) && !button_active) {
       auto mouse_in_world = get_mouse_in_world(camera);
 
       if (raylib::Keyboard::IsKeyDown(KEY_LEFT_SHIFT) ||
