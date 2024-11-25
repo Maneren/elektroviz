@@ -19,6 +19,7 @@ public:
   void update(
       const float timeDelta,
       const double elapsedTime,
+      const float speed,
       const std::vector<std::optional<Probe>> &probe
   );
   void resize(const raylib::Vector2 position, const raylib::Vector2 size) {

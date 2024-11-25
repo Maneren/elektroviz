@@ -193,7 +193,7 @@ int main(int argc, char const *argv[]) {
   };
 
   auto simulation_speed = 1.f;
-  auto time = 0.0;
+  auto simulation_time = 0.0;
 
   Plot plot(
       {screen_size.x * 0.3f, 0.0},
@@ -221,7 +221,7 @@ int main(int argc, char const *argv[]) {
   while (!w.ShouldClose()) // Detect window close button or ESC key
   {
     auto frameTime = w.GetFrameTime() * simulation_speed;
-    time += frameTime;
+    simulation_time += frameTime;
 
     if (!wanted_target.Equals(camera.target)) {
       camera.target = (wanted_target / 5.f + camera.target) / (1.f / 5.f + 1);
@@ -244,18 +244,18 @@ int main(int argc, char const *argv[]) {
 
     // Update
     for (auto &charge : charges) {
-      charge.update(frameTime, time);
+      charge.update(frameTime, simulation_time);
     }
-    grid.update(frameTime, time, charges);
-    probe.update(frameTime, time, charges);
+    grid.update(frameTime, simulation_time, charges);
+    probe.update(frameTime, simulation_time, charges);
     if (!user_probes.empty()) {
       for (auto &user_probe : user_probes) {
         if (user_probe.has_value()) {
-          user_probe->update(frameTime, time, charges);
+          user_probe->update(frameTime, simulation_time, charges);
         }
       }
 
-      plot.update(frameTime, time, user_probes);
+      plot.update(frameTime, w.GetTime(), simulation_speed, user_probes);
     }
 
     field_lines.update(charges, camera.GetScreenToWorld(wanted_target));
@@ -343,7 +343,7 @@ int main(int argc, char const *argv[]) {
         fast_button_state || slow_button_state || normal_speed_button_state;
 
     raylib::DrawText(
-        std::format("Speed: {:.4g}", simulation_speed),
+        std::format("Speed: {:.4g}x", simulation_speed),
         text_pos_x,
         bottom_edge - FONT_SIZE - 5,
         FONT_SIZE,
