@@ -1,3 +1,4 @@
+#include "Button.hpp"
 #include "Charge.hpp"
 #include "FieldLine.hpp"
 #include "Grid.hpp"
@@ -7,6 +8,7 @@
 #include "Probe.hpp"
 #include "defs.hpp"
 #include "field.hpp"
+#include "raylib.h"
 #include "raymath.h"
 #include "utils.hpp"
 #include <Camera2D.hpp>
@@ -168,7 +170,7 @@ int main(int argc, char const *argv[]) {
   );
 
   w.SetMinSize(800, 600);
-  w.Maximize();
+  // w.Maximize();
 
   auto zoom_modifier = 1.f;
   raylib::Camera2D camera(half_screen_size, {0.f, 0.f}, 0.f, 1.f);
@@ -293,6 +295,69 @@ int main(int argc, char const *argv[]) {
     }
 
     camera.EndMode();
+
+    {
+      auto gradient_height = 60.f;
+      raylib::Rectangle{
+          screen_size.x * 0.5f,
+          screen_size.y - gradient_height - 5.f,
+          screen_size.x * 0.2f,
+          gradient_height
+      }
+          .DrawGradientH(Charge::NEGATIVE, raylib::Color::Black());
+
+      raylib::Rectangle{
+          screen_size.x * 0.7f,
+          screen_size.y - gradient_height - 5.f,
+          screen_size.x * 0.2f,
+          gradient_height
+      }
+          .DrawGradientH(raylib::Color::Black(), Charge::POSITIVE);
+
+      raylib::DrawText(
+          std::format("-1E10"),
+          screen_size.x * 0.5f + 5.f,
+          screen_size.y - gradient_height,
+          FONT_SIZE_SMALL,
+          raylib::Color::RayWhite()
+      );
+
+      raylib::DrawText(
+          "0",
+          screen_size.x * 0.7f,
+          screen_size.y - gradient_height,
+          FONT_SIZE_SMALL,
+          raylib::Color::RayWhite()
+      );
+
+      auto mid_text = std::format("Electric potential [N/C]");
+      raylib::DrawText(
+          mid_text,
+          screen_size.x * 0.7f -
+              raylib::MeasureText(mid_text, FONT_SIZE_SMALL) / 2.f,
+          screen_size.y - 7.f - FONT_SIZE_SMALL,
+          FONT_SIZE_SMALL,
+          raylib::Color::RayWhite()
+      );
+
+      auto max_text = std::format("1E10");
+      raylib::DrawText(
+          max_text,
+          screen_size.x * 0.9f -
+              raylib::MeasureText(max_text, FONT_SIZE_SMALL) - 5.f,
+          screen_size.y - gradient_height,
+          FONT_SIZE_SMALL,
+          raylib::Color::RayWhite()
+      );
+
+      raylib::Rectangle{
+          screen_size.x * 0.5f,
+          screen_size.y - gradient_height - 5.f,
+          screen_size.x * 0.4f,
+          gradient_height
+      }
+          .DrawLines(raylib::Color::White(), 4.f);
+    }
 
     if (!user_probes.empty())
       plot.draw(user_probe_colors);

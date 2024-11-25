@@ -28,7 +28,7 @@ void Charge::draw() const {
   screen_position.DrawCircle(radius, raylib::Color::RayWhite());
 
   auto color = lerpColor3(
-      NEGATIVE, raylib::Color::LightGray(), POSITIVE, sigmoid(_strength * 2.f)
+      NEGATIVE, raylib::Color::Blank(), POSITIVE, sigmoid(_strength * 4.f)
   );
 
   // fill
@@ -63,4 +63,4 @@ bool Charge::contains(const raylib::Vector2 &point) const {
 }
 
 const raylib::Color Charge::POSITIVE = raylib::Color(255, 0, 0, 255);
-const raylib::Color Charge::NEGATIVE = raylib::Color(40, 40, 255, 255);
+const raylib::Color Charge::NEGATIVE = raylib::Color(50, 50, 255, 255);
