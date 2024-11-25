@@ -14,6 +14,8 @@ constexpr float EPSILON_0 = 8.8541878128e-12f;
 constexpr float K_E = 1 / (4 * std::numbers::pi_v<float> * EPSILON_0);
 
 constexpr int FONT_SIZE = 22;
+constexpr int FONT_SIZE_SMALL = 18;
+constexpr int FONT_SIZE_TINY = 8;
 constexpr float GLOBAL_SCALE = 100.0f;
 
 constexpr int LINES_PER_CHARGE = 12;

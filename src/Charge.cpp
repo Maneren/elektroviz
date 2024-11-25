@@ -1,9 +1,10 @@
 #include "Charge.hpp"
-#include "Color.hpp"
 #include "MathEval.hpp"
-#include "Vector2.hpp"
 #include "defs.hpp"
 #include "utils.hpp"
+#include <Color.hpp>
+#include <Functions.hpp>
+#include <Vector2.hpp>
 #include <cmath>
 #include <unordered_map>
 
@@ -32,6 +33,17 @@ void Charge::draw() const {
 
   // fill
   screen_position.DrawCircle(radius - 1, color);
+
+  // text
+  auto msg = std::format("{:.2G} C", _strength);
+  int width = raylib::MeasureText(msg, FONT_SIZE_TINY);
+  raylib::DrawText(
+      msg,
+      screen_position.x - width / 2.f,
+      screen_position.y - static_cast<float>(FONT_SIZE_TINY) / 2,
+      FONT_SIZE_TINY,
+      raylib::Color::RayWhite()
+  );
 }
 
 raylib::Vector2 Charge::E(const raylib::Vector2 &point) const {
