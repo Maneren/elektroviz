@@ -2,6 +2,7 @@
 #include "Color.hpp"
 #include "Vector2.hpp"
 #include "defs.hpp"
+#include "raylib.h"
 #include <algorithm>
 #include <format>
 #include <ranges>
@@ -84,14 +85,16 @@ void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
       accent_color
   );
 
-  auto y_mid_value_text = std::format("{:.2g}", display_max / 2.f);
-  raylib::DrawText(
-      y_mid_value_text,
-      inner_left_edge + 5.f,
-      vertical_midpoint / 2.f + 1.f,
-      FONT_SIZE_SMALL,
-      accent_color
-  );
+  if (GetScreenHeight() > 1000) {
+    auto y_mid_value_text = std::format("{:.2g}", display_max / 2.f);
+    raylib::DrawText(
+        y_mid_value_text,
+        inner_left_edge + 5.f,
+        vertical_midpoint / 2.f + 1.f,
+        FONT_SIZE_SMALL,
+        accent_color
+    );
+  }
 
   auto y_zero_text = std::string{"0"};
   raylib::DrawText(
@@ -102,14 +105,16 @@ void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
       accent_color
   );
 
-  auto y_mid_value_text2 = std::format("-{:.2g}", display_max / 2.f);
-  raylib::DrawText(
-      y_mid_value_text2,
-      inner_left_edge + 5.f,
-      vertical_midpoint * 1.5f + 1.f,
-      FONT_SIZE_SMALL,
-      accent_color
-  );
+  if (GetScreenHeight() > 1000) {
+    auto y_mid_value_text2 = std::format("-{:.2g}", display_max / 2.f);
+    raylib::DrawText(
+        y_mid_value_text2,
+        inner_left_edge + 5.f,
+        vertical_midpoint * 1.5f + 1.f,
+        FONT_SIZE_SMALL,
+        accent_color
+    );
+  }
 
   auto y_min_value_text = std::format("-{:.2g}", display_max);
   raylib::DrawText(

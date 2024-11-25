@@ -167,7 +167,8 @@ int main(int argc, char const *argv[]) {
       FLAG_WINDOW_RESIZABLE
   );
 
-  w.SetTargetFPS(60);
+  w.SetMinSize(800, 600);
+  w.Maximize();
 
   auto zoom_modifier = 1.f;
   raylib::Camera2D camera(half_screen_size, {0.f, 0.f}, 0.f, 1.f);

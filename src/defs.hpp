@@ -7,8 +7,8 @@
 #include <unordered_map>
 
 // Initial screen dimensions, irrelevant after first resize
-constexpr int SCREEN_WIDTH = 800;
-constexpr int SCREEN_HEIGHT = 600;
+constexpr int SCREEN_WIDTH = 1000;
+constexpr int SCREEN_HEIGHT = 800;
 
 constexpr float EPSILON_0 = 8.8541878128e-12f;
 constexpr float K_E = 1 / (4 * std::numbers::pi_v<float> * EPSILON_0);
