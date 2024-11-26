@@ -102,7 +102,7 @@ public:
   static const raylib::Color NEGATIVE;
 
 private:
-  float draw_radius() const { return 22.f * std::sqrt(std::abs(_strength)); };
+  float draw_radius() const { return 32.f * std::sqrt(std::abs(_strength)); };
 
   raylib::Vector2 _position;
   std::unique_ptr<charge::Strength> strengthFn;
