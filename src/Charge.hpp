@@ -1,5 +1,4 @@
 #pragma once
-#include "defs.hpp"
 #include <Color.hpp>
 #include <Vector2.hpp>
 #include <format>
@@ -80,7 +79,8 @@ public:
       const raylib::Vector2 &position,
       std::unique_ptr<charge::Strength> strength
   )
-      : _position(position), strengthFn(std::move(strength)), _strength(0.f) {}
+      : _position(position), strengthFn(std::move(strength)), _strength(0.f),
+        _strengthModifier(1.f) {}
 
   Charge(Charge &&) = default;
   Charge &operator=(Charge &&) = default;
@@ -90,6 +90,7 @@ public:
 
   raylib::Vector2 position() const { return _position; }
   void position(raylib::Vector2 position) { _position = position; }
+  void modifier(float modifier) { _strengthModifier *= modifier; }
   float strength() const { return _strength; }
 
   raylib::Vector2 E(const raylib::Vector2 &point) const;
@@ -106,6 +107,7 @@ private:
   raylib::Vector2 _position;
   std::unique_ptr<charge::Strength> strengthFn;
   float _strength;
+  float _strengthModifier;
   friend struct std::formatter<Charge>;
 };
 
