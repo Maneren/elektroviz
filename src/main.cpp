@@ -329,7 +329,7 @@ int main(int argc, char const *argv[]) {
           raylib::Color::RayWhite()
       );
 
-      auto mid_text = std::format("Electric potential [N/C]");
+      auto mid_text = std::format("Electric potential [V]");
       raylib::DrawText(
           mid_text,
           screen_size.x * 0.7f -

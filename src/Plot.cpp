@@ -134,7 +134,7 @@ void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
       accent_color
   );
 
-  auto y_axis_label = std::string{"E [N/C]"};
+  auto y_axis_label = std::string{"Electric potential [V]"};
   raylib::DrawTextPro(
       Font(),
       y_axis_label,
