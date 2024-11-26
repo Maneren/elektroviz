@@ -22,12 +22,6 @@ constexpr int LINES_PER_CHARGE = 12;
 
 constexpr int BACKGROUND_SUBSAMPLING = 2;
 
-// TODO: investigate GetScreenToWorld2D from raylib
-inline raylib::Vector2
-screen_to_world(const raylib::Vector2 &point, float zoom = 1.f) {
-  return point / (zoom);
-}
-
 template <> struct std::formatter<raylib::Vector2> {
   constexpr auto parse(std::format_parse_context const &ctx) const {
     return ctx.begin();
