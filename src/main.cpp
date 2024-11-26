@@ -102,19 +102,18 @@ int main(int argc, char const *argv[]) {
 
   raylib::Vector2 grid_spacing = {50.f, 50.f};
   if (argc > 2) {
-    auto size_spec = std::string{argv[2]};
-    if (size_spec.contains("x")) {
-      grid_spacing = raylib::Vector2{
-          std::stof(size_spec.substr(0, size_spec.find("x"))),
-          std::stof(size_spec.substr(size_spec.find("x") + 1))
-      };
-    } else {
-      std::cerr << std::format(
-                       "Invalid size spec: '{}'. Expected format "
-                       "is 'WIDTHxHEIGHT'",
-                       size_spec
-                   )
-                << std::endl;
+    for (int i = 2; i < argc; i++) {
+      auto size_spec = std::string{argv[i]};
+      if (size_spec.starts_with("-g")) {
+        size_spec = size_spec.substr(2);
+        grid_spacing = raylib::Vector2{
+            std::stof(size_spec.substr(0, size_spec.find("x"))),
+            std::stof(size_spec.substr(size_spec.find("x") + 1))
+        };
+        break;
+      } else {
+        std::println(std::cerr, "WARNING: Unknown argument: '{}'", size_spec);
+      }
     }
   }
 
