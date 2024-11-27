@@ -9,9 +9,12 @@
 #include <unordered_map>
 
 float charge::VariableStrength::operator()(const double elapsed) const {
-  auto vars = variables;
-  vars["t"] = elapsed;
-  return evaluate(func, vars);
+  const std::unordered_map<std::string, float> variables = {
+      {"t", elapsed},
+      {"pi", std::numbers::pi_v<float>},
+      {"e", std::numbers::e_v<float>}
+  };
+  return evaluate(func, variables);
 }
 
 void Charge::update(

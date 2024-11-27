@@ -3,8 +3,6 @@
 #include <Vector2.hpp>
 #include <format>
 #include <numbers>
-#include <string>
-#include <unordered_map>
 
 // Initial screen dimensions, irrelevant after first resize
 constexpr int SCREEN_WIDTH = 1000;
@@ -40,10 +38,4 @@ template <> struct std::formatter<raylib::Color> {
   auto format(const raylib::Color &c, FormatContext &ctx) const {
     return std::format_to(ctx.out(), "({}, {}, {}, {})", c.r, c.g, c.b, c.a);
   }
-};
-
-static const std::unordered_map<std::string, float> variables = {
-    {"t", 0.0f},
-    {"pi", std::numbers::pi_v<float>},
-    {"e", std::numbers::e_v<float>}
 };
