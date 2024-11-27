@@ -1,15 +1,17 @@
 % LTeX: language=cs-CZ
-\documentclass[12pt,a4paper]{paper}
+\documentclass[12pt,a4paper]{article}
 \usepackage{a4wide}
 \usepackage[margin=2.5cm]{geometry}
 \usepackage[czech]{babel}
 \usepackage{hyphsubst}
 \usepackage{graphicx}
 \usepackage{indentfirst}
-\usepackage{microtype}
+% \usepackage{microtype}
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{esvect}
+\usepackage{tikz}
+\usetikzlibrary{shadows}
 
 \selectlanguage{czech}
 \PassOptionsToPackage{hyphens}{url}
@@ -27,6 +29,24 @@
 % define helper command for typesetting code
 \newcommand{\code}[1]{\texttt{#1}}
 \def\CC{{C\nolinebreak[4]\hspace{-.05em}\raisebox{.4ex}{\tiny\bf ++}}}
+
+% helper for typesetting keystrokes
+\newcommand*\keystroke[1]{
+  % \hspace{0.2ex}
+  \tikz[baseline=(key.base)]
+    \node[draw,
+          text height=1.5ex,
+          text depth=0ex,
+          fill=black!10,
+          drop shadow={shadow xshift=0.2ex,shadow yshift=-0.2ex,fill=black,opacity=0.50},
+          rectangle,
+          rounded corners=2pt,
+          inner sep=2.75pt,
+          line width=0.5pt,
+          font=\footnotesize\sffamily
+    ](key) {#1};
+  % \hspace{0.4ex}
+}
 
 \chardef\_=`_
 
@@ -50,8 +70,8 @@
 
 \noindent
 Západočeská univerzita v Plzni \hfill Pavel Altmann - A23B0264P\\
-Katedra informatiky a výpočetní techniky \hfill 1. odevzdání\\
-Stráveno hodin: 95 \hfill \today
+Katedra informatiky a výpočetní techniky \hfill 2. odevzdání\\
+Stráveno hodin: 120 \hfill \today
 \thispagestyle{empty}
 
 \newpage
@@ -74,7 +94,7 @@ okno o minimální počáteční velikosti 800x600px, ve kterém se zobrazí př
 všechny bodové náboje zvoleného scénáře. Vizuální reprezentace náboje (v
 nejjednodušší podobě kružnice s popiskem) musí být volena tak, aby bylo možné
 jednoznačně určit velikost náboje a jeho znaménko. V místě sondy bude zobrazen
-šipkou vektor intenzity vektorového pole 𝐸⃗ a opatřen popiskem udávající jeho
+šipkou vektor intenzity vektorového pole $\vec{E}$ a opatřen popiskem udávající jeho
 velikost $\|E\|$. Všechny elementy vizualizace (náboje, popisky, šipky) musí být
 plně viditelné.
 
@@ -106,9 +126,13 @@ souřadnic (0, 0), poloměrem 1 a úhlovou rychlostí \( \frac{\pi}{6}
 
 \subsection{Použité technologie}
 
-Vizualizace je naprogrogramována v jazyce \CC{} 23 s využitím 2D grafické
-knihovny \href{https://www.raylib.com/}{Raylib} verze 5.5.
-
+Vizualizace je naprogramována v jazyce \CC{} 23 s využitím grafické knihovny
+\href{https://www.raylib.com/}{raylib} verze 5.5, jejího portu pro jazyk \CC{}
+\href{https://github.com/RobLoach/raylib-cpp}{raylib-cpp}, rozšíření pro
+uživatelská rozhraní \href{https://github.com/raysan5/raygui}{raygui}, knihovny
+pro zpracování formátu JSON
+\href{https://github.com/nlohmann/json}{nlohmann/json} a knihovny pro fondy
+vláken \href{https://github.com/progschj/ThreadPool}{ThreadPool}.
 
 \subsection{Architektura}
 
@@ -118,6 +142,26 @@ Funkce \code{main} má na starost pouze počáteční nastavení a následné p�
 událostí (nový snímek, změna velikosti okna, apod.) objektům. Některé objekty
 jako součást obsahují další objekty a potom mají na starost jim události
 předávat.
+
+\subsection{Návrhová rozhodnutí}
+
+Během implementace programu jsem musel udělat několik zásadních návrhových
+rozhodnutí o věcech, která v zadání byla specifikovaná volněji. Asi
+nejviditelnějším z nich je použití funkce sigmoid pro modulaci barev nábojů a
+barevné mapy na pozadí. Důvodem byl velký rozsah hodnot, kterých můžou nabývat
+(několik řádů), což sigmoid převede na rozumné hodnoty v rozsahu $-1.0$ až
+$1.0$, díky čemuž pak barvy mají plynulejší přechod.
+
+Druhé zásadní rozhodnutí bylo na základě inspirace ilustračním obrázkem použití
+elektrického potenciálu namísto velikosti intenzity pro barevnou mapu a graf,
+protože přenáší více informací a dle mého názoru vypadá zajímavěji. To mi (na
+doporučení doc. Kohouta) potrvdilo i několik dotázaných respondentů.
+
+Obecně byl kladen velký důraz na vizuální stranku programu, aby vše by pokud
+možno plynulé a (opticky) spojité, např. že posun, zoom, velikost nábojů,
+otevření grafu, apod. neskáčou a vše má dostatečnou snímkovou frekvenci - v
+testovaní více než 60 Hz i na FullHD na slabším notebooku v režimu úspory
+baterie (ve výchozím nastavení a scénáři 4).
 
 \subsection{Objekty}
 
@@ -138,7 +182,8 @@ třídami \code{StaticStrength} a \code{VariableStrength}.
 Vykresluje se jako kruh, jehož plocha (nikoliv průměr) je přímo úměrná velikosti
 náboje. Dále má bílé ohraničení a barvu výplně reprezentující velikost náboje -
 červená 5 C a více, modrou 5 C a méně a lineární interpolaci přes tmavě šedou
-pro hodnoty mezi tím.
+pro hodnoty mezi tím. Nakonec je ve středu náboje zobrazen text s numerickou
+hodnotou velikosti náboje.
 
 \subsubsection{\code{Probe}}
 
@@ -162,13 +207,61 @@ Představuje mřížku na pozadí, včetně sond v jejích průsečících.
 Má nezávisle nastavitelné rozestupy mezi čárami v obou směrech v pixelech - ve
 výchozím nastavení to je 50x50. Je dobré nenastavovat příliš malé rozestupy,
 protože pak je jednak obraz nepřehledný a druhak se velmi zvyšují nároky na
-výpočetní výkon grafické karty.
+výpočetní výkon grafické karty (v testovaní mřížka 10x10 na WQHD monitoru
+vytížila i high-end kartu).
 
-Pro zrychlení kreslení se potřebné souřadnice čar i sond počítají pouze při
-inicializaci a změně rozměrů okna a jinak jsou uložené v soukromých atributech
-třídy.
+\subsubsection{\code{HeatMap}}
+
+Představuje vizualizaci intenzity vektorového pole na pozadí scény.
+
+Přebírá funkci pro výpočet hodnoty pro jeden pixel (v rozmezí -1..0..1), kterou
+pak interně převádí na tří-hodnotový gradient barev, pomocí funkce
+\code{lerpColor3}. Pro urychlení výpočtu počítá funkci v nižším rozlišení
+(podvzorkovaní) - s hodnotou danou konstantou \code{BACKGROUND\_SUBSAMPLE}) a
+při vykreslení obrázek roztáhne. Dále využívá pomocného module \code{parallel},
+což umožnuje využívat pouze 2-násobné podvzorkování zajištující vysokou kvalitu
+obrazu bez viditelných čtverečků i při zvětšení pomocí metody Nearest Neighbor.
+
+Technická poznámka: Protože samotné renderování probíhá na grafické kartě, je
+nutné předávat data nepřímo přes knihovní třídu \code{Texture} a její metodu
+\code{UpdatePixels}, která zajistí jejich překopírování do grafické paměti.
+Podobně je nutné tuto texturu mazat z znovu vytvářet při změně velikosti okna,
+neboť má po prvotní alokaci fixní rozměry.
+
+\subsubsection{\code{Plot}}
+\label{sec:plot}
+
+Třída pro vykreslování grafu intenzit pole zachycených uživatelskými sondami v
+závislosti na čase. 
+
+Každý snímek přebírá vektor sond, jejichž hodnoty si ukládá do vektoru front
+(řad). K nim si ještě drží tzv. \code{offset}, který slouží pro správné
+vykreslování grafů již odebraných sond. Více viz. popis rozšíření více sond.
+
+Při vykreslování zvolí měřítko podle největší hodnoty ve všech řadách a všechny
+řady podle toho škáluje. Tím dosáhne optimálního využití plochy na obrazovce.
+
+\subsubsection{\code{FieldLine}}
+\label{sec:fieldline}
+
+Třída pro počítání a vykreslování siločar.
+
+Siločáry počítá jednoduše iteračně tak, že začne v náboji (přesněji těsně vedle,
+kvůli možnému dělení nulovou vzdáloností) a až 1000-krát se pohne ve směru
+elektrického pole v daném bodě (jako by to byla kladná částice). Případně skončí
+dříve pokud mezitím „narazí“ do jiného náboje nebo se dostane přiliš daleko mimo
+obrazovku.
+
+Siločáry vycházejí ve výchozím stavu z kladně nabitých částic, ale přepnou na
+záporné, pokud je jich v simulaci více.
+
+Počet siločar je řízen konstantou \code{LINES\_PER\_CHARGE} v souboru \code{defs}.
 
 \subsection{Ostatní soubory}
+
+\subsubsection{\code{defs}}
+
+Definuje globální konstanty a proměnné pro běh a vzhled programu.
 
 \subsubsection{\code{field}}
 
@@ -181,21 +274,78 @@ Obsahuje pomocné funkce pro interpolaci barev \code{lerpColor} a \code{lerpColo
 funkci \code{sigmoid} pro počítání stejnojmenné matematické funkce a funkci
 \code{trim} pro odstranění počátečních a koncových bílých znaků z řetězce.
 
-\subsubsection{\code{BoundingRectangle}}
-
-Pomocná třída pro škálování.
-
-Umožnuje snadné spočítání nejmenšího obdélníku, který obsahuje všechny grafické
-objekty. Na základě jeho rozměrů se obraz škáluje, aby strany tohoto obdélníku 
-byly zhruba polovina okna.
-
 \subsubsection{\code{MathEval}}
 
 Sada funkcí pro vyhodnocovaní libovolných matematických výrazů, využívaná pro
-dynamicky nastavitelné vlastnosti. Další info patří do pozdějšího odevzdaní.
+dynamicky nastavitelné vlastnosti.
 
-\subsection{Algoritmy}
+Používá standardní kombinaci algoritmu Shunting-Yard pro převedení výrazu do RPN
+(Reverse Polish Notation) a následného vyhodnocení zásobníkovým algoritmem. Při
+vyhodnocení poskytuje konstanty $\pi$ a $e$, proměnnou času $t$ a funkce sin, cos,
+tan, asin, acos, atan, log, exp, sqrt, abs, sign, floor a ceil.
 
+Původně zamýšleno pro implementaci editoru dynamických scénářů, nakonec využito
+pouze okrajově, protože už jsem nasbíral dostatek bodů jinými rozšířeními.
+
+\subsubsection{\code{parallel}}
+
+Sada pomocných funkci pro spouštění kódu s využitím všech jader procesoru.
+
+Obaluje knihovnu \href{https://github.com/progschj/ThreadPool}{ThreadPool} do
+rozhraní kompatibilního s \CC{} 23 modulem \code{ranges}, což umožnuje velmi
+snadnou a bezpečnou paralelizaci libovolných cyklů prostřednictvim funkce
+\code{for\_each}.
+
+Poznámka: \CC{} teoreticky podporuje paralelizaci ve funkci
+\code{std::for\_each}, ale to vyžaduje externí knihovny a velmi nové verze
+překladače.
+
+\subsection{Rozšíření}
+
+\subsubsection{Načtení scénáře ze souboru}
+
+Lze načítat scénáře ze složky \code{scenarios} ve formátu JSON. V základu
+program obsahuje 5 ukázkových scénářů podle zadání, které lze libovolně upravit
+nebo doplnit vlastní. V příkazové řádce je pak potřeba specifikovat název
+souboru ve složce \code{scenarios} \textit{bez cesty a přípony} podobně jako
+vestavené scénáře.
+
+JSON soubor obsahuje 2 seznamy: \code{charges} a \code{probes}. \code{charges}
+obsahuje objekty s atributem \code{strength}, který musí být buď číslo nebo
+řetězec vyhodnotitelný jako funkce $f(t)$, a attributem position s atributy
+\code{x} a \code{y} popisující pozici náboje. \code{probes} obsahuje objekty s
+atributy \code{position} (opět s atributy \code{x} a \code{y}) a volitelně
+atributem \code{rotation} s atributy \code{radius} a \code{velocity} popisující
+poloměr otáčení a úhlovou rychlost v jednotkách $\frac{rad}{s}$ respektive.
+
+\subsubsection{Zrychlení/zpomalení simulace}
+
+Tlačítka v pravém dolním rozhu umožnují simulaci až 4-krát zrychlit či zpomalit.
+Řešeno je to pomocí přenásobení délky snímků před přičtením k promenné času.
+
+\subsubsection{Zvětšení a posun}
+
+Simulaci lze zvětšit pomocí kolečka myši spolu s podržením tlačítka
+\keystroke{Shift}. Realizován je pomocí nastavení parametru \code{zoom} kamery,
+což odpovídá použití transformace škálování na celou scénu. 
+
+Podobně posun lze provést držením pravého tlačítka myši. Realizován je pomocí
+nastavení parametru \code{target} kamery, což odpovídá použití inverzní
+transformace posunutí na celou scénu.
+
+\subsubsection{Siločáry}
+
+Detaily jsou uvedeny v popisu zodpovědné třídy
+\hyperref[sec:fieldline]{\code{FieldLine}}.
+
+\subsubsection{Více sond}
+
+Další sondy lze přidat levým tlačítkem myši, stejně jako první sondu. Další
+sondy mají paletu 5 možných barev, po jejichž vyčerpání se generují další barvy
+náhodně.
+
+Další detaily jsou uvedeny v popisu zodpovědné třídy
+\hyperref[sec:plot]{\code{Plot}}.
 
 \section{Ovládání programu}
 
@@ -219,16 +369,44 @@ spustitelný soubor do souboru \code{bin/elektroviz.new}.
 Program přebírá z příkazové řádky parametr \code{scenario} a volitelně
 \code{spacing}. \code{scenario} Určuje který scénář má být spuštěn po zapnutí
 aplikace, při absenci parametru se použije scénář 0. \code{spacing} určuje
-rozestupy mřízky na pozadí ve formátu \code{<width>x<height>}.
+rozestupy mřížky na pozadí ve formátu \code{-g<width>x<height>}.
 
 \textbf{Důležité}: Program je nutné spustit ve stejné složce, v jaké se nechází
 složka \code{scenarios}, jinak nebude schopný načíst žadný z výchozích scénářů.
-Originálně je v \code{src} ale \code{./build.sh} jí pro snadnější manipulaci
-nakopíruje i do kořenové složky.
+Originálně je ve složce \code{src}, ale \code{./build.sh} jí pro snadnější
+manipulaci nakopíruje i do kořenové složky.
+
+\subsection{Uživatelské vstupy}  
+
+\begin{itemize}
+  \item levé tlačítko myši: přidání nové sondy, grafická tlačítka
+  \item levé tlačítko myši + \keystroke{Shift}: odebrání sondy
+  \item pravé tlačítko myši (držení): posun scény
+  \item kolečko myši: zvětšení/zmenšení scény
+  \item kolečko myši (držení): posun nábojů
+  \item kolečko myši + \keystroke{Shift}: změna velikosti nábojů
+  \item \keystroke{Esc}: ukončení aplikace
+\end{itemize}
 
 \section{Limitace}
 
 Program pouze minimálně ošetřuje nesprávné uživatelské vstupy a reaguje na ně
-vyjímkami, které většinou způsobují pád aplikace. 
+vyjímkami, které můžou vést až k pádu aplikace. 
+
+Také není oficiálně podporována možnost, kdy náboj s velikostí danou funkcí, mění
+v průběhu času znaménko. Fyzikálně vše funguje správně, ale je možný výskyt
+grafických artefaktů a problikávaní.
+
+\section{Poznámky k dokumentaci}
+
+
+Šablona pro dokumentaci je převzatá z předmětu KKY/HKUI a doplněná o grafické
+prvky z fakultní šablony FastThesis.
+
+Strávený čas opravdu odpovídá realitě. Je to čas aktivně strávený v IDE v
+souborech v gitovém repozitáři projektu, měřený s přesností na 5 minut pomocí
+služby \href{https://wakatime.com/}{WakaTime}. Zahrnuje ale i učení se knihovny,
+jazyka \CC{}, experimentaci se shadery a výpočty na GPU a další věci mimo rámec
+předmětu. Čistý čas stravený na projektu je tedy o několik desítek hodin menší.
 
 \end{document}
