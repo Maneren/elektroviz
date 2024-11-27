@@ -415,19 +415,22 @@ int main(int argc, char const *argv[]) {
     );
 
     auto mouse_in_world = get_mouse_in_world(camera);
+    auto shift_down = raylib::Keyboard::IsKeyDown(KEY_LEFT_SHIFT) ||
+                      raylib::Keyboard::IsKeyDown(KEY_RIGHT_SHIFT);
+
     {
       auto scroll = raylib::Mouse::GetWheelMove();
       if (std::abs(scroll) > 0) {
         auto modified_charge = false;
-        for (auto &charge : charges | views::reverse) {
-          if (charge.contains(mouse_in_world)) {
-            charge.modifier(1.f + scroll * 0.05f);
-            modified_charge = true;
-            break;
+        if (shift_down) {
+          for (auto &charge : charges | views::reverse) {
+            if (charge.contains(mouse_in_world)) {
+              charge.modifier(1.f + scroll * 0.05f);
+              modified_charge = true;
+              break;
+            }
           }
-        }
-
-        if (!modified_charge) {
+        } else if (!modified_charge) {
           zoom_modifier = std::clamp(zoom_modifier + scroll * 0.05f, 0.5f, 3.f);
           recalculate_zoom();
           resize_grid();
@@ -465,8 +468,7 @@ int main(int argc, char const *argv[]) {
     if (raylib::Mouse::IsButtonReleased(MOUSE_BUTTON_LEFT) && !button_active) {
       auto mouse_in_world = get_mouse_in_world(camera);
 
-      if (raylib::Keyboard::IsKeyDown(KEY_LEFT_SHIFT) ||
-          raylib::Keyboard::IsKeyDown(KEY_RIGHT_SHIFT)) {
+      if (shift_down) {
         for (auto &probe : user_probes) {
           if (!probe.has_value())
             continue;
