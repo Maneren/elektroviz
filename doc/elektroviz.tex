@@ -94,9 +94,9 @@ okno o minimální počáteční velikosti 800x600px, ve kterém se zobrazí př
 všechny bodové náboje zvoleného scénáře. Vizuální reprezentace náboje (v
 nejjednodušší podobě kružnice s popiskem) musí být volena tak, aby bylo možné
 jednoznačně určit velikost náboje a jeho znaménko. V místě sondy bude zobrazen
-šipkou vektor intenzity vektorového pole $\vec{E}$ a opatřen popiskem udávající jeho
-velikost $\|E\|$. Všechny elementy vizualizace (náboje, popisky, šipky) musí být
-plně viditelné.
+šipkou vektor intenzity vektorového pole $\vec{E}$ a opatřen popiskem udávající
+jeho velikost $\|\vec{E}\|$. Všechny elementy vizualizace (náboje, popisky,
+šipky) musí být plně viditelné.
 
 Intenzita vektorového pole v daném místě $\vec{x}$ se spočte
 z Coulombova zákona jako:
@@ -266,7 +266,7 @@ Definuje globální konstanty a proměnné pro běh a vzhled programu.
 \subsubsection{\code{field}}
 
 Jmenné prostředí obsahuje funkce \code{E} a \code{potential}, počítající vektor
-intezity, resp. skalární potenciál elektrického pole v zadaném bodě.
+intezity, resp. skalární potenciál, elektrického pole v zadaném bodě.
 
 \subsubsection{\code{utils}}
 
@@ -279,24 +279,28 @@ funkci \code{sigmoid} pro počítání stejnojmenné matematické funkce a funkc
 Sada funkcí pro vyhodnocovaní libovolných matematických výrazů, využívaná pro
 dynamicky nastavitelné vlastnosti.
 
-Používá standardní kombinaci algoritmu Shunting-Yard pro převedení výrazu do RPN
-(Reverse Polish Notation) a následného vyhodnocení zásobníkovým algoritmem. Při
-vyhodnocení poskytuje konstanty $\pi$ a $e$, proměnnou času $t$ a funkce sin, cos,
-tan, asin, acos, atan, log, exp, sqrt, abs, sign, floor a ceil.
+Používá standardní kombinaci
+\href{https://en.wikipedia.org/wiki/Shunting_yard_algorithm}{shunting yard}
+algoritmu pro převedení výrazu do
+\href{https://en.wikipedia.org/wiki/Reverse_Polish_notation}{reverse Polish
+notation} a následného vyhodnocení zásobníkovým algoritmem. Při vyhodnocení
+poskytuje konstanty $\pi$ a $e$, proměnnou času $t$ a funkce sin, cos, tan,
+asin, acos, atan, log, exp, sqrt, abs, sign, floor a ceil.
 
 Původně zamýšleno pro implementaci editoru dynamických scénářů, nakonec využito
-pouze okrajově, protože už jsem nasbíral dostatek bodů jinými rozšířeními.
+pouze pro načítání ze souborů, protože už jsem nasbíral dostatek bodů jinými
+rozšířeními.
 
 \subsubsection{\code{parallel}}
 
-Sada pomocných funkci pro spouštění kódu s využitím všech jader procesoru.
+Sada pomocných funkcí pro spouštění kódu s využitím všech jader procesoru.
 
 Obaluje knihovnu \href{https://github.com/progschj/ThreadPool}{ThreadPool} do
 rozhraní kompatibilního s \CC{} 23 modulem \code{ranges}, což umožnuje velmi
-snadnou a bezpečnou paralelizaci libovolných cyklů prostřednictvim funkce
-\code{for\_each}.
+snadnou a pamětově bezpečnou paralelizaci libovolných cyklů prostřednictvím
+funkce \code{for\_each}.
 
-Poznámka: \CC{} teoreticky podporuje paralelizaci ve funkci
+Poznámka: \CC{} teoreticky podporuje paralelizaci ve standardní funkci
 \code{std::for\_each}, ale to vyžaduje externí knihovny a velmi nové verze
 překladače.
 
@@ -308,7 +312,7 @@ Lze načítat scénáře ze složky \code{scenarios} ve formátu JSON. V základ
 program obsahuje 5 ukázkových scénářů podle zadání, které lze libovolně upravit
 nebo doplnit vlastní. V příkazové řádce je pak potřeba specifikovat název
 souboru ve složce \code{scenarios} \textit{bez cesty a přípony} podobně jako
-vestavené scénáře.
+vestavěné scénáře.
 
 JSON soubor obsahuje 2 seznamy: \code{charges} a \code{probes}. \code{charges}
 obsahuje objekty s atributem \code{strength}, který musí být buď číslo nebo
@@ -399,14 +403,12 @@ grafických artefaktů a problikávaní.
 
 \section{Poznámky k dokumentaci}
 
-
 Šablona pro dokumentaci je převzatá z předmětu KKY/HKUI a doplněná o grafické
-prvky z fakultní šablony FastThesis.
+prvky z fakultní šablony FASThesis.
 
-Strávený čas opravdu odpovídá realitě. Je to čas aktivně strávený v IDE v
-souborech v gitovém repozitáři projektu, měřený s přesností na 5 minut pomocí
-služby \href{https://wakatime.com/}{WakaTime}. Zahrnuje ale i učení se knihovny,
-jazyka \CC{}, experimentaci se shadery a výpočty na GPU a další věci mimo rámec
-předmětu. Čistý čas stravený na projektu je tedy o několik desítek hodin menší.
+Strávený čas je měřený prostřednictvím IDE, tedy odpovídá poměrně přesně
+realitě. Zahrnuje ale i učení se knihovny, jazyka \CC{}, experimentaci se
+shadery a výpočty na GPU a další věci mimo rámec předmětu. Čistý čas stravený na
+projektu je tedy o několik desítek hodin menší.
 
 \end{document}
