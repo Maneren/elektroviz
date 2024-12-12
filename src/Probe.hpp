@@ -84,6 +84,7 @@ public:
     DrawTriangle(head_left, tip, head_right, color);
   }
 
+  raylib::Vector2 position() const { return (*_position)(); }
   raylib::Vector2 sample() const { return _sample; }
   float sample_potencial() const { return _sample_potencial; }
 
@@ -102,6 +103,7 @@ private:
   int _id;
 
   friend struct std::formatter<Probe>;
+  friend class ProbeRenderer;
 };
 
 template <> struct std::formatter<Probe> {
@@ -114,4 +116,31 @@ template <> struct std::formatter<Probe> {
         ctx.out(), "Probe(position: {}, sample: {})", *p._position, p._sample
     );
   }
+};
+
+class ProbeRenderer {
+public:
+  ProbeRenderer() = default;
+  ProbeRenderer(ProbeRenderer &&) = default;
+  ProbeRenderer &operator=(ProbeRenderer &&) = default;
+
+  void draw_to_buffer(const Probe &probe);
+  void flush();
+
+private:
+  struct Line {
+    raylib::Vector2 start;
+    raylib::Vector2 end;
+    raylib::Color color;
+  };
+
+  struct Triangle {
+    raylib::Vector2 a;
+    raylib::Vector2 b;
+    raylib::Vector2 c;
+    raylib::Color color;
+  };
+
+  std::vector<Line> line_buffer;
+  std::vector<Triangle> triangle_buffer;
 };

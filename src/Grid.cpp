@@ -92,9 +92,13 @@ void Grid::resize(
 }
 
 void Grid::draw() const {
+  ProbeRenderer renderer{};
+
   for (auto &probe : probes) {
-    probe.draw<true>();
+    renderer.draw_to_buffer(probe);
   }
+
+  renderer.flush();
 
   for (auto &line : lines) {
     line.draw();
