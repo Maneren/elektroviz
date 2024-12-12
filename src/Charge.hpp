@@ -17,7 +17,7 @@ public:
 class ConstantStrength : public Strength {
 public:
   explicit ConstantStrength(const float strength) : strength(strength) {}
-  float operator()([[maybe_unused]] const double elapsed) const override {
+  float operator()([[maybe_unused]] const double elapsed) const override final {
     return strength;
   }
   const float strength;
@@ -26,7 +26,7 @@ public:
 class VariableStrength : public Strength {
 public:
   explicit VariableStrength(const std::string &func) : func(func) {}
-  float operator()(const double elapsed) const override;
+  float operator()(const double elapsed) const override final;
   const std::string func;
 };
 
