@@ -137,7 +137,7 @@ $(docTarget): $(docSource)
 	tectonic $(docSource) -o $(docDir) --keep-logs
 
 package: $(target) $(docTarget)
-	git clone file://$(shell pwd)/.git ./dist/src
+	git clone --depth=1 file://$(shell pwd)/.git ./dist/src
 	$(MKDIR) ./dist/doc
 	$(MKDIR) ./dist/bin
 	$(call COPY,./$(buildTargetDir),./dist/bin,$(executable))
