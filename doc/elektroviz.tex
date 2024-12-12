@@ -185,6 +185,9 @@ náboje. Dále má bílé ohraničení a barvu výplně reprezentující velikos
 pro hodnoty mezi tím. Nakonec je ve středu náboje zobrazen text s numerickou
 hodnotou velikosti náboje.
 
+Kolečkem myši je možné náboj zvětšit nebo zmenšit, tak že je měněn jeho
+násobitel velikosti, tedy není to lineární změna.
+
 \subsubsection{\code{Probe}}
 
 Reprezentuje v simulaci elektrickou sondu.
@@ -214,7 +217,7 @@ vytížila i high-end kartu).
 
 Představuje vizualizaci intenzity vektorového pole na pozadí scény.
 
-Přebírá funkci pro výpočet hodnoty pro jeden pixel (v rozmezí -1..0..1), kterou
+Přebírá funkci pro výpočet hodnoty pro jeden pixel (v rozmezí $-1$ až $1$), kterou
 pak interně převádí na tří-hodnotový gradient barev, pomocí funkce
 \code{lerpColor3}. Pro urychlení výpočtu počítá funkci v nižším rozlišení
 (podvzorkovaní) - s hodnotou danou konstantou \code{BACKGROUND\_SUBSAMPLE}) a
@@ -226,7 +229,7 @@ Technická poznámka: Protože samotné renderování probíhá na grafické kar
 nutné předávat data nepřímo přes knihovní třídu \code{Texture} a její metodu
 \code{UpdatePixels}, která zajistí jejich překopírování do grafické paměti.
 Podobně je nutné tuto texturu mazat z znovu vytvářet při změně velikosti okna,
-neboť má po prvotní alokaci fixní rozměry.
+neboť má po alokaci fixní rozměry.
 
 \subsubsection{\code{Plot}}
 \label{sec:plot}
@@ -335,7 +338,8 @@ což odpovídá použití transformace škálování na celou scénu.
 
 Podobně posun lze provést držením pravého tlačítka myši. Realizován je pomocí
 nastavení parametru \code{target} kamery, což odpovídá použití inverzní
-transformace posunutí na celou scénu.
+transformace posunutí na celou scénu. Posunutí je pro přehlednost omezeno, aby
+nebylo možné se „ztratit“ mimo viditelnou scénu.
 
 \subsubsection{Siločáry}
 
