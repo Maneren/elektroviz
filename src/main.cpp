@@ -43,7 +43,6 @@ extern "C" {
 
 namespace ranges = std::ranges;
 namespace views = std::views;
-namespace placeholders = std::placeholders;
 
 static std::random_device dev;
 static std::mt19937 rng(dev());
@@ -63,13 +62,14 @@ raylib::Color generate_random_color() {
   return raylib::Color{red, green, blue};
 }
 
-std::optional<nlohmann::json> load_scenario_json(std::string scenario) {
+std::optional<nlohmann::json> load_scenario_json(const std::string &scenario) {
   auto scenarioFile = std::ifstream{"scenarios/" + scenario};
   return scenarioFile ? std::optional{nlohmann::json::parse(scenarioFile)}
                       : std::nullopt;
 }
 
-void load_charges_from_json(std::vector<Charge> &charges, nlohmann::json data) {
+std::vector<Charge> load_charges_from_json(nlohmann::json data) {
+  std::vector<Charge> charges{};
   for (const auto &charge : data["charges"]) {
     auto position = charge["position"];
     raylib::Vector2 pos{position["x"], position["y"]};
@@ -88,6 +88,7 @@ void load_charges_from_json(std::vector<Charge> &charges, nlohmann::json data) {
       );
     }
   }
+  return charges;
 }
 
 raylib::Vector2 get_mouse_in_world(raylib::Camera2D camera) {
@@ -117,21 +118,18 @@ int main(int argc, char const *argv[]) {
     }
   }
 
-  std::vector<Charge> charges{};
-  {
-    auto scenarion_result = load_scenario_json(scenario);
+  auto scenarion_result = load_scenario_json(scenario);
 
-    if (!scenarion_result) {
-      std::cerr << "Failed to load scenario: " << scenario << std::endl;
-      return 1;
-    }
-
-    auto data = scenarion_result.value();
-
-    std::cout << "Loaded scenario: " << scenario << std::endl;
-
-    load_charges_from_json(charges, data);
+  if (!scenarion_result.has_value()) {
+    std::cerr << "Failed to load scenario: " << scenario << std::endl;
+    return 1;
   }
+
+  auto data = scenarion_result.value();
+
+  std::cout << "Loaded scenario: " << scenario << std::endl;
+
+  auto charges = load_charges_from_json(data);
 
   std::cout << std::format("Loaded {} charge(s)", charges.size()) << std::endl;
   std::cout << "Charges: [" << std::endl;
@@ -443,7 +441,9 @@ int main(int argc, char const *argv[]) {
         auto reversed_charges = charges | views::reverse;
         auto selected_charge = ranges::find_if(
             reversed_charges,
-            std::bind(&Charge::contains, placeholders::_1, mouse_in_world)
+            [&mouse_in_world](const auto &charge) {
+              return charge.contains(mouse_in_world);
+            }
         );
 
         if (selected_charge != reversed_charges.end()) {
@@ -466,8 +466,6 @@ int main(int argc, char const *argv[]) {
     }
 
     if (raylib::Mouse::IsButtonReleased(MOUSE_BUTTON_LEFT) && !button_active) {
-      auto mouse_in_world = get_mouse_in_world(camera);
-
       if (shift_down) {
         for (auto &probe : user_probes) {
           if (!probe.has_value())
@@ -478,8 +476,8 @@ int main(int argc, char const *argv[]) {
             break;
           }
         }
-        if (ranges::all_of(user_probes, [](auto &probe) {
-              return !probe.has_value();
+        if (ranges::all_of(user_probes, [](auto &p) {
+              return !p.has_value();
             })) {
           user_probes.clear();
           plot.clear();
@@ -492,7 +490,7 @@ int main(int argc, char const *argv[]) {
         while (user_probe_colors.size() <= user_probes.size())
           user_probe_colors.push_back(generate_random_color());
 
-        user_probes.push_back(Probe{
+        user_probes.emplace_back(Probe{
             std::make_unique<position::Static>(mouse_in_world),
             user_probe_colors[user_probes.size()],
             8.f,

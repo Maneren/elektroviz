@@ -17,7 +17,7 @@ public:
 class ConstantStrength : public Strength {
 public:
   explicit ConstantStrength(const float strength) : strength(strength) {}
-  float operator()([[maybe_unused]] const double elapsed) const override final {
+  float operator()([[maybe_unused]] const double elapsed) const final {
     return strength;
   }
   const float strength;
@@ -26,7 +26,7 @@ public:
 class VariableStrength : public Strength {
 public:
   explicit VariableStrength(const std::string &func) : func(func) {}
-  float operator()(const double elapsed) const override final;
+  float operator()(const double elapsed) const final;
   const std::string func;
 };
 
@@ -79,8 +79,7 @@ public:
       const raylib::Vector2 &position,
       std::unique_ptr<charge::Strength> strength
   )
-      : _position(position), strengthFn(std::move(strength)), _strength(0.f),
-        _strengthModifier(1.f) {}
+      : _position(position), strengthFn(std::move(strength)) {}
 
   Charge(Charge &&) = default;
   Charge &operator=(Charge &&) = default;
@@ -106,8 +105,8 @@ private:
 
   raylib::Vector2 _position;
   std::unique_ptr<charge::Strength> strengthFn;
-  float _strength;
-  float _strengthModifier;
+  float _strength = 0.f;
+  float _strengthModifier = 1.f;
   friend struct std::formatter<Charge>;
 };
 

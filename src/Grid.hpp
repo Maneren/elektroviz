@@ -50,8 +50,7 @@ public:
       const raylib::Color line_color = raylib::Color::LightGray(),
       const raylib::Color probe_color = raylib::Color::Gray()
   )
-      : line_color(line_color), probe_color(probe_color),
-        origin(raylib::Vector2{0, 0}) {
+      : line_color(line_color), probe_color(probe_color) {
     resize(size, spacing, camera);
   }
 
@@ -70,7 +69,7 @@ public:
 private:
   const raylib::Color line_color;
   const raylib::Color probe_color;
-  raylib::Vector2 origin;
+  raylib::Vector2 origin{0, 0};
   std::vector<GridLine> lines;
   std::vector<Probe> probes;
 };

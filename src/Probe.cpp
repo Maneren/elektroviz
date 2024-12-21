@@ -51,11 +51,15 @@ void ProbeRenderer::draw_to_buffer(const Probe &probe) {
 }
 
 void ProbeRenderer::flush() {
-  for (auto &line : line_buffer) {
+  for (const auto &line : line_buffer) {
     line.color.DrawLine(line.start, line.end);
   }
 
-  for (auto &triangle : triangle_buffer) {
+  line_buffer.clear();
+
+  for (const auto &triangle : triangle_buffer) {
     DrawTriangle(triangle.a, triangle.b, triangle.c, triangle.color);
   }
+
+  triangle_buffer.clear();
 }

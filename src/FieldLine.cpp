@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
-#include <iostream>
 #include <optional>
 #include <ranges>
 #include <span>
@@ -78,10 +77,9 @@ void FieldLines::update(
     return field::E(point, charges);
   };
 
-  auto end_point_function = [charges](raylib::Vector2 point
-                            ) -> std::optional<raylib::Vector2> {
-    auto charge = std::ranges::find_if(charges, [point](auto &charge) {
-      return point.CheckCollision(charge.position(), 1.f);
+  auto end_point_function = [charges](raylib::Vector2 point) {
+    auto charge = std::ranges::find_if(charges, [point](auto &ch) {
+      return point.CheckCollision(ch.position(), 1.f);
     });
     return charge != charges.end() ? std::optional(charge->position())
                                    : std::nullopt;

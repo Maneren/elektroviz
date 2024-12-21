@@ -53,7 +53,7 @@ inline raylib::Color lerpColor3(
     const raylib::Color &c,
     float t
 ) {
-  int t_int = static_cast<int>(t * 1000.f);
+  auto t_int = static_cast<int>(t * 1000.f);
 
   if (t_int <= 0) {
     return lerpColor(a, b, t_int + 1000);
@@ -69,4 +69,4 @@ inline raylib::Color lerpColor3(
  */
 inline float sigmoid(float x) { return x / (1.f + std::abs(x)); }
 
-std::string trim(const std::string &str);
+std::string_view trim(const std::string_view str);

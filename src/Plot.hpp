@@ -13,7 +13,7 @@ public:
       const raylib::Color accent_color
   )
       : position(position), size(size), background_color(background_color),
-        accent_color(accent_color), data({}) {};
+        accent_color(accent_color) {};
 
   void draw(const std::vector<raylib::Color> &probe_colors) const;
   void update(
@@ -22,9 +22,10 @@ public:
       const float speed,
       const std::vector<std::optional<Probe>> &probe
   );
-  void resize(const raylib::Vector2 position, const raylib::Vector2 size) {
-    this->position = position;
-    this->size = size;
+  void
+  resize(const raylib::Vector2 new_position, const raylib::Vector2 new_size) {
+    position = new_position;
+    size = new_size;
   }
   void clear() { data.clear(); }
 
@@ -36,6 +37,5 @@ private:
   raylib::Color accent_color;
   double last_update = 0.0;
 
-  std::vector<std::tuple<int, std::deque<float>>> data;
-  std::vector<std::shared_ptr<Probe>> probes;
+  std::vector<std::tuple<int, std::deque<float>>> data{};
 };

@@ -1,6 +1,7 @@
 #include "utils.hpp"
+#include <string_view>
 
-std::string trim(const std::string &str) {
+std::string_view trim(const std::string_view str) {
   auto first = str.find_first_not_of(' ');
   if (first == std::string::npos)
     return "";

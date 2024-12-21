@@ -18,7 +18,7 @@ raylib::Vector2
 E(const raylib::Vector2 point, const std::span<const Charge> &charges) {
   return ranges::fold_left(
              views::transform(
-                 charges, std::bind(&Charge::E, placeholders::_1, point)
+                 charges, [&point](auto &charge) { return charge.E(point); }
              ),
              raylib::Vector2{},
              std::plus<>()
@@ -31,7 +31,8 @@ float potential(
 ) {
   return ranges::fold_left(
              views::transform(
-                 charges, std::bind(&Charge::potential, placeholders::_1, point)
+                 charges,
+                 [&point](auto &charge) { return charge.potential(point); }
              ),
              0.f,
              std::plus<>()

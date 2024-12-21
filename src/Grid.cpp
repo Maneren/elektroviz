@@ -2,8 +2,6 @@
 #include "Camera2D.hpp"
 #include "Position.hpp"
 #include "Probe.hpp"
-#include "defs.hpp"
-#include "parallel.hpp"
 #include <Color.hpp>
 #include <Vector2.hpp>
 #include <algorithm>

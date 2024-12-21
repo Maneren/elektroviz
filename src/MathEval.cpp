@@ -94,7 +94,8 @@ load_brackets(const std::string &input, std::string::const_iterator &it) {
 }
 
 std::deque<Token> parse_to_RPN(
-    const std::string &input, const std::unordered_map<std::string, float> &vars
+    const std::string_view input,
+    const std::unordered_map<std::string, float> &vars
 ) {
   std::deque<Token> rpn_queue{};
   std::stack<Operator> op_stack{};
@@ -115,7 +116,9 @@ std::deque<Token> parse_to_RPN(
     if (std::isdigit(character)) {
       if (wasNumber)
         throw parser_exception(
-            "Unexpected digit", input, std::distance(input.begin(), it)
+            "Unexpected digit",
+            std::string(input),
+            std::distance(input.begin(), it)
         );
       wasNumber = true;
 
@@ -137,7 +140,7 @@ std::deque<Token> parse_to_RPN(
           if (isDecimal) {
             throw parser_exception(
                 "Unexpected character '.'",
-                input,
+                std::string(input),
                 std::distance(input.begin(), it)
             );
           }
@@ -145,7 +148,7 @@ std::deque<Token> parse_to_RPN(
           if (it + 1 == input.end() || !std::isdigit(*(it + 1))) {
             throw parser_exception(
                 "Expected digit after decimal dot",
-                input,
+                std::string(input),
                 std::distance(input.begin(), it + 1)
             );
           }
@@ -200,7 +203,7 @@ std::deque<Token> parse_to_RPN(
         if (!wasNumber) {
           throw parser_exception(
               std::format("Unexpected symbol '{}'. Number expected", character),
-              input,
+              std::string(input),
               std::distance(input.begin(), it)
           );
         }
@@ -233,7 +236,7 @@ std::deque<Token> parse_to_RPN(
         if (bracketLevel == 0)
           throw parser_exception(
               "Missmatched bracket found",
-              input,
+              std::string(input),
               std::distance(input.begin(), it)
           );
 
@@ -244,7 +247,7 @@ std::deque<Token> parse_to_RPN(
       default:
         throw parser_exception(
             std::format("Unexpected symbol '{}'", character),
-            input,
+            std::string(input),
             std::distance(input.begin(), it)
         );
       }
@@ -264,7 +267,7 @@ auto evaluate_RPN(const std::deque<Token> &postfix) {
 
   for (const auto &token : postfix) {
     std::visit(
-        [&stack](auto &&token) {
+        [&stack](auto &token) {
           using T = std::decay_t<decltype(token)>;
           if constexpr (std::is_same_v<T, float>) {
             stack.push(token);
@@ -323,7 +326,7 @@ auto evaluate_RPN(const std::deque<Token> &postfix) {
 float evaluate(
     const std::string &expr, const std::unordered_map<std::string, float> &vars
 ) {
-  std::string trimmedInput = trim(expr);
+  std::string_view trimmedInput = trim(expr);
 
   if (trimmedInput.empty())
     throw parser_exception("No input");

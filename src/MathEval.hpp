@@ -50,10 +50,6 @@ union TokenData {
 
 using Token = std::variant<float, Operator>;
 
-// struct Token {
-//   std::variant<float, Operator> data;
-// };
-
 } // namespace math
 
 template <> struct std::formatter<math::Operator> {

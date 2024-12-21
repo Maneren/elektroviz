@@ -69,9 +69,6 @@ void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
       accent_color
   );
 
-  // auto row_data = std::get<1>(row),
-  //      [ min_it, max_row ] = ranges::minmax(row_data);
-
   float max = row_maxes(data);
 
   auto display_max = max * K_E;
@@ -165,7 +162,7 @@ void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
   std::vector<raylib::Vector2> draw_buffer;
   draw_buffer.reserve(resolution);
 
-  float resolution = static_cast<float>(this->resolution);
+  auto resolution_f = static_cast<float>(this->resolution);
   // for each row in data
   for (auto [row, color] : ranges::zip_view(data, probe_colors)) {
     auto &[offset, row_data] = row;
@@ -173,7 +170,7 @@ void Plot::draw(const std::vector<raylib::Color> &probe_colors) const {
     for (auto [i, value] :
          row_data | views::as_const | views::reverse | views::enumerate) {
       auto draw_value = graph_size.y * value / max / 2.f;
-      auto x_offset = graph_size.x * (i + offset) / resolution;
+      auto x_offset = graph_size.x * (i + offset) / resolution_f;
       draw_buffer.emplace_back(
           right_edge - x_offset, vertical_midpoint - draw_value
       );

@@ -15,11 +15,11 @@ namespace position {
 class Static : public Position {
 public:
   explicit Static(const raylib::Vector2 &position) : _position(position) {}
-  raylib::Vector2 operator()() const override final { return _position; }
+  raylib::Vector2 operator()() const final { return _position; }
   void update(
       [[maybe_unused]] const float timeDelta,
       [[maybe_unused]] const float elapsedTime
-  ) override final {
+  ) final {
     // static position doesn't need update, provided just for interface sake
   }
 
@@ -35,11 +35,9 @@ public:
   )
       : _position(position), _radius(radius),
         _offset(raylib::Vector2{radius, 0}), _velocity(velocity) {}
-  raylib::Vector2 operator()() const override final {
-    return _position + _offset;
-  }
+  raylib::Vector2 operator()() const final { return _position + _offset; }
   void update([[maybe_unused]] const float timeDelta, const float elapsedTime)
-      override final {
+      final {
     _offset = raylib::Vector2{_radius, 0}.Rotate(_velocity * elapsedTime);
   }
 
