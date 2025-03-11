@@ -44,7 +44,7 @@ else
 endif
 
 buildName := release
-CXXFLAGS := -g3 -Ofast 
+CXXFLAGS := -g3 -O2
 RAYLIB_BUILD_MODE := RELEASE
 
 DEBUG ?= 0
@@ -68,7 +68,7 @@ sources := $(call rwildcard,src/,*.cpp)
 objects := $(patsubst src/%, $(buildTargetDir)/%, $(patsubst %.cpp, %.o, $(sources)))
 depends := $(patsubst %.o, %.d, $(objects))
 compileFlags += -std=c++23 -I include
-linkFlags += -L $(buildLibDir) -l raylib 
+linkFlags += -L $(buildLibDir) -l raylib
 
 # Lists phony targets for Makefile
 .PHONY: all setup submodules build execute clean package
