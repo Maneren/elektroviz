@@ -261,7 +261,7 @@ int main(int argc, char const *argv[]) {
 
     auto reverse_camera_matrix = raylib::Matrix(camera.GetMatrix()).Invert();
 
-    background.update([&](int x, int y) {
+    background.update([&reverse_camera_matrix, &charges](size_t x, size_t y) {
       auto x_pos = static_cast<float>(x * BACKGROUND_SUBSAMPLING);
       auto y_pos = static_cast<float>(y * BACKGROUND_SUBSAMPLING);
 
@@ -280,7 +280,7 @@ int main(int argc, char const *argv[]) {
 
     grid.draw();
     field_lines.draw();
-    for (auto &charge : charges) {
+    for (const auto &charge : charges) {
       charge.draw();
     }
     probe.draw();

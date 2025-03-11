@@ -2,7 +2,8 @@
 #include "parallel.hpp"
 #include "utils.hpp"
 
-void HeatMap::update(std::function<float(int x, int y)> pixel_function) {
+void HeatMap::update(std::function<float(size_t x, size_t y)> &&pixel_function
+) {
   auto pixels = std::span(
       static_cast<raylib::Color *>(image.data), image.width * image.height
   );

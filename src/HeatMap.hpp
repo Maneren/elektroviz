@@ -22,7 +22,7 @@ public:
         },
         texture{image} {};
 
-  void update(std::function<float(int x, int y)> pixel_function);
+  void update(std::function<float(size_t x, size_t y)> &&pixel_function);
 
   void draw() const;
 
