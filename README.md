@@ -1,4 +1,4 @@
-# Electroviz - a visualization off the electric field
+# Electroviz – a visualization of the electric field
 
 Graphical application written in C++ 23 using the [raylib](https://www.raylib.com/)
 library that can visualize the electric field of point charges distributed in space.
