@@ -14,16 +14,15 @@ namespace ranges = std::ranges;
 
 /// @param nb_elements : size of your for loop
 /// @param functor(start, end) :
-/// your function processing a sub chunk of the for loop.
-/// "start" is the first index to process (included) until the index "end"
-/// (excluded)
+/// your function processing a sub chunk of the for loop. `start` is the first
+/// index to process (included) until the index `end` (excluded)
 /// @code
-///     for(int i = start; i < end; ++i)
+///     for(const auto i : views::iota(start, end))
 ///         computation(i);
 /// @endcode
 /// @param use_threads : enable / disable threads (for debugging purposes).
 ///
-/// @safety Each thread only recieves it's own range of input values, but it's
+/// @safety Each thread only receives it's own range of input values, but it's
 /// up to the user provided function to not access elements outside of that
 /// range, or to not invalidate any references or pointers, etc.
 void for_each(
@@ -39,11 +38,11 @@ static ThreadPool pool{std::thread::hardware_concurrency()};
 /// your function processing a single item from the span.
 /// @param use_threads : enable / disable threads (for debugging purposes).
 ///
-/// This doesn't spawn as many threads as there are items in the span. It spawns
-/// just enough threads to to fully utilize the CPU and distributes the work
-/// among them.
+/// This doesn't spawn a new thread for each element. It instead spawns just
+/// enough threads to fully utilize the CPU and distributes the work among
+/// them.
 ///
-/// @safety Each thread only recieves it's own range of input values, but it's
+/// @safety Each thread only receives it's own range of input values, but it's
 /// up to the user provided function to not access elements outside of that
 /// range, or to not invalidate any references or pointers, etc.
 template <typename T>
@@ -74,7 +73,7 @@ void for_each(
             });
           }) |
           ranges::to<std::vector>(),
-      [](auto &handle) { handle.get(); }
+      [](auto &handle) { handle.wait(); }
   );
 }
 

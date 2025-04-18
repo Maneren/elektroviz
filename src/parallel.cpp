@@ -23,7 +23,7 @@ void for_each(
 
   std::vector<std::jthread> threads(thread_count);
   if (use_threads) {
-    // Multithread execution
+    // Multithreaded execution
     for (unsigned i = 0; i < thread_count; ++i) {
       size_t start = i * batch_size;
       threads[i] = std::jthread(functor, start, start + batch_size);
@@ -34,5 +34,5 @@ void for_each(
   size_t start = thread_count * batch_size;
   functor(start, start + batch_remainder);
 
-  // jthreads are automatically avaited at the end of the scope
+  // jthreads are automatically awaited at the end of the scope
 }

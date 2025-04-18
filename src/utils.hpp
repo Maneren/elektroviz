@@ -5,9 +5,9 @@
 /**
  * @brief Linearly interpolate between two colors (optimized interface).
  *
- * @param a first color (0)
- * @param b second color (1000)
- * @param t interpolation factor (0..1000)
+ * @param a first color (`0`)
+ * @param b second color (`1000`)
+ * @param t interpolation factor (`0..1000`)
  * @return Interpolated color
  */
 inline raylib::Color
@@ -23,9 +23,9 @@ lerpColor(const raylib::Color &a, const raylib::Color &b, int t) {
 /**
  * @brief Linearly interpolate between two colors
  *
- * @param a first color (0.0)
- * @param b second color (1.0)
- * @param t interpolation factor (0.0..1.0)
+ * @param a first color (`0.0`)
+ * @param b second color (`1.0`)
+ * @param t interpolation factor (`0.0..1.0`)
  * @return Interpolated color
  *
  * Uses `lerpColor(Color, Color, int)` intenally, converting `t` to `int`.
@@ -38,10 +38,10 @@ lerpColor(const raylib::Color &a, const raylib::Color &b, float t) {
 /**
  * @brief Interpolate between three colors
  *
- * @param a first color (-1.0)
- * @param b middle color (0.0)
- * @param c last color (1.0)
- * @param t interpolation factor (-1.0..1.0)
+ * @param a first color (`-1.0`)
+ * @param b middle color (`0.0`)
+ * @param c last color (`1.0`)
+ * @param t interpolation factor (`-1.0..1.0`)
  * @return Interpolated color
  *
  * Uses `lerpColor(Color, Color, int)` intenally, converting `t` to `int`, for
